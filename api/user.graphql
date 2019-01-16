@@ -1,8 +1,7 @@
 type Query {
   user(id: ID!): User
   userByEmail(email: String!): User
-  # next_cursor denotes what entry to start with
-  listUsers(next_cursor: ID, limit: Int): UserListWithCursor
+  listUsers(cursor: ID, limit: Int, filter: String): UserListWithCursor
   role(id: ID!): Role
   listRoles: [Role!]
   permission(id: ID!): Permission

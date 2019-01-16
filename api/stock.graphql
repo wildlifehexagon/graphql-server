@@ -1,6 +1,6 @@
 type Query {
   stock(id: ID!): Stock
-  listStocks(next_cursor: ID, limit: Int): StockListWithCursor
+  listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
 }
 
 type Mutation {
@@ -55,7 +55,6 @@ type DeleteItem {
 }
 
 input CreateStrainInput {
-  id: ID!
   created_by: String!
   updated_by: String!
   summary: String
@@ -68,7 +67,6 @@ input CreateStrainInput {
 }
 
 input CreatePlasmidInput {
-  id: ID!
   created_by: String!
   updated_by: String!
   summary: String
@@ -81,7 +79,6 @@ input CreatePlasmidInput {
 }
 
 input UpdateStockInput {
-  id: ID!
   updated_by: String!
   summary: String
   editable_summary: String
@@ -89,6 +86,15 @@ input UpdateStockInput {
   genes: [String]
   dbxrefs: [String]
   publications: [String]
-  strain_properties: StrainProperties
+  strain_properties: UpdateStrainProperties
   plasmid_properties: PlasmidProperties
+}
+
+type UpdateStrainProperties {
+  systematic_name: String
+  descriptor: String
+  species: String
+  plasmid: String
+  parents: [String]
+  names: [String]
 }

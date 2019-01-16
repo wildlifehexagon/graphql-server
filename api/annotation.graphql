@@ -7,12 +7,16 @@ type Query {
     rank: Int
     is_obsolete: Boolean
   ): Annotation
-  listAnnotations(next_cursor: ID, limit: Int): AnnotationListWithCursor
+  listAnnotations(
+    cursor: ID
+    limit: Int
+    filter: String
+  ): AnnotationListWithCursor
 }
 
 type Mutation {
   createAnnotation(input: CreateAnnotationInput): Annotation
-  updateAnnotation(input: UpdateAnnotationInput): Annotation
+  updateAnnotation(id: ID!, input: UpdateAnnotationInput): Annotation
   deleteAnnotation(id: ID!): DeleteItem
 }
 
