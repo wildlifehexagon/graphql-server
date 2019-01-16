@@ -1,0 +1,6 @@
+type Mutation {
+  # Annotation mutations
+  createAnnotation(input: CreateAnnotationInput): Annotation
+  updateAnnotation(id: ID!, input: UpdateAnnotationInput): Annotation
+  deleteAnnotation(id: ID!): DeleteItem
+}

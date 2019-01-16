@@ -1,18 +1,3 @@
-type Query {
-  publication(id: ID!): Publication
-  listPublications(
-    cursor: ID
-    limit: Int
-    filter: String
-  ): PublicationListWithCursor
-}
-
-type Mutation {
-  createPublication(input: CreatePublicationInput): Publication
-  updatePublication(id: ID!, input: UpdatePublicationInput): Publication
-  deletePublication(id: ID!): DeleteItem
-}
-
 type Publication {
   id: ID!
   doi: String
@@ -45,10 +30,6 @@ type Author {
   rank: String
 }
 
-type DeleteItem {
-  success: Boolean!
-}
-
 input CreatePublicationInput {
   doi: String
   title: String
@@ -62,7 +43,14 @@ input CreatePublicationInput {
   source: String
   issue: String
   status: String
-  authors: [Author]
+  authors: [CreateAuthorInput]
+}
+
+input CreateAuthorInput {
+  last_name: String
+  first_name: String
+  initials: String
+  rank: String
 }
 
 input UpdatePublicationInput {
@@ -72,5 +60,12 @@ input UpdatePublicationInput {
   pub_type: String
   source: String
   status: String
-  authors: [Author]
+  authors: [UpdateAuthorInput]
+}
+
+input UpdateAuthorInput {
+  last_name: String
+  first_name: String
+  initials: String
+  rank: String
 }

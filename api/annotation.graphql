@@ -1,27 +1,3 @@
-type Query {
-  annotation(id: ID!): Annotation
-  annotationByEntry(
-    tag: String!
-    entry_id: String!
-    ontology: String!
-    rank: Int
-    is_obsolete: Boolean
-  ): Annotation
-  listAnnotations(
-    cursor: ID
-    limit: Int
-    filter: String
-  ): AnnotationListWithCursor
-}
-
-type Mutation {
-  createAnnotation(input: CreateAnnotationInput): Annotation
-  updateAnnotation(id: ID!, input: UpdateAnnotationInput): Annotation
-  deleteAnnotation(id: ID!): DeleteItem
-}
-
-scalar Timestamp
-
 type Annotation {
   id: ID!
   value: String!
@@ -48,7 +24,7 @@ type DeleteItem {
   success: Boolean!
 }
 
-type CreateAnnotationInput {
+input CreateAnnotationInput {
   value: String!
   editable_value: String!
   created_by: String!
@@ -58,7 +34,7 @@ type CreateAnnotationInput {
   rank: Int
 }
 
-type UpdateAnnotationInput {
+input UpdateAnnotationInput {
   value: String!
   editable_value: String!
   created_by: String!

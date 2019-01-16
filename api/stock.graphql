@@ -1,17 +1,3 @@
-type Query {
-  stock(id: ID!): Stock
-  listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
-}
-
-type Mutation {
-  createStrain(input: CreateStrainInput): Stock
-  createPlasmid(input: CreatePlasmidInput): Stock
-  updateStock(id: ID!, input: UpdateStockInput): Stock
-  deleteStock(id: ID!): DeleteItem
-}
-
-scalar Timestamp
-
 type Stock {
   id: ID!
   created_at: Timestamp!
@@ -50,10 +36,6 @@ type StockListWithCursor {
   totalCount: Int!
 }
 
-type DeleteItem {
-  success: Boolean!
-}
-
 input CreateStrainInput {
   created_by: String!
   updated_by: String!
@@ -63,7 +45,16 @@ input CreateStrainInput {
   genes: [String]
   dbxrefs: [String]
   publications: [String]
-  strain_properties: StrainProperties!
+  strain_properties: CreateStrainPropertiesInput!
+}
+
+input CreateStrainPropertiesInput {
+  systematic_name: String!
+  descriptor: String!
+  species: String!
+  plasmid: String
+  parents: [String]
+  names: [String]
 }
 
 input CreatePlasmidInput {
@@ -75,7 +66,12 @@ input CreatePlasmidInput {
   genes: [String]
   dbxrefs: [String]
   publications: [String]
-  plasmid_properties: PlasmidProperties
+  plasmid_properties: CreatePlasmidPropertiesInput
+}
+
+input CreatePlasmidPropertiesInput {
+  image_map: String
+  sequence: String
 }
 
 input UpdateStockInput {
@@ -86,15 +82,20 @@ input UpdateStockInput {
   genes: [String]
   dbxrefs: [String]
   publications: [String]
-  strain_properties: UpdateStrainProperties
-  plasmid_properties: PlasmidProperties
+  strain_properties: UpdateStrainPropertiesInput
+  plasmid_properties: UpdatePlasmidPropertiesInput
 }
 
-type UpdateStrainProperties {
+input UpdateStrainPropertiesInput {
   systematic_name: String
   descriptor: String
   species: String
   plasmid: String
   parents: [String]
   names: [String]
+}
+
+input UpdatePlasmidPropertiesInput {
+  image_map: String
+  sequence: String
 }

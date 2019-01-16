@@ -1,15 +1,3 @@
-type Query {
-  order(id: ID!): Order
-  listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
-}
-
-type Mutation {
-  createOrder(input: CreateOrderInput): Order
-  updateOrder(id: ID!, input: UpdateOrderInput): Order
-}
-
-scalar Timestamp
-
 type Order {
   id: ID!
   created_at: Timestamp!
