@@ -1,0 +1,61 @@
+type Query {
+  annotation(id: ID!): Annotation
+  annotationByEntry(
+    tag: String!
+    entry_id: String!
+    ontology: String!
+    rank: Int
+    is_obsolete: Boolean
+  ): Annotation
+  listAnnotations(next_cursor: ID, limit: Int): AnnotationListWithCursor
+}
+
+type Mutation {
+  createAnnotation(input: CreateAnnotationInput): Annotation
+  updateAnnotation(input: UpdateAnnotationInput): Annotation
+  deleteAnnotation(id: ID!): DeleteItem
+}
+
+scalar Timestamp
+
+type Annotation {
+  id: ID!
+  value: String!
+  editable_value: String!
+  created_by: String!
+  created_at: Timestamp!
+  tag: String!
+  version: Int!
+  entry_id: String!
+  ontology: String!
+  rank: Int
+  is_obsolete: Boolean
+}
+
+type AnnotationListWithCursor {
+  annotations: [Annotation!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
+
+type DeleteItem {
+  success: Boolean!
+}
+
+type CreateAnnotationInput {
+  value: String!
+  editable_value: String!
+  created_by: String!
+  tag: String!
+  entry_id: String!
+  ontology: String!
+  rank: Int
+}
+
+type UpdateAnnotationInput {
+  value: String!
+  editable_value: String!
+  created_by: String!
+}

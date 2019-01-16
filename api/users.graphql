@@ -1,0 +1,127 @@
+type Query {
+  user(id: ID!): User
+  userByEmail(email: String!): User
+  # next_cursor denotes what entry to start with
+  listUsers(next_cursor: ID, limit: Int): UserListWithCursor
+  role(id: ID!): Role
+  listRoles: [Role!]
+  permission(id: ID!): Permission
+  listPermissions: [Permission!]
+}
+
+type Mutation {
+  createUser(input: CreateUserInput): User
+  updateUser(id: ID!, input: UpdateUserInput): User
+  deleteUser(id: ID!): DeleteItem
+  createRole(input: CreateRoleInput): Role
+  updateRole(id: ID!, input: UpdateRoleInput): Role
+  deleteRole(id: ID!): DeleteItem
+  createPermission(input: CreatePermissionInput): Permission
+  updatePermission(id: ID!, input: UpdatePermissionInput): Permission
+  deletePermission(id: ID!): DeleteItem
+}
+
+type Permission {
+  id: ID!
+  permission: String!
+  description: String!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  resource: String
+}
+
+type Role {
+  id: ID!
+  role: String!
+  description: String!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  permissions: [Permission!]
+}
+
+type User {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  organization: String
+  group_name: String
+  first_address: String
+  second_address: String
+  city: String
+  state: String
+  zipcode: String
+  country: String
+  phone: String
+  is_active: Boolean!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  roles: [Role!]
+}
+
+type UserListWithCursor {
+  users: [User!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
+
+scalar Timestamp
+
+input CreateUserInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  organization: String
+  group_name: String
+  first_address: String
+  second_address: String
+  city: String
+  state: String
+  zipcode: String
+  country: String
+  phone: String
+  is_active: Boolean!
+}
+
+input UpdateUserInput {
+  first_name: String
+  last_name: String
+  organization: String
+  group_name: String
+  first_address: String
+  second_address: String
+  city: String
+  state: String
+  zipcode: String
+  country: String
+  phone: String
+  is_active: Boolean
+}
+
+input CreateRoleInput {
+  role: String!
+  description: String!
+}
+
+input UpdateRoleInput {
+  role: String!
+  description: String!
+}
+
+input CreatePermissionInput {
+  permission: String!
+  description: String!
+  resource: String!
+}
+
+input UpdatePermissionInput {
+  permission: String!
+  description: String!
+  resource: String!
+}
+
+type DeleteItem {
+  success: Boolean!
+}

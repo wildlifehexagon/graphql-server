@@ -1,0 +1,58 @@
+type Query {
+  order(id: ID!): Order
+  listOrders(next_cursor: ID, limit: Int): OrderListWithCursor
+}
+
+type Mutation {
+  createOrder(input: CreateOrderInput): Order
+  updateOrder(id: ID!, input: UpdateOrderInput): Order
+}
+
+scalar Timestamp
+
+type Order {
+  id: ID!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  courier: String
+  courer_account: String
+  comments: String
+  payment: String
+  purchase_order_num: String
+  status: String
+  consumer: String
+  payer: String
+  purchaser: String
+  Items: [String]
+}
+
+type OrderListWithCursor {
+  orders: [Order!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
+
+input CreateOrderInput {
+  courier: String!
+  courer_account: String!
+  comments: String
+  payment: String!
+  purchase_order_num: String!
+  status: String!
+  consumer: String!
+  payer: String!
+  purchaser: String!
+  Items: [String]!
+}
+
+input UpdateOrderInput {
+  courier: String
+  courer_account: String
+  comments: String
+  payment: String
+  purchase_order_num: String
+  status: String
+  Items: [String]
+}

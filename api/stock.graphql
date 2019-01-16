@@ -1,0 +1,94 @@
+type Query {
+  stock(id: ID!): Stock
+  listStocks(next_cursor: ID, limit: Int): StockListWithCursor
+}
+
+type Mutation {
+  createStrain(input: CreateStrainInput): Stock
+  createPlasmid(input: CreatePlasmidInput): Stock
+  updateStock(id: ID!, input: UpdateStockInput): Stock
+  deleteStock(id: ID!): DeleteItem
+}
+
+scalar Timestamp
+
+type Stock {
+  id: ID!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  created_by: String!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  strain_properties: StrainProperties
+  plasmid_properties: PlasmidProperties
+}
+
+type StrainProperties {
+  systematic_name: String!
+  descriptor: String!
+  species: String!
+  plasmid: String
+  parents: [String]
+  names: [String]
+}
+
+type PlasmidProperties {
+  image_map: String
+  sequence: String
+}
+
+type StockListWithCursor {
+  stocks: [Stock!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
+
+type DeleteItem {
+  success: Boolean!
+}
+
+input CreateStrainInput {
+  id: ID!
+  created_by: String!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  strain_properties: StrainProperties!
+}
+
+input CreatePlasmidInput {
+  id: ID!
+  created_by: String!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  plasmid_properties: PlasmidProperties
+}
+
+input UpdateStockInput {
+  id: ID!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  strain_properties: StrainProperties
+  plasmid_properties: PlasmidProperties
+}

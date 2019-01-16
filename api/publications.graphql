@@ -1,0 +1,97 @@
+type Query {
+  publication(id: ID!): Publication
+  listPublications(next_cursor: ID, limit: Int): PublicationListWithCursor
+  author(id: ID!): Author
+  listAuthors(id: String!): [Author!]
+}
+
+type Mutation {
+  createPublication(input: CreatePublicationInput): Publication
+  updatePublication(id: ID!, input: UpdatePublicationInput): Publication
+  deletePublication(id: ID!): DeleteItem
+  createAuthor(input: CreateAuthorInput): Author
+  updateAuthor(id: ID!, input: UpdateAuthorInput): Author
+  deleteAuthor(id: ID!): DeleteItem
+}
+
+type Publication {
+  id: ID!
+  doi: String!
+  title: String!
+  abstract: String!
+  journal: String!
+  year: String!
+  volume: String!
+  pages: String!
+  month: String!
+  issn: String!
+  pub_type: String!
+  source: String!
+  issue: String!
+  status: String!
+  authors: [Author!]!
+}
+
+type PublicationListWithCursor {
+  publications: [Publication!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
+
+type Author {
+  id: ID!
+  last_name: String!
+  given_names: String!
+  rank: String!
+  publications: [Publication!]
+}
+
+type DeleteItem {
+  success: Boolean!
+}
+
+input CreatePublicationInput {
+  doi: String!
+  title: String!
+  abstract: String!
+  journal: String!
+  year: String!
+  volume: String!
+  pages: String!
+  month: String!
+  issn: String!
+  pub_type: String!
+  source: String!
+  issue: String!
+  status: String!
+}
+
+input UpdatePublicationInput {
+  doi: String
+  title: String
+  abstract: String
+  journal: String
+  year: String
+  volume: String
+  pages: String
+  month: String
+  issn: String
+  pub_type: String
+  source: String
+  issue: String
+  status: String
+}
+
+input CreateAuthorInput {
+  last_name: String!
+  given_names: String!
+  rank: String!
+}
+
+input UpdateAuthorInput {
+  last_name: String
+  given_names: String
+  rank: String
+}
