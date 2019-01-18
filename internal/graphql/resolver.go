@@ -2,6 +2,9 @@ package graph
 
 import (
 	"context"
+	"strconv"
+
+	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 )
 
 type mutationResolver struct {
@@ -138,7 +141,36 @@ func (r *queryResolver) ListStocks(ctx context.Context, cursor *string, limit *i
 	panic("not implemented")
 }
 func (r *queryResolver) User(ctx context.Context, id string) (*User, error) {
-	panic("not implemented")
+	// Need to improve error handling
+	// Also need to handle timestamps and roles
+	// And verify that this indeed works
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	g, err := r.client.userClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
+	if err != nil {
+		return nil, err
+	}
+	attr := g.Data.Attributes
+	return &User{
+		ID:            strconv.Itoa(int(g.Data.Id)),
+		FirstName:     attr.FirstName,
+		LastName:      attr.LastName,
+		Email:         attr.Email,
+		Organization:  &attr.Organization,
+		FirstAddress:  &attr.FirstAddress,
+		SecondAddress: &attr.SecondAddress,
+		City:          &attr.City,
+		State:         &attr.State,
+		Zipcode:       &attr.Zipcode,
+		Country:       &attr.Country,
+		Phone:         &attr.Phone,
+		IsActive:      attr.IsActive,
+		// CreatedAt:     attr.CreatedAt,
+		// UpdatedAt:     attr.UpdatedAt,
+		// Roles:         &attr.Roles,
+	}, nil
 }
 func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*User, error) {
 	panic("not implemented")
