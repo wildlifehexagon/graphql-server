@@ -8,7 +8,7 @@ import (
 	"github.com/99designs/gqlgen/handler"
 	graph "github.com/dictyBase/graphql-server/internal/graphql"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
+	cli "gopkg.in/urfave/cli.v1"
 )
 
 const defaultPort = "8080"

@@ -2,12 +2,9 @@
 package graph
 
 import (
-	"fmt"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 )
 
@@ -19,16 +16,13 @@ type Client struct {
 
 // NewGraphQLServer acts as a constructor in dialing GRPC services and returning a defined struct.
 func NewGraphQLServer(u string, logger *logrus.Entry) (*Client, error) {
-	// connect to user service
 	uconn, err := grpc.Dial(
 		u,
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		return nil, cli.NewExitError(
-			fmt.Sprintf("cannot connect to grpc server for user microservice %s", err),
-			2,
-		)
+		logger.Fatalf("cannot connect to grpc server for user microservice\n")
+		return nil, err
 	}
 	uc := user.NewUserServiceClient(uconn)
 
