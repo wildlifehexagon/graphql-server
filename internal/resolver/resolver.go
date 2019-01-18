@@ -8,7 +8,9 @@ import (
 	"github.com/dictyBase/graphql-server/internal/models"
 )
 
-type Resolver struct{}
+type Resolver struct {
+	users []*models.User
+}
 
 func (r *Resolver) Mutation() generated.MutationResolver {
 	return &mutationResolver{r}
@@ -56,16 +58,43 @@ func (r *mutationResolver) DeleteStock(ctx context.Context, id string) (*models.
 	panic("not implemented")
 }
 func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*models.User, error) {
-	panic("not implemented")
+	user := &models.User{
+		FirstName:     input.FirstName,
+		LastName:      input.LastName,
+		Email:         input.Email,
+		Organization:  input.Organization,
+		GroupName:     input.GroupName,
+		FirstAddress:  input.FirstAddress,
+		SecondAddress: input.SecondAddress,
+		City:          input.City,
+		State:         input.State,
+		Zipcode:       input.Zipcode,
+		Country:       input.Country,
+		Phone:         input.Phone,
+		IsActive:      input.IsActive,
+	}
+	// need to save to database
+	return user, nil
 }
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error) {
+	// Steps:
+	// 1) Get user by ID, check if it exists
+	// 2) If it exists, then update with given input
+	// 3) Save to database
 	panic("not implemented")
 }
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error) {
+	// need to remove user by given id
 	panic("not implemented")
+	// return true
 }
 func (r *mutationResolver) CreateRole(ctx context.Context, input *models.CreateRoleInput) (*models.Role, error) {
-	panic("not implemented")
+	role := &models.Role{
+		Role:        input.Role,
+		Description: input.Description,
+	}
+	// need to save to database
+	return role, nil
 }
 func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*models.Role, error) {
 	panic("not implemented")
@@ -74,7 +103,14 @@ func (r *mutationResolver) DeleteRole(ctx context.Context, id string) (*models.D
 	panic("not implemented")
 }
 func (r *mutationResolver) CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*models.Permission, error) {
-	panic("not implemented")
+	resource := input.Resource
+	permission := &models.Permission{
+		Permission:  input.Permission,
+		Description: input.Description,
+		Resource:    &resource,
+	}
+	// need to save to database
+	return permission, nil
 }
 func (r *mutationResolver) UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*models.Permission, error) {
 	panic("not implemented")
@@ -113,7 +149,7 @@ func (r *queryResolver) ListStocks(ctx context.Context, cursor *string, limit *i
 	panic("not implemented")
 }
 func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
-	panic("not implemented")
+	return &models.User{ID: id}, nil
 }
 func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*models.User, error) {
 	panic("not implemented")
