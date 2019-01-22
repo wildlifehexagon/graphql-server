@@ -4,9 +4,13 @@ exec:
   filename: internal/graphql/generated/generated.go
   package: generated
 model:
-  filename: internal/graphql/model/models_gen.go
-  package: model
+  filename: internal/graphql/models/models_gen.go
+  package: models
 resolver:
   filename: internal/graphql/resolver/user.go
   package: resolver
   type: Resolver
+models:
+  # Custom scalars point to the name without the Marshal|Unmarshal in front
+  Timestamp:
+    model: github.com/dictyBase/graphql-server/internal/graphql/models.Timestamp

@@ -8,10 +8,11 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/dictyBase/graphql-server/internal/graphql/model"
+	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 )
@@ -45,14 +46,14 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateUser       func(childComplexity int, input *model.CreateUserInput) int
-		UpdateUser       func(childComplexity int, id string, input *model.UpdateUserInput) int
+		CreateUser       func(childComplexity int, input *models.CreateUserInput) int
+		UpdateUser       func(childComplexity int, id string, input *models.UpdateUserInput) int
 		DeleteUser       func(childComplexity int, id string) int
-		CreateRole       func(childComplexity int, input *model.CreateRoleInput) int
-		UpdateRole       func(childComplexity int, id string, input *model.UpdateRoleInput) int
+		CreateRole       func(childComplexity int, input *models.CreateRoleInput) int
+		UpdateRole       func(childComplexity int, id string, input *models.UpdateRoleInput) int
 		DeleteRole       func(childComplexity int, id string) int
-		CreatePermission func(childComplexity int, input *model.CreatePermissionInput) int
-		UpdatePermission func(childComplexity int, id string, input *model.UpdatePermissionInput) int
+		CreatePermission func(childComplexity int, input *models.CreatePermissionInput) int
+		UpdatePermission func(childComplexity int, id string, input *models.UpdatePermissionInput) int
 		DeletePermission func(childComplexity int, id string) int
 	}
 
@@ -114,32 +115,32 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateUser(ctx context.Context, input *model.CreateUserInput) (*model.User, error)
-	UpdateUser(ctx context.Context, id string, input *model.UpdateUserInput) (*model.User, error)
-	DeleteUser(ctx context.Context, id string) (*model.DeleteItem, error)
-	CreateRole(ctx context.Context, input *model.CreateRoleInput) (*model.Role, error)
-	UpdateRole(ctx context.Context, id string, input *model.UpdateRoleInput) (*model.Role, error)
-	DeleteRole(ctx context.Context, id string) (*model.DeleteItem, error)
-	CreatePermission(ctx context.Context, input *model.CreatePermissionInput) (*model.Permission, error)
-	UpdatePermission(ctx context.Context, id string, input *model.UpdatePermissionInput) (*model.Permission, error)
-	DeletePermission(ctx context.Context, id string) (*model.DeleteItem, error)
+	CreateUser(ctx context.Context, input *models.CreateUserInput) (*models.User, error)
+	UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error)
+	DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error)
+	CreateRole(ctx context.Context, input *models.CreateRoleInput) (*models.Role, error)
+	UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*models.Role, error)
+	DeleteRole(ctx context.Context, id string) (*models.DeleteItem, error)
+	CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*models.Permission, error)
+	UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*models.Permission, error)
+	DeletePermission(ctx context.Context, id string) (*models.DeleteItem, error)
 }
 type QueryResolver interface {
-	User(ctx context.Context, id string) (*model.User, error)
-	UserByEmail(ctx context.Context, email string) (*model.User, error)
-	ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*model.UserListWithCursor, error)
-	Role(ctx context.Context, id string) (*model.Role, error)
-	ListRoles(ctx context.Context) ([]model.Role, error)
-	Permission(ctx context.Context, id string) (*model.Permission, error)
-	ListPermissions(ctx context.Context) ([]model.Permission, error)
+	User(ctx context.Context, id string) (*models.User, error)
+	UserByEmail(ctx context.Context, email string) (*models.User, error)
+	ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*models.UserListWithCursor, error)
+	Role(ctx context.Context, id string) (*models.Role, error)
+	ListRoles(ctx context.Context) ([]models.Role, error)
+	Permission(ctx context.Context, id string) (*models.Permission, error)
+	ListPermissions(ctx context.Context) ([]models.Permission, error)
 }
 
 func field_Mutation_createUser_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *model.CreateUserInput
+	var arg0 *models.CreateUserInput
 	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 model.CreateUserInput
+		var ptr1 models.CreateUserInput
 		if tmp != nil {
 			ptr1, err = UnmarshalCreateUserInput(tmp)
 			arg0 = &ptr1
@@ -165,10 +166,10 @@ func field_Mutation_updateUser_args(rawArgs map[string]interface{}) (map[string]
 		}
 	}
 	args["id"] = arg0
-	var arg1 *model.UpdateUserInput
+	var arg1 *models.UpdateUserInput
 	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 model.UpdateUserInput
+		var ptr1 models.UpdateUserInput
 		if tmp != nil {
 			ptr1, err = UnmarshalUpdateUserInput(tmp)
 			arg1 = &ptr1
@@ -200,10 +201,10 @@ func field_Mutation_deleteUser_args(rawArgs map[string]interface{}) (map[string]
 
 func field_Mutation_createRole_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *model.CreateRoleInput
+	var arg0 *models.CreateRoleInput
 	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 model.CreateRoleInput
+		var ptr1 models.CreateRoleInput
 		if tmp != nil {
 			ptr1, err = UnmarshalCreateRoleInput(tmp)
 			arg0 = &ptr1
@@ -229,10 +230,10 @@ func field_Mutation_updateRole_args(rawArgs map[string]interface{}) (map[string]
 		}
 	}
 	args["id"] = arg0
-	var arg1 *model.UpdateRoleInput
+	var arg1 *models.UpdateRoleInput
 	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 model.UpdateRoleInput
+		var ptr1 models.UpdateRoleInput
 		if tmp != nil {
 			ptr1, err = UnmarshalUpdateRoleInput(tmp)
 			arg1 = &ptr1
@@ -264,10 +265,10 @@ func field_Mutation_deleteRole_args(rawArgs map[string]interface{}) (map[string]
 
 func field_Mutation_createPermission_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *model.CreatePermissionInput
+	var arg0 *models.CreatePermissionInput
 	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 model.CreatePermissionInput
+		var ptr1 models.CreatePermissionInput
 		if tmp != nil {
 			ptr1, err = UnmarshalCreatePermissionInput(tmp)
 			arg0 = &ptr1
@@ -293,10 +294,10 @@ func field_Mutation_updatePermission_args(rawArgs map[string]interface{}) (map[s
 		}
 	}
 	args["id"] = arg0
-	var arg1 *model.UpdatePermissionInput
+	var arg1 *models.UpdatePermissionInput
 	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 model.UpdatePermissionInput
+		var ptr1 models.UpdatePermissionInput
 		if tmp != nil {
 			ptr1, err = UnmarshalUpdatePermissionInput(tmp)
 			arg1 = &ptr1
@@ -509,7 +510,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(*model.CreateUserInput)), true
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(*models.CreateUserInput)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -521,7 +522,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(*model.UpdateUserInput)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(*models.UpdateUserInput)), true
 
 	case "Mutation.deleteUser":
 		if e.complexity.Mutation.DeleteUser == nil {
@@ -545,7 +546,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateRole(childComplexity, args["input"].(*model.CreateRoleInput)), true
+		return e.complexity.Mutation.CreateRole(childComplexity, args["input"].(*models.CreateRoleInput)), true
 
 	case "Mutation.updateRole":
 		if e.complexity.Mutation.UpdateRole == nil {
@@ -557,7 +558,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateRole(childComplexity, args["id"].(string), args["input"].(*model.UpdateRoleInput)), true
+		return e.complexity.Mutation.UpdateRole(childComplexity, args["id"].(string), args["input"].(*models.UpdateRoleInput)), true
 
 	case "Mutation.deleteRole":
 		if e.complexity.Mutation.DeleteRole == nil {
@@ -581,7 +582,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreatePermission(childComplexity, args["input"].(*model.CreatePermissionInput)), true
+		return e.complexity.Mutation.CreatePermission(childComplexity, args["input"].(*models.CreatePermissionInput)), true
 
 	case "Mutation.updatePermission":
 		if e.complexity.Mutation.UpdatePermission == nil {
@@ -593,7 +594,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdatePermission(childComplexity, args["id"].(string), args["input"].(*model.UpdatePermissionInput)), true
+		return e.complexity.Mutation.UpdatePermission(childComplexity, args["id"].(string), args["input"].(*models.UpdatePermissionInput)), true
 
 	case "Mutation.deletePermission":
 		if e.complexity.Mutation.DeletePermission == nil {
@@ -968,7 +969,7 @@ type executionContext struct {
 var deleteItemImplementors = []string{"DeleteItem"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _DeleteItem(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteItem) graphql.Marshaler {
+func (ec *executionContext) _DeleteItem(ctx context.Context, sel ast.SelectionSet, obj *models.DeleteItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, deleteItemImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -996,7 +997,7 @@ func (ec *executionContext) _DeleteItem(ctx context.Context, sel ast.SelectionSe
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _DeleteItem_success(ctx context.Context, field graphql.CollectedField, obj *model.DeleteItem) graphql.Marshaler {
+func (ec *executionContext) _DeleteItem_success(ctx context.Context, field graphql.CollectedField, obj *models.DeleteItem) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1088,12 +1089,12 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(*model.CreateUserInput))
+		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(*models.CreateUserInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*models.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1123,12 +1124,12 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(*model.UpdateUserInput))
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(*models.UpdateUserInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*models.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1163,7 +1164,7 @@ func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.DeleteItem)
+	res := resTmp.(*models.DeleteItem)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1193,12 +1194,12 @@ func (ec *executionContext) _Mutation_createRole(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateRole(rctx, args["input"].(*model.CreateRoleInput))
+		return ec.resolvers.Mutation().CreateRole(rctx, args["input"].(*models.CreateRoleInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Role)
+	res := resTmp.(*models.Role)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1228,12 +1229,12 @@ func (ec *executionContext) _Mutation_updateRole(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateRole(rctx, args["id"].(string), args["input"].(*model.UpdateRoleInput))
+		return ec.resolvers.Mutation().UpdateRole(rctx, args["id"].(string), args["input"].(*models.UpdateRoleInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Role)
+	res := resTmp.(*models.Role)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1268,7 +1269,7 @@ func (ec *executionContext) _Mutation_deleteRole(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.DeleteItem)
+	res := resTmp.(*models.DeleteItem)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1298,12 +1299,12 @@ func (ec *executionContext) _Mutation_createPermission(ctx context.Context, fiel
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreatePermission(rctx, args["input"].(*model.CreatePermissionInput))
+		return ec.resolvers.Mutation().CreatePermission(rctx, args["input"].(*models.CreatePermissionInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Permission)
+	res := resTmp.(*models.Permission)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1333,12 +1334,12 @@ func (ec *executionContext) _Mutation_updatePermission(ctx context.Context, fiel
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdatePermission(rctx, args["id"].(string), args["input"].(*model.UpdatePermissionInput))
+		return ec.resolvers.Mutation().UpdatePermission(rctx, args["id"].(string), args["input"].(*models.UpdatePermissionInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Permission)
+	res := resTmp.(*models.Permission)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1373,7 +1374,7 @@ func (ec *executionContext) _Mutation_deletePermission(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.DeleteItem)
+	res := resTmp.(*models.DeleteItem)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1387,7 +1388,7 @@ func (ec *executionContext) _Mutation_deletePermission(ctx context.Context, fiel
 var permissionImplementors = []string{"Permission"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Permission(ctx context.Context, sel ast.SelectionSet, obj *model.Permission) graphql.Marshaler {
+func (ec *executionContext) _Permission(ctx context.Context, sel ast.SelectionSet, obj *models.Permission) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, permissionImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -1437,7 +1438,7 @@ func (ec *executionContext) _Permission(ctx context.Context, sel ast.SelectionSe
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Permission_id(ctx context.Context, field graphql.CollectedField, obj *model.Permission) graphql.Marshaler {
+func (ec *executionContext) _Permission_id(ctx context.Context, field graphql.CollectedField, obj *models.Permission) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1464,7 +1465,7 @@ func (ec *executionContext) _Permission_id(ctx context.Context, field graphql.Co
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Permission_permission(ctx context.Context, field graphql.CollectedField, obj *model.Permission) graphql.Marshaler {
+func (ec *executionContext) _Permission_permission(ctx context.Context, field graphql.CollectedField, obj *models.Permission) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1491,7 +1492,7 @@ func (ec *executionContext) _Permission_permission(ctx context.Context, field gr
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Permission_description(ctx context.Context, field graphql.CollectedField, obj *model.Permission) graphql.Marshaler {
+func (ec *executionContext) _Permission_description(ctx context.Context, field graphql.CollectedField, obj *models.Permission) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1518,7 +1519,7 @@ func (ec *executionContext) _Permission_description(ctx context.Context, field g
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Permission_created_at(ctx context.Context, field graphql.CollectedField, obj *model.Permission) graphql.Marshaler {
+func (ec *executionContext) _Permission_created_at(ctx context.Context, field graphql.CollectedField, obj *models.Permission) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1538,14 +1539,14 @@ func (ec *executionContext) _Permission_created_at(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
+	return models.MarshalTimestamp(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Permission_updated_at(ctx context.Context, field graphql.CollectedField, obj *model.Permission) graphql.Marshaler {
+func (ec *executionContext) _Permission_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.Permission) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1565,14 +1566,14 @@ func (ec *executionContext) _Permission_updated_at(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
+	return models.MarshalTimestamp(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Permission_resource(ctx context.Context, field graphql.CollectedField, obj *model.Permission) graphql.Marshaler {
+func (ec *executionContext) _Permission_resource(ctx context.Context, field graphql.CollectedField, obj *models.Permission) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1699,7 +1700,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*models.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1734,7 +1735,7 @@ func (ec *executionContext) _Query_userByEmail(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*models.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1769,7 +1770,7 @@ func (ec *executionContext) _Query_listUsers(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.UserListWithCursor)
+	res := resTmp.(*models.UserListWithCursor)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1804,7 +1805,7 @@ func (ec *executionContext) _Query_role(ctx context.Context, field graphql.Colle
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Role)
+	res := resTmp.(*models.Role)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1833,7 +1834,7 @@ func (ec *executionContext) _Query_listRoles(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]model.Role)
+	res := resTmp.([]models.Role)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1896,7 +1897,7 @@ func (ec *executionContext) _Query_permission(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Permission)
+	res := resTmp.(*models.Permission)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1925,7 +1926,7 @@ func (ec *executionContext) _Query_listPermissions(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]model.Permission)
+	res := resTmp.([]models.Permission)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -2031,7 +2032,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 var roleImplementors = []string{"Role"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj *model.Role) graphql.Marshaler {
+func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj *models.Role) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, roleImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -2081,7 +2082,7 @@ func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Role_id(ctx context.Context, field graphql.CollectedField, obj *model.Role) graphql.Marshaler {
+func (ec *executionContext) _Role_id(ctx context.Context, field graphql.CollectedField, obj *models.Role) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2108,7 +2109,7 @@ func (ec *executionContext) _Role_id(ctx context.Context, field graphql.Collecte
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Role_role(ctx context.Context, field graphql.CollectedField, obj *model.Role) graphql.Marshaler {
+func (ec *executionContext) _Role_role(ctx context.Context, field graphql.CollectedField, obj *models.Role) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2135,7 +2136,7 @@ func (ec *executionContext) _Role_role(ctx context.Context, field graphql.Collec
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Role_description(ctx context.Context, field graphql.CollectedField, obj *model.Role) graphql.Marshaler {
+func (ec *executionContext) _Role_description(ctx context.Context, field graphql.CollectedField, obj *models.Role) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2162,7 +2163,7 @@ func (ec *executionContext) _Role_description(ctx context.Context, field graphql
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Role_created_at(ctx context.Context, field graphql.CollectedField, obj *model.Role) graphql.Marshaler {
+func (ec *executionContext) _Role_created_at(ctx context.Context, field graphql.CollectedField, obj *models.Role) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2182,14 +2183,14 @@ func (ec *executionContext) _Role_created_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
+	return models.MarshalTimestamp(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Role_updated_at(ctx context.Context, field graphql.CollectedField, obj *model.Role) graphql.Marshaler {
+func (ec *executionContext) _Role_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.Role) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2209,14 +2210,14 @@ func (ec *executionContext) _Role_updated_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
+	return models.MarshalTimestamp(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Role_permissions(ctx context.Context, field graphql.CollectedField, obj *model.Role) graphql.Marshaler {
+func (ec *executionContext) _Role_permissions(ctx context.Context, field graphql.CollectedField, obj *models.Role) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2233,7 +2234,7 @@ func (ec *executionContext) _Role_permissions(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]model.Permission)
+	res := resTmp.([]models.Permission)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -2275,7 +2276,7 @@ func (ec *executionContext) _Role_permissions(ctx context.Context, field graphql
 var userImplementors = []string{"User"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *models.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, userImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -2353,7 +2354,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2380,7 +2381,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2407,7 +2408,7 @@ func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2434,7 +2435,7 @@ func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2461,7 +2462,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_organization(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_organization(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2489,7 +2490,7 @@ func (ec *executionContext) _User_organization(ctx context.Context, field graphq
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_group_name(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_group_name(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2517,7 +2518,7 @@ func (ec *executionContext) _User_group_name(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_first_address(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_first_address(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2545,7 +2546,7 @@ func (ec *executionContext) _User_first_address(ctx context.Context, field graph
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_second_address(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_second_address(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2573,7 +2574,7 @@ func (ec *executionContext) _User_second_address(ctx context.Context, field grap
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_city(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_city(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2601,7 +2602,7 @@ func (ec *executionContext) _User_city(ctx context.Context, field graphql.Collec
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_state(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_state(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2629,7 +2630,7 @@ func (ec *executionContext) _User_state(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_zipcode(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_zipcode(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2657,7 +2658,7 @@ func (ec *executionContext) _User_zipcode(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_country(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_country(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2685,7 +2686,7 @@ func (ec *executionContext) _User_country(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_phone(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_phone(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2713,7 +2714,7 @@ func (ec *executionContext) _User_phone(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_is_active(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_is_active(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2740,7 +2741,7 @@ func (ec *executionContext) _User_is_active(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2760,14 +2761,14 @@ func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
+	return models.MarshalTimestamp(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2787,14 +2788,14 @@ func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
+	return models.MarshalTimestamp(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_roles(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User_roles(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2811,7 +2812,7 @@ func (ec *executionContext) _User_roles(ctx context.Context, field graphql.Colle
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]model.Role)
+	res := resTmp.([]models.Role)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -2853,7 +2854,7 @@ func (ec *executionContext) _User_roles(ctx context.Context, field graphql.Colle
 var userListWithCursorImplementors = []string{"UserListWithCursor"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _UserListWithCursor(ctx context.Context, sel ast.SelectionSet, obj *model.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserListWithCursor(ctx context.Context, sel ast.SelectionSet, obj *models.UserListWithCursor) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, userListWithCursorImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -2898,7 +2899,7 @@ func (ec *executionContext) _UserListWithCursor(ctx context.Context, sel ast.Sel
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_users(ctx context.Context, field graphql.CollectedField, obj *model.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserListWithCursor_users(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2918,7 +2919,7 @@ func (ec *executionContext) _UserListWithCursor_users(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.User)
+	res := resTmp.([]models.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -2958,7 +2959,7 @@ func (ec *executionContext) _UserListWithCursor_users(ctx context.Context, field
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *model.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2985,7 +2986,7 @@ func (ec *executionContext) _UserListWithCursor_nextCursor(ctx context.Context, 
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_previousCursor(ctx context.Context, field graphql.CollectedField, obj *model.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserListWithCursor_previousCursor(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -3012,7 +3013,7 @@ func (ec *executionContext) _UserListWithCursor_previousCursor(ctx context.Conte
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_limit(ctx context.Context, field graphql.CollectedField, obj *model.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserListWithCursor_limit(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -3040,7 +3041,7 @@ func (ec *executionContext) _UserListWithCursor_limit(ctx context.Context, field
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserListWithCursor_totalCount(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4511,8 +4512,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.___Type(ctx, field.Selections, res)
 }
 
-func UnmarshalCreatePermissionInput(v interface{}) (model.CreatePermissionInput, error) {
-	var it model.CreatePermissionInput
+func UnmarshalCreatePermissionInput(v interface{}) (models.CreatePermissionInput, error) {
+	var it models.CreatePermissionInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -4541,8 +4542,8 @@ func UnmarshalCreatePermissionInput(v interface{}) (model.CreatePermissionInput,
 	return it, nil
 }
 
-func UnmarshalCreateRoleInput(v interface{}) (model.CreateRoleInput, error) {
-	var it model.CreateRoleInput
+func UnmarshalCreateRoleInput(v interface{}) (models.CreateRoleInput, error) {
+	var it models.CreateRoleInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -4565,8 +4566,8 @@ func UnmarshalCreateRoleInput(v interface{}) (model.CreateRoleInput, error) {
 	return it, nil
 }
 
-func UnmarshalCreateUserInput(v interface{}) (model.CreateUserInput, error) {
-	var it model.CreateUserInput
+func UnmarshalCreateUserInput(v interface{}) (models.CreateUserInput, error) {
+	var it models.CreateUserInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -4700,8 +4701,8 @@ func UnmarshalCreateUserInput(v interface{}) (model.CreateUserInput, error) {
 	return it, nil
 }
 
-func UnmarshalUpdatePermissionInput(v interface{}) (model.UpdatePermissionInput, error) {
-	var it model.UpdatePermissionInput
+func UnmarshalUpdatePermissionInput(v interface{}) (models.UpdatePermissionInput, error) {
+	var it models.UpdatePermissionInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -4730,8 +4731,8 @@ func UnmarshalUpdatePermissionInput(v interface{}) (model.UpdatePermissionInput,
 	return it, nil
 }
 
-func UnmarshalUpdateRoleInput(v interface{}) (model.UpdateRoleInput, error) {
-	var it model.UpdateRoleInput
+func UnmarshalUpdateRoleInput(v interface{}) (models.UpdateRoleInput, error) {
+	var it models.UpdateRoleInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -4754,8 +4755,8 @@ func UnmarshalUpdateRoleInput(v interface{}) (model.UpdateRoleInput, error) {
 	return it, nil
 }
 
-func UnmarshalUpdateUserInput(v interface{}) (model.UpdateUserInput, error) {
-	var it model.UpdateUserInput
+func UnmarshalUpdateUserInput(v interface{}) (models.UpdateUserInput, error) {
+	var it models.UpdateUserInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
