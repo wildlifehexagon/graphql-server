@@ -68,11 +68,63 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 	return user, nil
 }
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error) {
-	panic("not implemented")
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := r.UserClient.UpdateUser(context.Background(), &user.UpdateUserRequest{
+		Data: &user.UpdateUserRequest_Data{
+			Id:         i,
+			Attributes: &user.UserAttributes{
+				// FirstName: input.FirstName,
+				// LastName:  input.LastName,
+				// Email:     input.Email,
+				// Organization:  input.Organization,
+				// GroupName:     input.GroupName,
+				// FirstAddress:  input.FirstAddress,
+				// SecondAddress: input.SecondAddress,
+				// City:          input.City,
+				// State:         input.State,
+				// Zipcode:       input.Zipcode,
+				// Country:       input.Country,
+				// Phone:         input.Phone,
+				// IsActive: input.IsActive,
+			},
+		},
+	}); err != nil {
+		r.Logger.Errorf("Error updating user from mutation resolver: %s", err)
+		return nil, err
+	}
+
+	user := &models.User{
+		// FirstName:     input.FirstName,
+		// LastName:      input.LastName,
+		// Organization:  input.Organization,
+		// GroupName:     input.GroupName,
+		// FirstAddress:  input.FirstAddress,
+		// SecondAddress: input.SecondAddress,
+		// City:          input.City,
+		// State:         input.State,
+		// Zipcode:       input.Zipcode,
+		// Country:       input.Country,
+		// Phone:         input.Phone,
+		// IsActive:      input.IsActive,
+	}
+	return user, nil
 }
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error) {
-	panic("not implemented")
-	// return true
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := r.UserClient.DeleteUser(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
+		r.Logger.Errorf("Error deleting user from mutation resolver: %s", err)
+		return nil, err
+	}
+
+	return &models.DeleteItem{
+		Success: true,
+	}, nil
 }
 func (r *mutationResolver) CreateRole(ctx context.Context, input *models.CreateRoleInput) (*models.Role, error) {
 	panic("not implemented")
