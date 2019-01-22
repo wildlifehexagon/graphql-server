@@ -7,11 +7,11 @@ import (
 
 	"github.com/99designs/gqlgen/handler"
 	graph "github.com/dictyBase/graphql-server/internal/graphql"
+	"github.com/dictyBase/graphql-server/internal/graphql/generated"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v1"
 )
-
-const defaultPort = "8080"
 
 func getLogger(c *cli.Context) *logrus.Entry {
 	log := logrus.New()
@@ -47,13 +47,13 @@ func RunGraphQLServer(c *cli.Context) error {
 	l := getLogger(c)
 
 	u := fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port"))
-	g, err := graph.NewGraphQLServer(u, l)
+	_, err := graph.NewGraphQLServer(u, l)
 	if err != nil {
 		return cli.NewExitError(err.Error(), 2)
 	}
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	http.Handle("/query", handler.GraphQL(g.ToExecutableSchema()))
+	http.Handle("/query", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}})))
 
 	l.Info("connect to http://localhost:8080/ for GraphQL playground")
 	l.Fatal(http.ListenAndServe(":8080", nil))

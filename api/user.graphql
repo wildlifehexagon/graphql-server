@@ -1,3 +1,27 @@
+type Query {
+  user(id: ID!): User
+  userByEmail(email: String!): User
+  listUsers(cursor: ID, limit: Int, filter: String): UserListWithCursor
+  role(id: ID!): Role
+  listRoles: [Role!]
+  permission(id: ID!): Permission
+  listPermissions: [Permission!]
+}
+
+type Mutation {
+  createUser(input: CreateUserInput): User
+  updateUser(id: ID!, input: UpdateUserInput): User
+  deleteUser(id: ID!): DeleteItem
+  createRole(input: CreateRoleInput): Role
+  updateRole(id: ID!, input: UpdateRoleInput): Role
+  deleteRole(id: ID!): DeleteItem
+  createPermission(input: CreatePermissionInput): Permission
+  updatePermission(id: ID!, input: UpdatePermissionInput): Permission
+  deletePermission(id: ID!): DeleteItem
+}
+
+scalar Timestamp
+
 type Permission {
   id: ID!
   permission: String!
@@ -95,4 +119,8 @@ input UpdatePermissionInput {
   permission: String!
   description: String!
   resource: String!
+}
+
+type DeleteItem {
+  success: Boolean!
 }
