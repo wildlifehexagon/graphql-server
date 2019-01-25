@@ -154,9 +154,10 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 	}
 	g, err := r.UserClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
 	if err != nil {
-		r.Logger.Errorf("Error in getting user by ID: %s", err)
+		r.Logger.Errorf("Error in getting user by ID %d: %s", i, err)
 		return nil, err
 	}
+
 	attr := g.Data.Attributes
 	return &models.User{
 		ID:            strconv.Itoa(int(g.Data.Id)),
