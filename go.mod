@@ -14,9 +14,10 @@ require (
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.3.0
 	github.com/urfave/cli v1.20.0
+	github.com/vektah/gqlgen v0.7.1
 	github.com/vektah/gqlparser v1.0.0
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9 // indirect
-	google.golang.org/grpc v1.18.0
+	google.golang.org/grpc v1.17.0
 	gopkg.in/urfave/cli.v1 v1.20.0
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
