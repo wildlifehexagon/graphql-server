@@ -77,14 +77,15 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error) {
 	// Currently this mutation breaks if fields are missing
-	// Also doesn't find the ID when all fields are there
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, err
 	}
 	n, err := r.UserClient.UpdateUser(context.Background(), &user.UpdateUserRequest{
+		Id: i,
 		Data: &user.UpdateUserRequest_Data{
-			Id: i,
+			Id:   i,
+			Type: "user",
 			Attributes: &user.UserAttributes{
 				FirstName:     *input.FirstName,
 				LastName:      *input.LastName,
