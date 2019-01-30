@@ -4,24 +4,25 @@ import (
 	"errors"
 	"io"
 	"strconv"
-	"time"
+
+	"github.com/golang/protobuf/ptypes/timestamp"
 
 	"github.com/vektah/gqlgen/graphql"
 )
 
-func MarshalTimestamp(t time.Time) graphql.Marshaler {
-	timestamp := t.Unix()
-	if timestamp < 0 {
-		timestamp = 0
-	}
+// need to verify - what format for time output?
+func MarshalTimestamp(t timestamp.Timestamp) graphql.Marshaler {
 	return graphql.WriterFunc(func(w io.Writer) {
-		io.WriteString(w, strconv.FormatInt(timestamp, 10))
+		io.WriteString(w, strconv.FormatInt(t.Seconds, 10))
 	})
 }
 
-func UnmarshalTimestamp(v interface{}) (time.Time, error) {
+func UnmarshalTimestamp(v interface{}) (*timestamp.Timestamp, error) {
 	if tmpStr, ok := v.(int); ok {
-		return time.Unix(int64(tmpStr), 0), nil
+		return &timestamp.Timestamp{
+			Seconds: int64(tmpStr),
+			Nanos:   0,
+		}, nil
 	}
-	return time.Time{}, errors.New("time should be a unix timestamp")
+	return &timestamp.Timestamp{}, errors.New("time should be a protobuf timestamp")
 }

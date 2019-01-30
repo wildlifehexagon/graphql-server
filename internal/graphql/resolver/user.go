@@ -68,8 +68,8 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 		Country:       &n.Data.Attributes.Country,
 		Phone:         &n.Data.Attributes.Phone,
 		IsActive:      n.Data.Attributes.IsActive,
-		// CreatedAt:     n.Data.Attributes.CreatedAt,
-		// UpdatedAt:     n.Data.Attributes.UpdatedAt,
+		CreatedAt:     *n.Data.Attributes.CreatedAt,
+		UpdatedAt:     *n.Data.Attributes.UpdatedAt,
 		// Roles:     &n.Data.Attributes.Roles,
 	}
 	return user, nil
@@ -121,6 +121,9 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 		Country:       &n.Data.Attributes.Country,
 		Phone:         &n.Data.Attributes.Phone,
 		IsActive:      n.Data.Attributes.IsActive,
+		CreatedAt:     *n.Data.Attributes.CreatedAt,
+		UpdatedAt:     *n.Data.Attributes.UpdatedAt,
+		// Roles:         &n.Data.Attributes.Roles,
 	}
 	return user, nil
 }
@@ -185,8 +188,8 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 		Country:       &attr.Country,
 		Phone:         &attr.Phone,
 		IsActive:      attr.IsActive,
-		// CreatedAt:     attr.CreatedAt,
-		// UpdatedAt:     attr.UpdatedAt,
+		CreatedAt:     *attr.CreatedAt,
+		UpdatedAt:     *attr.UpdatedAt,
 		// Roles:         &attr.Roles,
 	}, nil
 }
@@ -211,8 +214,8 @@ func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*models.
 		Country:       &attr.Country,
 		Phone:         &attr.Phone,
 		IsActive:      attr.IsActive,
-		// CreatedAt:     attr.CreatedAt,
-		// UpdatedAt:     attr.UpdatedAt,
+		CreatedAt:     *attr.CreatedAt,
+		UpdatedAt:     *attr.UpdatedAt,
 		// Roles:         &attr.Roles,
 	}, nil
 }

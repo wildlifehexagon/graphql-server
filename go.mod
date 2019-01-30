@@ -6,6 +6,7 @@ require (
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883 // indirect
 	github.com/dictyBase/go-genproto v0.0.0-20190108210140-245692b4c03c
 	github.com/gogo/protobuf v1.2.0 // indirect
+	github.com/golang/protobuf v1.2.0
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.6.4 // indirect
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
