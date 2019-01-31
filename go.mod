@@ -11,10 +11,8 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.6.4 // indirect
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
 	github.com/mwitkow/go-proto-validators v0.0.0-20180403085117-0950a7990007 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.3.0
-	github.com/urfave/cli v1.20.0
 	github.com/vektah/gqlgen v0.7.1
 	github.com/vektah/gqlparser v1.0.0
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9 // indirect
