@@ -4,6 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/fatih/structs"
+	"github.com/mitchellh/mapstructure"
+
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
@@ -26,25 +29,26 @@ func (r *Resolver) Query() generated.QueryResolver {
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*models.User, error) {
-	// Currently this breaks if fields are missing in the mutation
-	// Need to fix this and get proper timestamp values
+	attr := &user.UserAttributes{}
+	a := normalizeCreateUserAttr(input)
+	mapstructure.Decode(a, attr)
 	n, err := r.UserClient.CreateUser(context.Background(), &user.CreateUserRequest{
 		Data: &user.CreateUserRequest_Data{
 			Type: "user",
 			Attributes: &user.UserAttributes{
-				FirstName:     input.FirstName,
-				LastName:      input.LastName,
-				Email:         input.Email,
-				Organization:  *input.Organization,
-				GroupName:     *input.GroupName,
-				FirstAddress:  *input.FirstAddress,
-				SecondAddress: *input.SecondAddress,
-				City:          *input.City,
-				State:         *input.State,
-				Zipcode:       *input.Zipcode,
-				Country:       *input.Country,
-				Phone:         *input.Phone,
-				IsActive:      input.IsActive,
+				FirstName:     attr.FirstName,
+				LastName:      attr.LastName,
+				Email:         attr.Email,
+				Organization:  attr.Organization,
+				GroupName:     attr.GroupName,
+				FirstAddress:  attr.FirstAddress,
+				SecondAddress: attr.SecondAddress,
+				City:          attr.City,
+				State:         attr.State,
+				Zipcode:       attr.Zipcode,
+				Country:       attr.Country,
+				Phone:         attr.Phone,
+				IsActive:      attr.IsActive,
 			},
 		},
 	})
@@ -75,8 +79,20 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 	return user, nil
 }
 
+func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{} {
+	fields := structs.Fields(attr)
+	newAttr := make(map[string]interface{})
+	for _, k := range fields {
+		if !k.IsZero() {
+			newAttr[k.Name()] = k.Value()
+		} else {
+			newAttr[k.Name()] = ""
+		}
+	}
+	return newAttr
+}
+
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error) {
-	// Currently this mutation breaks if fields are missing
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, err
