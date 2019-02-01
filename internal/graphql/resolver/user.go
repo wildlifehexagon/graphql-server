@@ -52,8 +52,6 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 				Country:       attr.Country,
 				Phone:         attr.Phone,
 				IsActive:      attr.IsActive,
-				CreatedAt:     aphgrpc.TimestampProto(time.Now()),
-				UpdatedAt:     aphgrpc.TimestampProto(time.Now()),
 			},
 		},
 	})
@@ -77,8 +75,8 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 		Country:       &n.Data.Attributes.Country,
 		Phone:         &n.Data.Attributes.Phone,
 		IsActive:      n.Data.Attributes.IsActive,
-		CreatedAt:     *n.Data.Attributes.CreatedAt,
-		UpdatedAt:     *n.Data.Attributes.UpdatedAt,
+		CreatedAt:     aphgrpc.ProtoTimeStamp(n.Data.Attributes.CreatedAt),
+		UpdatedAt:     aphgrpc.ProtoTimeStamp(n.Data.Attributes.UpdatedAt),
 		// Roles:     &n.Data.Attributes.Roles,
 	}
 	return user, nil
@@ -173,8 +171,8 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 		Country:       &o.Data.Attributes.Country,
 		Phone:         &o.Data.Attributes.Phone,
 		IsActive:      o.Data.Attributes.IsActive,
-		CreatedAt:     *o.Data.Attributes.CreatedAt,
-		UpdatedAt:     *o.Data.Attributes.UpdatedAt,
+		CreatedAt:     aphgrpc.ProtoTimeStamp(o.Data.Attributes.CreatedAt),
+		UpdatedAt:     aphgrpc.ProtoTimeStamp(o.Data.Attributes.UpdatedAt),
 		// Roles:         &o.Data.Attributes.Roles,
 	}
 	return user, nil
@@ -240,8 +238,8 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 		Country:       &attr.Country,
 		Phone:         &attr.Phone,
 		IsActive:      attr.IsActive,
-		CreatedAt:     *attr.CreatedAt,
-		UpdatedAt:     *attr.UpdatedAt,
+		CreatedAt:     aphgrpc.ProtoTimeStamp(attr.CreatedAt),
+		UpdatedAt:     aphgrpc.ProtoTimeStamp(attr.UpdatedAt),
 		// Roles:         &attr.Roles,
 	}, nil
 }
@@ -267,8 +265,8 @@ func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*models.
 		Country:       &attr.Country,
 		Phone:         &attr.Phone,
 		IsActive:      attr.IsActive,
-		CreatedAt:     *attr.CreatedAt,
-		UpdatedAt:     *attr.UpdatedAt,
+		CreatedAt:     aphgrpc.ProtoTimeStamp(attr.CreatedAt),
+		UpdatedAt:     aphgrpc.ProtoTimeStamp(attr.UpdatedAt),
 		// Roles:         &attr.Roles,
 	}, nil
 }

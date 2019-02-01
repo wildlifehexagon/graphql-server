@@ -3,7 +3,7 @@
 package models
 
 import (
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"time"
 )
 
 type CreatePermissionInput struct {
@@ -38,21 +38,21 @@ type DeleteItem struct {
 }
 
 type Permission struct {
-	ID          string              `json:"id"`
-	Permission  string              `json:"permission"`
-	Description string              `json:"description"`
-	CreatedAt   timestamp.Timestamp `json:"created_at"`
-	UpdatedAt   timestamp.Timestamp `json:"updated_at"`
-	Resource    *string             `json:"resource"`
+	ID          string    `json:"id"`
+	Permission  string    `json:"permission"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Resource    *string   `json:"resource"`
 }
 
 type Role struct {
-	ID          string              `json:"id"`
-	Role        string              `json:"role"`
-	Description string              `json:"description"`
-	CreatedAt   timestamp.Timestamp `json:"created_at"`
-	UpdatedAt   timestamp.Timestamp `json:"updated_at"`
-	Permissions []Permission        `json:"permissions"`
+	ID          string       `json:"id"`
+	Role        string       `json:"role"`
+	Description string       `json:"description"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
+	Permissions []Permission `json:"permissions"`
 }
 
 type UpdatePermissionInput struct {
@@ -82,23 +82,23 @@ type UpdateUserInput struct {
 }
 
 type User struct {
-	ID            string              `json:"id"`
-	FirstName     string              `json:"first_name"`
-	LastName      string              `json:"last_name"`
-	Email         string              `json:"email"`
-	Organization  *string             `json:"organization"`
-	GroupName     *string             `json:"group_name"`
-	FirstAddress  *string             `json:"first_address"`
-	SecondAddress *string             `json:"second_address"`
-	City          *string             `json:"city"`
-	State         *string             `json:"state"`
-	Zipcode       *string             `json:"zipcode"`
-	Country       *string             `json:"country"`
-	Phone         *string             `json:"phone"`
-	IsActive      bool                `json:"is_active"`
-	CreatedAt     timestamp.Timestamp `json:"created_at"`
-	UpdatedAt     timestamp.Timestamp `json:"updated_at"`
-	Roles         []Role              `json:"roles"`
+	ID            string    `json:"id"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
+	Email         string    `json:"email"`
+	Organization  *string   `json:"organization"`
+	GroupName     *string   `json:"group_name"`
+	FirstAddress  *string   `json:"first_address"`
+	SecondAddress *string   `json:"second_address"`
+	City          *string   `json:"city"`
+	State         *string   `json:"state"`
+	Zipcode       *string   `json:"zipcode"`
+	Country       *string   `json:"country"`
+	Phone         *string   `json:"phone"`
+	IsActive      bool      `json:"is_active"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	Roles         []Role    `json:"roles"`
 }
 
 type UserListWithCursor struct {

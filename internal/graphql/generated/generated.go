@@ -8,11 +8,11 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 )
@@ -1539,7 +1539,7 @@ func (ec *executionContext) _Permission_created_at(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(timestamp.Timestamp)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return models.MarshalTimestamp(res)
@@ -1566,7 +1566,7 @@ func (ec *executionContext) _Permission_updated_at(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(timestamp.Timestamp)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return models.MarshalTimestamp(res)
@@ -2183,7 +2183,7 @@ func (ec *executionContext) _Role_created_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(timestamp.Timestamp)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return models.MarshalTimestamp(res)
@@ -2210,7 +2210,7 @@ func (ec *executionContext) _Role_updated_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(timestamp.Timestamp)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return models.MarshalTimestamp(res)
@@ -2761,7 +2761,7 @@ func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(timestamp.Timestamp)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return models.MarshalTimestamp(res)
@@ -2788,7 +2788,7 @@ func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(timestamp.Timestamp)
+	res := resTmp.(time.Time)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return models.MarshalTimestamp(res)

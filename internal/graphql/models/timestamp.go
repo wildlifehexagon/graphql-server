@@ -3,15 +3,14 @@ package models
 import (
 	"io"
 	"strconv"
-
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"time"
 
 	"github.com/vektah/gqlgen/graphql"
 )
 
-func MarshalTimestamp(t timestamp.Timestamp) graphql.Marshaler {
+func MarshalTimestamp(t time.Time) graphql.Marshaler {
 	return graphql.WriterFunc(func(w io.Writer) {
-		io.WriteString(w, strconv.FormatInt(t.Seconds, 10))
+		io.WriteString(w, strconv.FormatInt(t.UnixNano(), 10))
 	})
 }
 
