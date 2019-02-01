@@ -3,6 +3,9 @@ package resolver
 import (
 	"context"
 	"strconv"
+	"time"
+
+	"github.com/dictyBase/apihelpers/aphgrpc"
 
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
@@ -49,6 +52,8 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 				Country:       attr.Country,
 				Phone:         attr.Phone,
 				IsActive:      attr.IsActive,
+				CreatedAt:     aphgrpc.TimestampProto(time.Now()),
+				UpdatedAt:     aphgrpc.TimestampProto(time.Now()),
 			},
 		},
 	})
@@ -134,6 +139,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	if input.IsActive != nil {
 		attr.IsActive = *input.IsActive
 	}
+	attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
 	n, err := r.UserClient.UpdateUser(context.Background(), &user.UpdateUserRequest{
 		Id: i,
 		Data: &user.UpdateUserRequest_Data{
@@ -239,6 +245,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 		// Roles:         &attr.Roles,
 	}, nil
 }
+
 func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*models.User, error) {
 	g, err := r.UserClient.GetUserByEmail(context.Background(), &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
