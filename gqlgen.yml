@@ -7,7 +7,7 @@ model:
   filename: internal/graphql/models/models_gen.go
   package: models
 resolver:
-  filename: internal/graphql/resolver/user.go
+  filename: internal/graphql/resolver/user/user.go
   package: resolver
   type: Resolver
 models:

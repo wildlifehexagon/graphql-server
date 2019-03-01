@@ -2,8 +2,11 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/vektah/gqlgen/graphql"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
 
@@ -196,24 +199,6 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.D
 		Success: true,
 	}, nil
 }
-func (r *mutationResolver) CreateRole(ctx context.Context, input *models.CreateRoleInput) (*models.Role, error) {
-	panic("not implemented")
-}
-func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*models.Role, error) {
-	panic("not implemented")
-}
-func (r *mutationResolver) DeleteRole(ctx context.Context, id string) (*models.DeleteItem, error) {
-	panic("not implemented")
-}
-func (r *mutationResolver) CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*models.Permission, error) {
-	panic("not implemented")
-}
-func (r *mutationResolver) UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*models.Permission, error) {
-	panic("not implemented")
-}
-func (r *mutationResolver) DeletePermission(ctx context.Context, id string) (*models.DeleteItem, error) {
-	panic("not implemented")
-}
 
 type queryResolver struct{ *Resolver }
 
@@ -223,11 +208,13 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
 		return nil, err
 	}
-	g, err := r.UserClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
+	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: i})
 	if err != nil {
 		r.Logger.Errorf("error in getting user by ID %d: %s", i, err)
 		return nil, err
 	}
+	resctx := graphql.GetResolverContext(ctx)
+	fmt.Println(resctx)
 	r.Logger.Infof("successfully found user with ID %s", id)
 	attr := g.Data.Attributes
 	return &models.User{
@@ -278,17 +265,5 @@ func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*models.
 	}, nil
 }
 func (r *queryResolver) ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*models.UserListWithCursor, error) {
-	panic("not implemented")
-}
-func (r *queryResolver) Role(ctx context.Context, id string) (*models.Role, error) {
-	panic("not implemented")
-}
-func (r *queryResolver) ListRoles(ctx context.Context) ([]models.Role, error) {
-	panic("not implemented")
-}
-func (r *queryResolver) Permission(ctx context.Context, id string) (*models.Permission, error) {
-	panic("not implemented")
-}
-func (r *queryResolver) ListPermissions(ctx context.Context) ([]models.Permission, error) {
 	panic("not implemented")
 }
