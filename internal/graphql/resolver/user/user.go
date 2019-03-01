@@ -2,21 +2,15 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/vektah/gqlgen/graphql"
-
 	"github.com/dictyBase/apihelpers/aphgrpc"
-
-	"github.com/fatih/structs"
-	"github.com/mitchellh/mapstructure"
-
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
+	"github.com/fatih/structs"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,58 +26,14 @@ func (r *Resolver) Query() generated.QueryResolver {
 	return &queryResolver{r}
 }
 
+func (r *Resolver) User() generated.UserResolver {
+	return &userResolver{r}
+}
+
 type mutationResolver struct{ *Resolver }
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*models.User, error) {
-	attr := &user.UserAttributes{}
-	a := normalizeCreateUserAttr(input)
-	mapstructure.Decode(a, attr)
-	n, err := r.UserClient.CreateUser(context.Background(), &user.CreateUserRequest{
-		Data: &user.CreateUserRequest_Data{
-			Type: "user",
-			Attributes: &user.UserAttributes{
-				FirstName:     attr.FirstName,
-				LastName:      attr.LastName,
-				Email:         attr.Email,
-				Organization:  attr.Organization,
-				GroupName:     attr.GroupName,
-				FirstAddress:  attr.FirstAddress,
-				SecondAddress: attr.SecondAddress,
-				City:          attr.City,
-				State:         attr.State,
-				Zipcode:       attr.Zipcode,
-				Country:       attr.Country,
-				Phone:         attr.Phone,
-				IsActive:      attr.IsActive,
-			},
-		},
-	})
-	if err != nil {
-		r.Logger.Errorf("error creating new user from mutation resolver: %s", err)
-		return nil, err
-	}
-	id := strconv.FormatInt(n.Data.Id, 10)
-	r.Logger.Infof("successfully created user with ID %s", id)
-	user := &models.User{
-		ID:            id,
-		FirstName:     n.Data.Attributes.FirstName,
-		LastName:      n.Data.Attributes.LastName,
-		Email:         n.Data.Attributes.Email,
-		Organization:  &n.Data.Attributes.Organization,
-		GroupName:     &n.Data.Attributes.GroupName,
-		FirstAddress:  &n.Data.Attributes.FirstAddress,
-		SecondAddress: &n.Data.Attributes.SecondAddress,
-		City:          &n.Data.Attributes.City,
-		State:         &n.Data.Attributes.State,
-		Zipcode:       &n.Data.Attributes.Zipcode,
-		Country:       &n.Data.Attributes.Country,
-		Phone:         &n.Data.Attributes.Phone,
-		IsActive:      n.Data.Attributes.IsActive,
-		CreatedAt:     aphgrpc.ProtoTimeStamp(n.Data.Attributes.CreatedAt),
-		UpdatedAt:     aphgrpc.ProtoTimeStamp(n.Data.Attributes.UpdatedAt),
-		// Roles:     &n.Data.Attributes.Roles,
-	}
-	return user, nil
+func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error) {
+	panic("not implemented")
 }
 
 func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{} {
@@ -99,110 +49,17 @@ func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{
 	return newAttr
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error) {
-	i, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
-		return nil, err
-	}
-	attr := &user.UserAttributes{}
-	if input.FirstName != nil {
-		attr.FirstName = *input.FirstName
-	}
-	if input.LastName != nil {
-		attr.LastName = *input.LastName
-	}
-	if input.Organization != nil {
-		attr.Organization = *input.Organization
-	}
-	if input.GroupName != nil {
-		attr.GroupName = *input.GroupName
-	}
-	if input.FirstAddress != nil {
-		attr.FirstAddress = *input.FirstAddress
-	}
-	if input.SecondAddress != nil {
-		attr.SecondAddress = *input.SecondAddress
-	}
-	if input.City != nil {
-		attr.City = *input.City
-	}
-	if input.State != nil {
-		attr.State = *input.State
-	}
-	if input.Zipcode != nil {
-		attr.Zipcode = *input.Zipcode
-	}
-	if input.Country != nil {
-		attr.Country = *input.Country
-	}
-	if input.Phone != nil {
-		attr.Phone = *input.Phone
-	}
-	if input.IsActive != nil {
-		attr.IsActive = *input.IsActive
-	}
-	attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
-	n, err := r.UserClient.UpdateUser(context.Background(), &user.UpdateUserRequest{
-		Id: i,
-		Data: &user.UpdateUserRequest_Data{
-			Id:         i,
-			Type:       "user",
-			Attributes: attr,
-		},
-	})
-	if err != nil {
-		r.Logger.Errorf("error updating user %d from mutation resolver: %s", n.Data.Id, err)
-		return nil, err
-	}
-	o, err := r.UserClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
-	if err != nil {
-		r.Logger.Errorf("error fetching recently updated user from mutation resolver: %s", err)
-		return nil, err
-	}
-	uid := strconv.FormatInt(o.Data.Id, 10)
-	r.Logger.Infof("successfully updated user with ID %s", uid)
-	user := &models.User{
-		ID:            uid,
-		FirstName:     o.Data.Attributes.FirstName,
-		LastName:      o.Data.Attributes.LastName,
-		Email:         o.Data.Attributes.Email,
-		Organization:  &o.Data.Attributes.Organization,
-		GroupName:     &o.Data.Attributes.GroupName,
-		FirstAddress:  &o.Data.Attributes.FirstAddress,
-		SecondAddress: &o.Data.Attributes.SecondAddress,
-		City:          &o.Data.Attributes.City,
-		State:         &o.Data.Attributes.State,
-		Zipcode:       &o.Data.Attributes.Zipcode,
-		Country:       &o.Data.Attributes.Country,
-		Phone:         &o.Data.Attributes.Phone,
-		IsActive:      o.Data.Attributes.IsActive,
-		CreatedAt:     aphgrpc.ProtoTimeStamp(o.Data.Attributes.CreatedAt),
-		UpdatedAt:     aphgrpc.ProtoTimeStamp(o.Data.Attributes.UpdatedAt),
-		// Roles:         &o.Data.Attributes.Roles,
-	}
-	return user, nil
+func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error) {
+	panic("not implemented")
 }
 
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error) {
-	i, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
-		return nil, err
-	}
-	if _, err := r.UserClient.DeleteUser(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
-		r.Logger.Errorf("error deleting user %s from mutation resolver: %s", id, err)
-		return nil, err
-	}
-
-	return &models.DeleteItem{
-		Success: true,
-	}, nil
+	panic("not implemented")
 }
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
+func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
@@ -213,57 +70,67 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 		r.Logger.Errorf("error in getting user by ID %d: %s", i, err)
 		return nil, err
 	}
-	resctx := graphql.GetResolverContext(ctx)
-	fmt.Println(resctx)
 	r.Logger.Infof("successfully found user with ID %s", id)
-	attr := g.Data.Attributes
-	return &models.User{
-		ID:            strconv.Itoa(int(g.Data.Id)),
-		FirstName:     attr.FirstName,
-		LastName:      attr.LastName,
-		Email:         attr.Email,
-		Organization:  &attr.Organization,
-		FirstAddress:  &attr.FirstAddress,
-		SecondAddress: &attr.SecondAddress,
-		City:          &attr.City,
-		State:         &attr.State,
-		Zipcode:       &attr.Zipcode,
-		Country:       &attr.Country,
-		Phone:         &attr.Phone,
-		IsActive:      attr.IsActive,
-		CreatedAt:     aphgrpc.ProtoTimeStamp(attr.CreatedAt),
-		UpdatedAt:     aphgrpc.ProtoTimeStamp(attr.UpdatedAt),
-		// Roles:         &attr.Roles,
-	}, nil
+	return g, nil
 }
 
-func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*models.User, error) {
-	g, err := r.UserClient.GetUserByEmail(context.Background(), &jsonapi.GetEmailRequest{Email: email})
-	if err != nil {
-		r.Logger.Errorf("error in getting user with email %s: %s", email, err)
-		return nil, err
-	}
-	r.Logger.Infof("successfully found user with email %s", email)
-	attr := g.Data.Attributes
-	return &models.User{
-		ID:            strconv.Itoa(int(g.Data.Id)),
-		FirstName:     attr.FirstName,
-		LastName:      attr.LastName,
-		Email:         attr.Email,
-		Organization:  &attr.Organization,
-		FirstAddress:  &attr.FirstAddress,
-		SecondAddress: &attr.SecondAddress,
-		City:          &attr.City,
-		State:         &attr.State,
-		Zipcode:       &attr.Zipcode,
-		Country:       &attr.Country,
-		Phone:         &attr.Phone,
-		IsActive:      attr.IsActive,
-		CreatedAt:     aphgrpc.ProtoTimeStamp(attr.CreatedAt),
-		UpdatedAt:     aphgrpc.ProtoTimeStamp(attr.UpdatedAt),
-		// Roles:         &attr.Roles,
-	}, nil
+func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.User, error) {
+	panic("not implemented")
 }
 func (r *queryResolver) ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*models.UserListWithCursor, error) {
+	panic("not implemented")
+}
+
+type userResolver struct{ *Resolver }
+
+func (r *userResolver) ID(ctx context.Context, obj *user.User) (string, error) {
+	return strconv.FormatInt(obj.Data.Id, 10), nil
+}
+func (r *userResolver) FirstName(ctx context.Context, obj *user.User) (string, error) {
+	return obj.Data.Attributes.FirstName, nil
+}
+func (r *userResolver) LastName(ctx context.Context, obj *user.User) (string, error) {
+	return obj.Data.Attributes.LastName, nil
+}
+func (r *userResolver) Email(ctx context.Context, obj *user.User) (string, error) {
+	return obj.Data.Attributes.Email, nil
+}
+func (r *userResolver) Organization(ctx context.Context, obj *user.User) (*string, error) {
+	return &obj.Data.Attributes.Organization, nil
+}
+func (r *userResolver) GroupName(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) FirstAddress(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) SecondAddress(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) City(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) State(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) Zipcode(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) Country(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) Phone(ctx context.Context, obj *user.User) (*string, error) {
+	panic("not implemented")
+}
+func (r *userResolver) IsActive(ctx context.Context, obj *user.User) (bool, error) {
+	panic("not implemented")
+}
+func (r *userResolver) CreatedAt(ctx context.Context, obj *user.User) (time.Time, error) {
+	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
+}
+func (r *userResolver) UpdatedAt(ctx context.Context, obj *user.User) (time.Time, error) {
+	panic("not implemented")
+}
+func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]models.Role, error) {
 	panic("not implemented")
 }

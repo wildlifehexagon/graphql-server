@@ -14,3 +14,5 @@ models:
   # Custom scalars point to the name without the Marshal|Unmarshal in front
   Timestamp:
     model: github.com/dictyBase/graphql-server/internal/graphql/models.Timestamp
+  User:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/user.User

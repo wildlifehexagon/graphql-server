@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
@@ -35,6 +36,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -115,8 +117,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateUser(ctx context.Context, input *models.CreateUserInput) (*models.User, error)
-	UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error)
+	CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error)
+	UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error)
 	DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error)
 	CreateRole(ctx context.Context, input *models.CreateRoleInput) (*models.Role, error)
 	UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*models.Role, error)
@@ -126,13 +128,32 @@ type MutationResolver interface {
 	DeletePermission(ctx context.Context, id string) (*models.DeleteItem, error)
 }
 type QueryResolver interface {
-	User(ctx context.Context, id string) (*models.User, error)
-	UserByEmail(ctx context.Context, email string) (*models.User, error)
+	User(ctx context.Context, id string) (*user.User, error)
+	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*models.UserListWithCursor, error)
 	Role(ctx context.Context, id string) (*models.Role, error)
 	ListRoles(ctx context.Context) ([]models.Role, error)
 	Permission(ctx context.Context, id string) (*models.Permission, error)
 	ListPermissions(ctx context.Context) ([]models.Permission, error)
+}
+type UserResolver interface {
+	ID(ctx context.Context, obj *user.User) (string, error)
+	FirstName(ctx context.Context, obj *user.User) (string, error)
+	LastName(ctx context.Context, obj *user.User) (string, error)
+	Email(ctx context.Context, obj *user.User) (string, error)
+	Organization(ctx context.Context, obj *user.User) (*string, error)
+	GroupName(ctx context.Context, obj *user.User) (*string, error)
+	FirstAddress(ctx context.Context, obj *user.User) (*string, error)
+	SecondAddress(ctx context.Context, obj *user.User) (*string, error)
+	City(ctx context.Context, obj *user.User) (*string, error)
+	State(ctx context.Context, obj *user.User) (*string, error)
+	Zipcode(ctx context.Context, obj *user.User) (*string, error)
+	Country(ctx context.Context, obj *user.User) (*string, error)
+	Phone(ctx context.Context, obj *user.User) (*string, error)
+	IsActive(ctx context.Context, obj *user.User) (bool, error)
+	CreatedAt(ctx context.Context, obj *user.User) (time.Time, error)
+	UpdatedAt(ctx context.Context, obj *user.User) (time.Time, error)
+	Roles(ctx context.Context, obj *user.User) ([]models.Role, error)
 }
 
 func field_Mutation_createUser_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -1094,7 +1115,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*user.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1129,7 +1150,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*user.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1700,7 +1721,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*user.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1735,7 +1756,7 @@ func (ec *executionContext) _Query_userByEmail(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*user.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -2276,9 +2297,10 @@ func (ec *executionContext) _Role_permissions(ctx context.Context, field graphql
 var userImplementors = []string{"User"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *user.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, userImplementors)
 
+	var wg sync.WaitGroup
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
 	for i, field := range fields {
@@ -2288,65 +2310,133 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
 		case "id":
-			out.Values[i] = ec._User_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_id(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
 		case "first_name":
-			out.Values[i] = ec._User_first_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_first_name(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
 		case "last_name":
-			out.Values[i] = ec._User_last_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_last_name(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
 		case "email":
-			out.Values[i] = ec._User_email(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_email(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
 		case "organization":
-			out.Values[i] = ec._User_organization(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_organization(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "group_name":
-			out.Values[i] = ec._User_group_name(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_group_name(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "first_address":
-			out.Values[i] = ec._User_first_address(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_first_address(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "second_address":
-			out.Values[i] = ec._User_second_address(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_second_address(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "city":
-			out.Values[i] = ec._User_city(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_city(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "state":
-			out.Values[i] = ec._User_state(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_state(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "zipcode":
-			out.Values[i] = ec._User_zipcode(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_zipcode(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "country":
-			out.Values[i] = ec._User_country(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_country(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "phone":
-			out.Values[i] = ec._User_phone(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_phone(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "is_active":
-			out.Values[i] = ec._User_is_active(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_is_active(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
 		case "created_at":
-			out.Values[i] = ec._User_created_at(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_created_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
 		case "updated_at":
-			out.Values[i] = ec._User_updated_at(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_updated_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
 		case "roles":
-			out.Values[i] = ec._User_roles(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._User_roles(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-
+	wg.Wait()
 	if invalid {
 		return graphql.Null
 	}
@@ -2354,7 +2444,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2366,7 +2456,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return ec.resolvers.User().ID(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2381,7 +2471,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2393,7 +2483,7 @@ func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FirstName, nil
+		return ec.resolvers.User().FirstName(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2408,7 +2498,7 @@ func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2420,7 +2510,7 @@ func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.C
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.LastName, nil
+		return ec.resolvers.User().LastName(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2435,7 +2525,7 @@ func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2447,7 +2537,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Email, nil
+		return ec.resolvers.User().Email(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2462,7 +2552,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_organization(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_organization(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2474,7 +2564,7 @@ func (ec *executionContext) _User_organization(ctx context.Context, field graphq
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Organization, nil
+		return ec.resolvers.User().Organization(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2490,7 +2580,7 @@ func (ec *executionContext) _User_organization(ctx context.Context, field graphq
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_group_name(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_group_name(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2502,7 +2592,7 @@ func (ec *executionContext) _User_group_name(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.GroupName, nil
+		return ec.resolvers.User().GroupName(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2518,7 +2608,7 @@ func (ec *executionContext) _User_group_name(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_first_address(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_first_address(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2530,7 +2620,7 @@ func (ec *executionContext) _User_first_address(ctx context.Context, field graph
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FirstAddress, nil
+		return ec.resolvers.User().FirstAddress(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2546,7 +2636,7 @@ func (ec *executionContext) _User_first_address(ctx context.Context, field graph
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_second_address(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_second_address(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2558,7 +2648,7 @@ func (ec *executionContext) _User_second_address(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SecondAddress, nil
+		return ec.resolvers.User().SecondAddress(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2574,7 +2664,7 @@ func (ec *executionContext) _User_second_address(ctx context.Context, field grap
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_city(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_city(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2586,7 +2676,7 @@ func (ec *executionContext) _User_city(ctx context.Context, field graphql.Collec
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.City, nil
+		return ec.resolvers.User().City(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2602,7 +2692,7 @@ func (ec *executionContext) _User_city(ctx context.Context, field graphql.Collec
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_state(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_state(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2614,7 +2704,7 @@ func (ec *executionContext) _User_state(ctx context.Context, field graphql.Colle
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.State, nil
+		return ec.resolvers.User().State(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2630,7 +2720,7 @@ func (ec *executionContext) _User_state(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_zipcode(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_zipcode(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2642,7 +2732,7 @@ func (ec *executionContext) _User_zipcode(ctx context.Context, field graphql.Col
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Zipcode, nil
+		return ec.resolvers.User().Zipcode(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2658,7 +2748,7 @@ func (ec *executionContext) _User_zipcode(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_country(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_country(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2670,7 +2760,7 @@ func (ec *executionContext) _User_country(ctx context.Context, field graphql.Col
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Country, nil
+		return ec.resolvers.User().Country(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2686,7 +2776,7 @@ func (ec *executionContext) _User_country(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_phone(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_phone(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2698,7 +2788,7 @@ func (ec *executionContext) _User_phone(ctx context.Context, field graphql.Colle
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Phone, nil
+		return ec.resolvers.User().Phone(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2714,7 +2804,7 @@ func (ec *executionContext) _User_phone(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_is_active(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_is_active(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2726,7 +2816,7 @@ func (ec *executionContext) _User_is_active(ctx context.Context, field graphql.C
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IsActive, nil
+		return ec.resolvers.User().IsActive(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2741,7 +2831,7 @@ func (ec *executionContext) _User_is_active(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2753,7 +2843,7 @@ func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		return ec.resolvers.User().CreatedAt(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2768,7 +2858,7 @@ func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2780,7 +2870,7 @@ func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		return ec.resolvers.User().UpdatedAt(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2795,7 +2885,7 @@ func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _User_roles(ctx context.Context, field graphql.CollectedField, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User_roles(ctx context.Context, field graphql.CollectedField, obj *user.User) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -2807,7 +2897,7 @@ func (ec *executionContext) _User_roles(ctx context.Context, field graphql.Colle
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Roles, nil
+		return ec.resolvers.User().Roles(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2919,7 +3009,7 @@ func (ec *executionContext) _UserListWithCursor_users(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]models.User)
+	res := resTmp.([]user.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 

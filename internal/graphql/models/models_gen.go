@@ -4,6 +4,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
 
 type CreatePermissionInput struct {
@@ -81,30 +83,10 @@ type UpdateUserInput struct {
 	IsActive      *bool   `json:"is_active"`
 }
 
-type User struct {
-	ID            string    `json:"id"`
-	FirstName     string    `json:"first_name"`
-	LastName      string    `json:"last_name"`
-	Email         string    `json:"email"`
-	Organization  *string   `json:"organization"`
-	GroupName     *string   `json:"group_name"`
-	FirstAddress  *string   `json:"first_address"`
-	SecondAddress *string   `json:"second_address"`
-	City          *string   `json:"city"`
-	State         *string   `json:"state"`
-	Zipcode       *string   `json:"zipcode"`
-	Country       *string   `json:"country"`
-	Phone         *string   `json:"phone"`
-	IsActive      bool      `json:"is_active"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
-	Roles         []Role    `json:"roles"`
-}
-
 type UserListWithCursor struct {
-	Users          []User `json:"users"`
-	NextCursor     string `json:"nextCursor"`
-	PreviousCursor string `json:"previousCursor"`
-	Limit          *int   `json:"limit"`
-	TotalCount     int    `json:"totalCount"`
+	Users          []user.User `json:"users"`
+	NextCursor     string      `json:"nextCursor"`
+	PreviousCursor string      `json:"previousCursor"`
+	Limit          *int        `json:"limit"`
+	TotalCount     int         `json:"totalCount"`
 }
