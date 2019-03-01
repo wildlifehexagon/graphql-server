@@ -56,10 +56,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 		},
 	})
 	if err != nil {
-		r.Logger.Errorf("Error creating new user from mutation resolver: %s", err)
+		r.Logger.Errorf("error creating new user from mutation resolver: %s", err)
 		return nil, err
 	}
 	id := strconv.FormatInt(n.Data.Id, 10)
+	r.Logger.Infof("successfully created user with ID %s", id)
 	user := &models.User{
 		ID:            id,
 		FirstName:     n.Data.Attributes.FirstName,
@@ -98,6 +99,7 @@ func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*models.User, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
 		return nil, err
 	}
 	attr := &user.UserAttributes{}
@@ -147,15 +149,16 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 		},
 	})
 	if err != nil {
-		r.Logger.Errorf("Error updating user %d from mutation resolver: %s", n.Data.Id, err)
+		r.Logger.Errorf("error updating user %d from mutation resolver: %s", n.Data.Id, err)
 		return nil, err
 	}
 	o, err := r.UserClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
 	if err != nil {
-		r.Logger.Errorf("Error fetching recently updated user from mutation resolver: %s", err)
+		r.Logger.Errorf("error fetching recently updated user from mutation resolver: %s", err)
 		return nil, err
 	}
 	uid := strconv.FormatInt(o.Data.Id, 10)
+	r.Logger.Infof("successfully updated user with ID %s", uid)
 	user := &models.User{
 		ID:            uid,
 		FirstName:     o.Data.Attributes.FirstName,
@@ -181,10 +184,11 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
 		return nil, err
 	}
 	if _, err := r.UserClient.DeleteUser(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
-		r.Logger.Errorf("Error deleting user from mutation resolver: %s", err)
+		r.Logger.Errorf("error deleting user %s from mutation resolver: %s", id, err)
 		return nil, err
 	}
 
@@ -216,13 +220,15 @@ type queryResolver struct{ *Resolver }
 func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
 		return nil, err
 	}
 	g, err := r.UserClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
 	if err != nil {
-		r.Logger.Errorf("Error in getting user by ID %d: %s", i, err)
+		r.Logger.Errorf("error in getting user by ID %d: %s", i, err)
 		return nil, err
 	}
+	r.Logger.Infof("successfully found user with ID %s", id)
 	attr := g.Data.Attributes
 	return &models.User{
 		ID:            strconv.Itoa(int(g.Data.Id)),
@@ -247,9 +253,10 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*models.User, error) {
 	g, err := r.UserClient.GetUserByEmail(context.Background(), &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		r.Logger.Errorf("Error in getting user by email: %s", err)
+		r.Logger.Errorf("error in getting user with email %s: %s", email, err)
 		return nil, err
 	}
+	r.Logger.Infof("successfully found user with email %s", email)
 	attr := g.Data.Attributes
 	return &models.User{
 		ID:            strconv.Itoa(int(g.Data.Id)),

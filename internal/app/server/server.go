@@ -12,6 +12,24 @@ import (
 	cli "gopkg.in/urfave/cli.v1"
 )
 
+// RunGraphQLServer starts the GraphQL backend
+func RunGraphQLServer(c *cli.Context) error {
+	l := getLogger(c)
+
+	u := fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port"))
+	s, err := graph.NewGraphQLServer(u, l)
+	if err != nil {
+		return cli.NewExitError(err.Error(), 2)
+	}
+
+	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
+	http.Handle("/query", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
+
+	l.Info("connect to http://localhost:8080/ for GraphQL playground")
+	l.Fatal(http.ListenAndServe(":8080", nil))
+	return nil
+}
+
 func getLogger(c *cli.Context) *logrus.Entry {
 	log := logrus.New()
 	log.Out = os.Stderr
@@ -39,22 +57,4 @@ func getLogger(c *cli.Context) *logrus.Entry {
 		log.Level = logrus.PanicLevel
 	}
 	return logrus.NewEntry(log)
-}
-
-// RunGraphQLServer starts the GraphQL backend
-func RunGraphQLServer(c *cli.Context) error {
-	l := getLogger(c)
-
-	u := fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port"))
-	s, err := graph.NewGraphQLServer(u, l)
-	if err != nil {
-		return cli.NewExitError(err.Error(), 2)
-	}
-
-	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	http.Handle("/query", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
-
-	l.Info("connect to http://localhost:8080/ for GraphQL playground")
-	l.Fatal(http.ListenAndServe(":8080", nil))
-	return nil
 }
