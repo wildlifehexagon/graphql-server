@@ -75,8 +75,15 @@ func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error)
 }
 
 func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.User, error) {
-	panic("not implemented")
+	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	if err != nil {
+		r.Logger.Errorf("error in getting user by email %d: %s", email, err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully found user with email %s", email)
+	return g, nil
 }
+
 func (r *queryResolver) ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*models.UserListWithCursor, error) {
 	panic("not implemented")
 }
@@ -99,37 +106,37 @@ func (r *userResolver) Organization(ctx context.Context, obj *user.User) (*strin
 	return &obj.Data.Attributes.Organization, nil
 }
 func (r *userResolver) GroupName(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.GroupName, nil
 }
 func (r *userResolver) FirstAddress(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.FirstAddress, nil
 }
 func (r *userResolver) SecondAddress(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.SecondAddress, nil
 }
 func (r *userResolver) City(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.City, nil
 }
 func (r *userResolver) State(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.State, nil
 }
 func (r *userResolver) Zipcode(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.Zipcode, nil
 }
 func (r *userResolver) Country(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.Country, nil
 }
 func (r *userResolver) Phone(ctx context.Context, obj *user.User) (*string, error) {
-	panic("not implemented")
+	return &obj.Data.Attributes.Phone, nil
 }
 func (r *userResolver) IsActive(ctx context.Context, obj *user.User) (bool, error) {
-	panic("not implemented")
+	return obj.Data.Attributes.IsActive, nil
 }
 func (r *userResolver) CreatedAt(ctx context.Context, obj *user.User) (time.Time, error) {
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
 }
 func (r *userResolver) UpdatedAt(ctx context.Context, obj *user.User) (time.Time, error) {
-	panic("not implemented")
+	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
 }
 func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]models.Role, error) {
 	panic("not implemented")
