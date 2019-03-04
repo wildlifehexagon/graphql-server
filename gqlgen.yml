@@ -16,3 +16,7 @@ models:
     model: github.com/dictyBase/graphql-server/internal/graphql/models.Timestamp
   User:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.User
+  Role:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/user.Role
+  Permission:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/user.User

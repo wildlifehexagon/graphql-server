@@ -10,7 +10,7 @@ import (
 )
 
 // NewGraphQLServer acts as a constructor in dialing GRPC services and returning a defined struct.
-func NewGraphQLServer(u string, logger *logrus.Entry) (*resolver.Resolver, error) {
+func NewGraphQLServer(u, r, p string, logger *logrus.Entry) (*resolver.Resolver, error) {
 	uconn, err := grpc.Dial(
 		u,
 		grpc.WithInsecure(),
@@ -20,9 +20,29 @@ func NewGraphQLServer(u string, logger *logrus.Entry) (*resolver.Resolver, error
 		return nil, err
 	}
 	uc := user.NewUserServiceClient(uconn)
+	rconn, err := grpc.Dial(
+		r,
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		logger.Fatalf("cannot connect to grpc server for role microservice\n")
+		return nil, err
+	}
+	rc := user.NewRoleServiceClient(rconn)
+	pconn, err := grpc.Dial(
+		p,
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		logger.Fatalf("cannot connect to grpc server for permission microservice\n")
+		return nil, err
+	}
+	pc := user.NewPermissionServiceClient(pconn)
 
 	return &resolver.Resolver{
-		UserClient: uc,
-		Logger:     logger,
+		UserClient:       uc,
+		RoleClient:       rc,
+		PermissionClient: pc,
+		Logger:           logger,
 	}, nil
 }

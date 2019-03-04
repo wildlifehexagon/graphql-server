@@ -14,10 +14,12 @@ import (
 
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
-	l := getLogger(c)
+	log := getLogger(c)
 
 	u := fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port"))
-	s, err := graph.NewGraphQLServer(u, l)
+	r := fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port"))
+	p := fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port"))
+	s, err := graph.NewGraphQLServer(u, r, p, log)
 	if err != nil {
 		return cli.NewExitError(err.Error(), 2)
 	}
@@ -25,8 +27,8 @@ func RunGraphQLServer(c *cli.Context) error {
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
 	http.Handle("/query", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
 
-	l.Info("connect to http://localhost:8080/ for GraphQL playground")
-	l.Fatal(http.ListenAndServe(":8080", nil))
+	log.Info("connect to http://localhost:8080/ for GraphQL playground")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
 }
 

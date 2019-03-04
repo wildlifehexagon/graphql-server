@@ -42,6 +42,26 @@ func main() {
 					EnvVar: "USER_API_SERVICE_PORT",
 					Usage:  "user grpc port",
 				},
+				cli.StringFlag{
+					Name:   "role-grpc-host, rh",
+					EnvVar: "ROLE_API_SERVICE_HOST",
+					Usage:  "role grpc host",
+				},
+				cli.StringFlag{
+					Name:   "role-grpc-port, rp",
+					EnvVar: "ROLE_API_SERVICE_PORT",
+					Usage:  "role grpc port",
+				},
+				cli.StringFlag{
+					Name:   "permission-grpc-host, ph",
+					EnvVar: "PERMISSION_API_SERVICE_HOST",
+					Usage:  "permission grpc host",
+				},
+				cli.StringFlag{
+					Name:   "permission-grpc-port, pp",
+					EnvVar: "PERMISSION_API_SERVICE_PORT",
+					Usage:  "permission grpc port",
+				},
 			},
 		},
 	}

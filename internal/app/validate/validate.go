@@ -11,6 +11,10 @@ func ValidateServerArgs(c *cli.Context) error {
 	for _, p := range []string{
 		"user-grpc-host",
 		"user-grpc-port",
+		"role-grpc-host",
+		"role-grpc-port",
+		"permission-grpc-host",
+		"permission-grpc-port",
 	} {
 		if len(c.String(p)) == 0 {
 			return cli.NewExitError(

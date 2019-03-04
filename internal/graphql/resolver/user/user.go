@@ -16,8 +16,10 @@ import (
 )
 
 type Resolver struct {
-	UserClient user.UserServiceClient
-	Logger     *logrus.Entry
+	UserClient       user.UserServiceClient
+	RoleClient       user.RoleServiceClient
+	PermissionClient user.PermissionServiceClient
+	Logger           *logrus.Entry
 }
 
 func (r *Resolver) Mutation() generated.MutationResolver {
