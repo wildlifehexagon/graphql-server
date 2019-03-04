@@ -243,6 +243,6 @@ func (r *userResolver) CreatedAt(ctx context.Context, obj *user.User) (time.Time
 func (r *userResolver) UpdatedAt(ctx context.Context, obj *user.User) (time.Time, error) {
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
 }
-func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]models.Role, error) {
+func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]user.Role, error) {
 	panic("not implemented")
 }

@@ -16,19 +16,19 @@ func (r *Resolver) Role() generated.RoleResolver {
 
 type roleResolver struct{ *Resolver }
 
-func (r *mutationResolver) CreateRole(ctx context.Context, input *models.CreateRoleInput) (*models.Role, error) {
+func (r *mutationResolver) CreateRole(ctx context.Context, input *models.CreateRoleInput) (*user.Role, error) {
 	panic("not implemented")
 }
-func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*models.Role, error) {
+func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*user.Role, error) {
 	panic("not implemented")
 }
 func (r *mutationResolver) DeleteRole(ctx context.Context, id string) (*models.DeleteItem, error) {
 	panic("not implemented")
 }
-func (r *queryResolver) Role(ctx context.Context, id string) (*models.Role, error) {
+func (r *queryResolver) Role(ctx context.Context, id string) (*user.Role, error) {
 	panic("not implemented")
 }
-func (r *queryResolver) ListRoles(ctx context.Context) ([]models.Role, error) {
+func (r *queryResolver) ListRoles(ctx context.Context) ([]user.Role, error) {
 	panic("not implemented")
 }
 
