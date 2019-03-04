@@ -11,6 +11,7 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/fatih/structs"
+	"github.com/mitchellh/mapstructure"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,7 +34,34 @@ func (r *Resolver) User() generated.UserResolver {
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error) {
-	panic("not implemented")
+	attr := &user.UserAttributes{}
+	a := normalizeCreateUserAttr(input)
+	mapstructure.Decode(a, attr)
+	n, err := r.UserClient.CreateUser(context.Background(), &user.CreateUserRequest{
+		Data: &user.CreateUserRequest_Data{
+			Type: "user",
+			Attributes: &user.UserAttributes{
+				FirstName:     attr.FirstName,
+				LastName:      attr.LastName,
+				Email:         attr.Email,
+				Organization:  attr.Organization,
+				GroupName:     attr.GroupName,
+				FirstAddress:  attr.FirstAddress,
+				SecondAddress: attr.SecondAddress,
+				City:          attr.City,
+				State:         attr.State,
+				Zipcode:       attr.Zipcode,
+				Country:       attr.Country,
+				Phone:         attr.Phone,
+				IsActive:      attr.IsActive,
+			},
+		},
+	})
+	if err != nil {
+		r.Logger.Errorf("error creating new user from mutation resolver: %s", err)
+		return nil, err
+	}
+	return n, nil
 }
 
 func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{} {
@@ -50,11 +78,86 @@ func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error) {
-	panic("not implemented")
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
+		return nil, err
+	}
+	attr := &user.UserAttributes{}
+	if input.FirstName != nil {
+		attr.FirstName = *input.FirstName
+	}
+	if input.LastName != nil {
+		attr.LastName = *input.LastName
+	}
+	if input.Organization != nil {
+		attr.Organization = *input.Organization
+	}
+	if input.GroupName != nil {
+		attr.GroupName = *input.GroupName
+	}
+	if input.FirstAddress != nil {
+		attr.FirstAddress = *input.FirstAddress
+	}
+	if input.SecondAddress != nil {
+		attr.SecondAddress = *input.SecondAddress
+	}
+	if input.City != nil {
+		attr.City = *input.City
+	}
+	if input.State != nil {
+		attr.State = *input.State
+	}
+	if input.Zipcode != nil {
+		attr.Zipcode = *input.Zipcode
+	}
+	if input.Country != nil {
+		attr.Country = *input.Country
+	}
+	if input.Phone != nil {
+		attr.Phone = *input.Phone
+	}
+	if input.IsActive != nil {
+		attr.IsActive = *input.IsActive
+	}
+	attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
+	n, err := r.UserClient.UpdateUser(context.Background(), &user.UpdateUserRequest{
+		Id: i,
+		Data: &user.UpdateUserRequest_Data{
+			Id:         i,
+			Type:       "user",
+			Attributes: attr,
+		},
+	})
+	if err != nil {
+		r.Logger.Errorf("error updating user %d: %s", n.Data.Id, err)
+		return nil, err
+	}
+	o, err := r.UserClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
+	if err != nil {
+		r.Logger.Errorf("error fetching recently updated user: %s", err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully updated user with ID %d", n.Data.Id)
+	return o, nil
 }
 
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error) {
-	panic("not implemented")
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
+		return nil, err
+	}
+	if _, err := r.UserClient.DeleteUser(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
+		r.Logger.Errorf("error deleting user with ID %s: %s", id, err)
+		return &models.DeleteItem{
+			Success: false,
+		}, err
+	}
+	r.Logger.Infof("successfully deleted user with ID %s", id)
+	return &models.DeleteItem{
+		Success: true,
+	}, nil
 }
 
 type queryResolver struct{ *Resolver }
@@ -77,7 +180,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error)
 func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.User, error) {
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		r.Logger.Errorf("error in getting user by email %d: %s", email, err)
+		r.Logger.Errorf("error in getting user by email %s: %s", email, err)
 		return nil, err
 	}
 	r.Logger.Infof("successfully found user with email %s", email)
