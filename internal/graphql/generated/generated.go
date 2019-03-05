@@ -75,7 +75,7 @@ type ComplexityRoot struct {
 	Query struct {
 		User            func(childComplexity int, id string) int
 		UserByEmail     func(childComplexity int, email string) int
-		ListUsers       func(childComplexity int, pagenum *string, pagesize *string, filter *string) int
+		ListUsers       func(childComplexity int, pagenum string, pagesize string, filter string) int
 		Role            func(childComplexity int, id string) int
 		ListRoles       func(childComplexity int) int
 		Permission      func(childComplexity int, id string) int
@@ -143,7 +143,7 @@ type PermissionResolver interface {
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
-	ListUsers(ctx context.Context, pagenum *string, pagesize *string, filter *string) (*models.UserList, error)
+	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
 	Role(ctx context.Context, id string) (*user.Role, error)
 	ListRoles(ctx context.Context) ([]user.Role, error)
 	Permission(ctx context.Context, id string) (*user.Permission, error)
@@ -449,43 +449,28 @@ func field_Query_userByEmail_args(rawArgs map[string]interface{}) (map[string]in
 
 func field_Query_listUsers_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 string
 	if tmp, ok := rawArgs["pagenum"]; ok {
 		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg0 = &ptr1
-		}
-
+		arg0, err = graphql.UnmarshalString(tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["pagenum"] = arg0
-	var arg1 *string
+	var arg1 string
 	if tmp, ok := rawArgs["pagesize"]; ok {
 		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg1 = &ptr1
-		}
-
+		arg1, err = graphql.UnmarshalString(tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["pagesize"] = arg1
-	var arg2 *string
+	var arg2 string
 	if tmp, ok := rawArgs["filter"]; ok {
 		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg2 = &ptr1
-		}
-
+		arg2, err = graphql.UnmarshalString(tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -798,7 +783,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListUsers(childComplexity, args["pagenum"].(*string), args["pagesize"].(*string), args["filter"].(*string)), true
+		return e.complexity.Query.ListUsers(childComplexity, args["pagenum"].(string), args["pagesize"].(string), args["filter"].(string)), true
 
 	case "Query.role":
 		if e.complexity.Query.Role == nil {
@@ -1971,7 +1956,7 @@ func (ec *executionContext) _Query_listUsers(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListUsers(rctx, args["pagenum"].(*string), args["pagesize"].(*string), args["filter"].(*string))
+		return ec.resolvers.Query().ListUsers(rctx, args["pagenum"].(string), args["pagesize"].(string), args["filter"].(string))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -5198,7 +5183,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
 	&ast.Source{Name: "api/user.graphql", Input: `type Query {
   user(id: ID!): User
   userByEmail(email: String!): User
-  listUsers(pagenum: String, pagesize: String, filter: String): UserList
+  listUsers(pagenum: String!, pagesize: String!, filter: String!): UserList
   role(id: ID!): Role
   listRoles: [Role!]
   permission(id: ID!): Permission

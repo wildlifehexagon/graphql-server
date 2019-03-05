@@ -257,8 +257,58 @@ func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.Us
 	return g, nil
 }
 
-func (r *queryResolver) ListUsers(ctx context.Context, pagenum *string, pagesize *string, filter *string) (*models.UserList, error) {
-	panic("not implemented")
+func (r *queryResolver) ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error) {
+	users := []user.User{}
+	pn, err := strconv.ParseInt(pagenum, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", pagenum, err)
+		return nil, err
+	}
+	ps, err := strconv.ParseInt(pagesize, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", pagesize, err)
+		return nil, err
+	}
+	g, err := r.UserClient.ListUsers(ctx, &jsonapi.ListRequest{
+		Pagenum:  pn,
+		Pagesize: ps,
+		Filter:   filter,
+	})
+	if err != nil {
+		r.Logger.Errorf("error in getting list of users %s", err)
+		return nil, err
+	}
+	for _, n := range g.Data {
+		item := user.User{
+			Data: &user.UserData{
+				Type: "user",
+				Id:   n.Id,
+				Attributes: &user.UserAttributes{
+					FirstName:     n.Attributes.FirstName,
+					LastName:      n.Attributes.LastName,
+					Email:         n.Attributes.LastName,
+					Organization:  n.Attributes.Organization,
+					GroupName:     n.Attributes.GroupName,
+					FirstAddress:  n.Attributes.FirstAddress,
+					SecondAddress: n.Attributes.SecondAddress,
+					City:          n.Attributes.City,
+					State:         n.Attributes.State,
+					Zipcode:       n.Attributes.Zipcode,
+					Country:       n.Attributes.Country,
+					Phone:         n.Attributes.Phone,
+					IsActive:      n.Attributes.IsActive,
+					CreatedAt:     n.Attributes.CreatedAt,
+					UpdatedAt:     n.Attributes.UpdatedAt,
+				},
+			},
+		}
+		users = append(users, item)
+	}
+	r.Logger.Infof("successfully retrieved list of %d users", len(users))
+	return &models.UserList{
+		TotalCount: len(users),
+		Users:      users,
+	}, nil
 }
 
 type userResolver struct{ *Resolver }

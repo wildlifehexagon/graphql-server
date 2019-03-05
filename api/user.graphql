@@ -1,7 +1,7 @@
 type Query {
   user(id: ID!): User
   userByEmail(email: String!): User
-  listUsers(pagenum: String, pagesize: String, filter: String): UserList
+  listUsers(pagenum: String!, pagesize: String!, filter: String!): UserList
   role(id: ID!): Role
   listRoles: [Role!]
   permission(id: ID!): Permission
