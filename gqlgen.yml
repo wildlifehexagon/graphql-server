@@ -19,4 +19,4 @@ models:
   Role:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.Role
   Permission:
-    model: github.com/dictyBase/go-genproto/dictybaseapis/user.User
+    model: github.com/dictyBase/go-genproto/dictybaseapis/user.Permission

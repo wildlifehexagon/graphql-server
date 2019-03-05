@@ -60,9 +60,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 		},
 	})
 	if err != nil {
-		r.Logger.Errorf("error creating new user from mutation resolver: %s", err)
+		r.Logger.Errorf("error creating new user %s", err)
 		return nil, err
 	}
+	r.Logger.Infof("successfully created new user with ID %d", n.Data.Id)
 	return n, nil
 }
 

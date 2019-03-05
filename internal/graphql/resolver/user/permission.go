@@ -20,13 +20,70 @@ func (r *Resolver) Permission() generated.PermissionResolver {
 type permissionResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*user.Permission, error) {
-	panic("not implemented")
+	n, err := r.PermissionClient.CreatePermission(context.Background(), &user.CreatePermissionRequest{
+		Data: &user.CreatePermissionRequest_Data{
+			Type: "permission",
+			Attributes: &user.PermissionAttributes{
+				Permission:  input.Permission,
+				Description: input.Description,
+				Resource:    input.Resource,
+			},
+		},
+	})
+	if err != nil {
+		r.Logger.Errorf("error creating new permission %s", err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully created new permission with ID %d", n.Data.Id)
+	return n, nil
 }
 func (r *mutationResolver) UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*user.Permission, error) {
-	panic("not implemented")
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
+		return nil, err
+	}
+	n, err := r.PermissionClient.UpdatePermission(context.Background(), &user.UpdatePermissionRequest{
+		Id: i,
+		Data: &user.UpdatePermissionRequest_Data{
+			Id:   i,
+			Type: "permission",
+			Attributes: &user.PermissionAttributes{
+				Permission:  input.Permission,
+				Description: input.Description,
+				Resource:    input.Resource,
+				UpdatedAt:   aphgrpc.TimestampProto(time.Now()),
+			},
+		},
+	})
+	if err != nil {
+		r.Logger.Errorf("error updating permission %d: %s", n.Data.Id, err)
+		return nil, err
+	}
+	o, err := r.PermissionClient.GetPermission(context.Background(), &jsonapi.GetRequestWithFields{Id: i})
+	if err != nil {
+		r.Logger.Errorf("error fetching recently updated permission: %s", err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully updated permission with ID %d", n.Data.Id)
+	return o, nil
 }
 func (r *mutationResolver) DeletePermission(ctx context.Context, id string) (*models.DeleteItem, error) {
-	panic("not implemented")
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
+		return nil, err
+	}
+	if _, err := r.PermissionClient.DeletePermission(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
+		r.Logger.Errorf("error deleting permission with ID %s: %s", id, err)
+		return &models.DeleteItem{
+			Success: false,
+		}, err
+	}
+	r.Logger.Infof("successfully deleted permission with ID %s", id)
+	return &models.DeleteItem{
+		Success: true,
+	}, nil
 }
 
 func (r *queryResolver) Permission(ctx context.Context, id string) (*user.Permission, error) {

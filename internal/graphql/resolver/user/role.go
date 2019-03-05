@@ -20,13 +20,68 @@ func (r *Resolver) Role() generated.RoleResolver {
 type roleResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateRole(ctx context.Context, input *models.CreateRoleInput) (*user.Role, error) {
-	panic("not implemented")
+	n, err := r.RoleClient.CreateRole(context.Background(), &user.CreateRoleRequest{
+		Data: &user.CreateRoleRequest_Data{
+			Type: "role",
+			Attributes: &user.RoleAttributes{
+				Role:        input.Role,
+				Description: input.Description,
+			},
+		},
+	})
+	if err != nil {
+		r.Logger.Errorf("error creating new role %s", err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully created new role with ID %d", n.Data.Id)
+	return n, nil
 }
 func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*user.Role, error) {
-	panic("not implemented")
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
+		return nil, err
+	}
+	n, err := r.RoleClient.UpdateRole(context.Background(), &user.UpdateRoleRequest{
+		Id: i,
+		Data: &user.UpdateRoleRequest_Data{
+			Id:   i,
+			Type: "role",
+			Attributes: &user.RoleAttributes{
+				Role:        input.Role,
+				Description: input.Description,
+				UpdatedAt:   aphgrpc.TimestampProto(time.Now()),
+			},
+		},
+	})
+	if err != nil {
+		r.Logger.Errorf("error updating role %d: %s", n.Data.Id, err)
+		return nil, err
+	}
+	o, err := r.RoleClient.GetRole(context.Background(), &jsonapi.GetRequest{Id: i})
+	if err != nil {
+		r.Logger.Errorf("error fetching recently updated role: %s", err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully updated role with ID %d", n.Data.Id)
+	return o, nil
 }
 func (r *mutationResolver) DeleteRole(ctx context.Context, id string) (*models.DeleteItem, error) {
-	panic("not implemented")
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
+		return nil, err
+	}
+	if _, err := r.RoleClient.DeleteRole(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
+		r.Logger.Errorf("error deleting role with ID %s: %s", id, err)
+		return &models.DeleteItem{
+			Success: false,
+		}, err
+	}
+	r.Logger.Infof("successfully deleted role with ID %s", id)
+	return &models.DeleteItem{
+		Success: true,
+	}, nil
 }
 func (r *queryResolver) Role(ctx context.Context, id string) (*user.Role, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
