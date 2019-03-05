@@ -63,10 +63,9 @@ type UpdateUserInput struct {
 	IsActive      *bool   `json:"is_active"`
 }
 
-type UserListWithCursor struct {
-	Users          []user.User `json:"users"`
-	NextCursor     string      `json:"nextCursor"`
-	PreviousCursor string      `json:"previousCursor"`
-	Limit          *int        `json:"limit"`
-	TotalCount     int         `json:"totalCount"`
+type UserList struct {
+	Users      []user.User `json:"users"`
+	PageNum    *string     `json:"pageNum"`
+	PageSize   *string     `json:"pageSize"`
+	TotalCount int         `json:"totalCount"`
 }

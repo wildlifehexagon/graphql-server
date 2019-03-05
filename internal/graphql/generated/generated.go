@@ -50,15 +50,17 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateUser       func(childComplexity int, input *models.CreateUserInput) int
-		UpdateUser       func(childComplexity int, id string, input *models.UpdateUserInput) int
-		DeleteUser       func(childComplexity int, id string) int
-		CreateRole       func(childComplexity int, input *models.CreateRoleInput) int
-		UpdateRole       func(childComplexity int, id string, input *models.UpdateRoleInput) int
-		DeleteRole       func(childComplexity int, id string) int
-		CreatePermission func(childComplexity int, input *models.CreatePermissionInput) int
-		UpdatePermission func(childComplexity int, id string, input *models.UpdatePermissionInput) int
-		DeletePermission func(childComplexity int, id string) int
+		CreateUser                       func(childComplexity int, input *models.CreateUserInput) int
+		CreateUserRoleRelationship       func(childComplexity int, userId string, roleId string) int
+		UpdateUser                       func(childComplexity int, id string, input *models.UpdateUserInput) int
+		DeleteUser                       func(childComplexity int, id string) int
+		CreateRole                       func(childComplexity int, input *models.CreateRoleInput) int
+		CreateRolePermissionRelationship func(childComplexity int, roleId string, permissionId string) int
+		UpdateRole                       func(childComplexity int, id string, input *models.UpdateRoleInput) int
+		DeleteRole                       func(childComplexity int, id string) int
+		CreatePermission                 func(childComplexity int, input *models.CreatePermissionInput) int
+		UpdatePermission                 func(childComplexity int, id string, input *models.UpdatePermissionInput) int
+		DeletePermission                 func(childComplexity int, id string) int
 	}
 
 	Permission struct {
@@ -73,7 +75,7 @@ type ComplexityRoot struct {
 	Query struct {
 		User            func(childComplexity int, id string) int
 		UserByEmail     func(childComplexity int, email string) int
-		ListUsers       func(childComplexity int, cursor *string, limit *int, filter *string) int
+		ListUsers       func(childComplexity int, pagenum *string, pagesize *string, filter *string) int
 		Role            func(childComplexity int, id string) int
 		ListRoles       func(childComplexity int) int
 		Permission      func(childComplexity int, id string) int
@@ -109,20 +111,21 @@ type ComplexityRoot struct {
 		Roles         func(childComplexity int) int
 	}
 
-	UserListWithCursor struct {
-		Users          func(childComplexity int) int
-		NextCursor     func(childComplexity int) int
-		PreviousCursor func(childComplexity int) int
-		Limit          func(childComplexity int) int
-		TotalCount     func(childComplexity int) int
+	UserList struct {
+		Users      func(childComplexity int) int
+		PageNum    func(childComplexity int) int
+		PageSize   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error)
+	CreateUserRoleRelationship(ctx context.Context, userId string, roleId string) (*user.User, error)
 	UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error)
 	DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error)
 	CreateRole(ctx context.Context, input *models.CreateRoleInput) (*user.Role, error)
+	CreateRolePermissionRelationship(ctx context.Context, roleId string, permissionId string) (*user.Role, error)
 	UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*user.Role, error)
 	DeleteRole(ctx context.Context, id string) (*models.DeleteItem, error)
 	CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*user.Permission, error)
@@ -140,7 +143,7 @@ type PermissionResolver interface {
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
-	ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*models.UserListWithCursor, error)
+	ListUsers(ctx context.Context, pagenum *string, pagesize *string, filter *string) (*models.UserList, error)
 	Role(ctx context.Context, id string) (*user.Role, error)
 	ListRoles(ctx context.Context) ([]user.Role, error)
 	Permission(ctx context.Context, id string) (*user.Permission, error)
@@ -190,6 +193,30 @@ func field_Mutation_createUser_args(rawArgs map[string]interface{}) (map[string]
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+
+}
+
+func field_Mutation_createUserRoleRelationship_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userId"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["roleId"]; ok {
+		var err error
+		arg1, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["roleId"] = arg1
 	return args, nil
 
 }
@@ -254,6 +281,30 @@ func field_Mutation_createRole_args(rawArgs map[string]interface{}) (map[string]
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+
+}
+
+func field_Mutation_createRolePermissionRelationship_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["roleId"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["roleId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["permissionId"]; ok {
+		var err error
+		arg1, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["permissionId"] = arg1
 	return args, nil
 
 }
@@ -399,11 +450,11 @@ func field_Query_userByEmail_args(rawArgs map[string]interface{}) (map[string]in
 func field_Query_listUsers_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
 	var arg0 *string
-	if tmp, ok := rawArgs["cursor"]; ok {
+	if tmp, ok := rawArgs["pagenum"]; ok {
 		var err error
 		var ptr1 string
 		if tmp != nil {
-			ptr1, err = graphql.UnmarshalID(tmp)
+			ptr1, err = graphql.UnmarshalString(tmp)
 			arg0 = &ptr1
 		}
 
@@ -411,13 +462,13 @@ func field_Query_listUsers_args(rawArgs map[string]interface{}) (map[string]inte
 			return nil, err
 		}
 	}
-	args["cursor"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
+	args["pagenum"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["pagesize"]; ok {
 		var err error
-		var ptr1 int
+		var ptr1 string
 		if tmp != nil {
-			ptr1, err = graphql.UnmarshalInt(tmp)
+			ptr1, err = graphql.UnmarshalString(tmp)
 			arg1 = &ptr1
 		}
 
@@ -425,7 +476,7 @@ func field_Query_listUsers_args(rawArgs map[string]interface{}) (map[string]inte
 			return nil, err
 		}
 	}
-	args["limit"] = arg1
+	args["pagesize"] = arg1
 	var arg2 *string
 	if tmp, ok := rawArgs["filter"]; ok {
 		var err error
@@ -551,6 +602,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(*models.CreateUserInput)), true
 
+	case "Mutation.createUserRoleRelationship":
+		if e.complexity.Mutation.CreateUserRoleRelationship == nil {
+			break
+		}
+
+		args, err := field_Mutation_createUserRoleRelationship_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateUserRoleRelationship(childComplexity, args["userId"].(string), args["roleId"].(string)), true
+
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
 			break
@@ -586,6 +649,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateRole(childComplexity, args["input"].(*models.CreateRoleInput)), true
+
+	case "Mutation.createRolePermissionRelationship":
+		if e.complexity.Mutation.CreateRolePermissionRelationship == nil {
+			break
+		}
+
+		args, err := field_Mutation_createRolePermissionRelationship_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateRolePermissionRelationship(childComplexity, args["roleId"].(string), args["permissionId"].(string)), true
 
 	case "Mutation.updateRole":
 		if e.complexity.Mutation.UpdateRole == nil {
@@ -723,7 +798,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListUsers(childComplexity, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string)), true
+		return e.complexity.Query.ListUsers(childComplexity, args["pagenum"].(*string), args["pagesize"].(*string), args["filter"].(*string)), true
 
 	case "Query.role":
 		if e.complexity.Query.Role == nil {
@@ -924,40 +999,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Roles(childComplexity), true
 
-	case "UserListWithCursor.users":
-		if e.complexity.UserListWithCursor.Users == nil {
+	case "UserList.users":
+		if e.complexity.UserList.Users == nil {
 			break
 		}
 
-		return e.complexity.UserListWithCursor.Users(childComplexity), true
+		return e.complexity.UserList.Users(childComplexity), true
 
-	case "UserListWithCursor.nextCursor":
-		if e.complexity.UserListWithCursor.NextCursor == nil {
+	case "UserList.pageNum":
+		if e.complexity.UserList.PageNum == nil {
 			break
 		}
 
-		return e.complexity.UserListWithCursor.NextCursor(childComplexity), true
+		return e.complexity.UserList.PageNum(childComplexity), true
 
-	case "UserListWithCursor.previousCursor":
-		if e.complexity.UserListWithCursor.PreviousCursor == nil {
+	case "UserList.pageSize":
+		if e.complexity.UserList.PageSize == nil {
 			break
 		}
 
-		return e.complexity.UserListWithCursor.PreviousCursor(childComplexity), true
+		return e.complexity.UserList.PageSize(childComplexity), true
 
-	case "UserListWithCursor.limit":
-		if e.complexity.UserListWithCursor.Limit == nil {
+	case "UserList.totalCount":
+		if e.complexity.UserList.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.UserListWithCursor.Limit(childComplexity), true
-
-	case "UserListWithCursor.totalCount":
-		if e.complexity.UserListWithCursor.TotalCount == nil {
-			break
-		}
-
-		return e.complexity.UserListWithCursor.TotalCount(childComplexity), true
+		return e.complexity.UserList.TotalCount(childComplexity), true
 
 	}
 	return 0, false
@@ -1082,12 +1150,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "createUser":
 			out.Values[i] = ec._Mutation_createUser(ctx, field)
+		case "createUserRoleRelationship":
+			out.Values[i] = ec._Mutation_createUserRoleRelationship(ctx, field)
 		case "updateUser":
 			out.Values[i] = ec._Mutation_updateUser(ctx, field)
 		case "deleteUser":
 			out.Values[i] = ec._Mutation_deleteUser(ctx, field)
 		case "createRole":
 			out.Values[i] = ec._Mutation_createRole(ctx, field)
+		case "createRolePermissionRelationship":
+			out.Values[i] = ec._Mutation_createRolePermissionRelationship(ctx, field)
 		case "updateRole":
 			out.Values[i] = ec._Mutation_updateRole(ctx, field)
 		case "deleteRole":
@@ -1129,6 +1201,41 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(*models.CreateUserInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*user.User)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._User(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_createUserRoleRelationship(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createUserRoleRelationship_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateUserRoleRelationship(rctx, args["userId"].(string), args["roleId"].(string))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1234,6 +1341,41 @@ func (ec *executionContext) _Mutation_createRole(ctx context.Context, field grap
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateRole(rctx, args["input"].(*models.CreateRoleInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*user.Role)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Role(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_createRolePermissionRelationship(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createRolePermissionRelationship_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateRolePermissionRelationship(rctx, args["roleId"].(string), args["permissionId"].(string))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1829,12 +1971,12 @@ func (ec *executionContext) _Query_listUsers(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListUsers(rctx, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string))
+		return ec.resolvers.Query().ListUsers(rctx, args["pagenum"].(*string), args["pagesize"].(*string), args["filter"].(*string))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.UserListWithCursor)
+	res := resTmp.(*models.UserList)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1842,7 +1984,7 @@ func (ec *executionContext) _Query_listUsers(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 
-	return ec._UserListWithCursor(ctx, field.Selections, res)
+	return ec._UserList(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -3009,11 +3151,11 @@ func (ec *executionContext) _User_roles(ctx context.Context, field graphql.Colle
 	return arr1
 }
 
-var userListWithCursorImplementors = []string{"UserListWithCursor"}
+var userListImplementors = []string{"UserList"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _UserListWithCursor(ctx context.Context, sel ast.SelectionSet, obj *models.UserListWithCursor) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, userListWithCursorImplementors)
+func (ec *executionContext) _UserList(ctx context.Context, sel ast.SelectionSet, obj *models.UserList) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, userListImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -3022,26 +3164,18 @@ func (ec *executionContext) _UserListWithCursor(ctx context.Context, sel ast.Sel
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UserListWithCursor")
+			out.Values[i] = graphql.MarshalString("UserList")
 		case "users":
-			out.Values[i] = ec._UserListWithCursor_users(ctx, field, obj)
+			out.Values[i] = ec._UserList_users(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
-		case "nextCursor":
-			out.Values[i] = ec._UserListWithCursor_nextCursor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "previousCursor":
-			out.Values[i] = ec._UserListWithCursor_previousCursor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "limit":
-			out.Values[i] = ec._UserListWithCursor_limit(ctx, field, obj)
+		case "pageNum":
+			out.Values[i] = ec._UserList_pageNum(ctx, field, obj)
+		case "pageSize":
+			out.Values[i] = ec._UserList_pageSize(ctx, field, obj)
 		case "totalCount":
-			out.Values[i] = ec._UserListWithCursor_totalCount(ctx, field, obj)
+			out.Values[i] = ec._UserList_totalCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -3057,11 +3191,11 @@ func (ec *executionContext) _UserListWithCursor(ctx context.Context, sel ast.Sel
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_users(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserList_users(ctx context.Context, field graphql.CollectedField, obj *models.UserList) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
-		Object: "UserListWithCursor",
+		Object: "UserList",
 		Args:   nil,
 		Field:  field,
 	}
@@ -3117,11 +3251,11 @@ func (ec *executionContext) _UserListWithCursor_users(ctx context.Context, field
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserList_pageNum(ctx context.Context, field graphql.CollectedField, obj *models.UserList) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
-		Object: "UserListWithCursor",
+		Object: "UserList",
 		Args:   nil,
 		Field:  field,
 	}
@@ -3129,81 +3263,55 @@ func (ec *executionContext) _UserListWithCursor_nextCursor(ctx context.Context, 
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.NextCursor, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalID(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_previousCursor(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object: "UserListWithCursor",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PreviousCursor, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalID(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_limit(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object: "UserListWithCursor",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Limit, nil
+		return obj.PageNum, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*string)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
 	if res == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalInt(*res)
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _UserListWithCursor_totalCount(ctx context.Context, field graphql.CollectedField, obj *models.UserListWithCursor) graphql.Marshaler {
+func (ec *executionContext) _UserList_pageSize(ctx context.Context, field graphql.CollectedField, obj *models.UserList) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
-		Object: "UserListWithCursor",
+		Object: "UserList",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageSize, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _UserList_totalCount(ctx context.Context, field graphql.CollectedField, obj *models.UserList) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "UserList",
 		Args:   nil,
 		Field:  field,
 	}
@@ -5090,7 +5198,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
 	&ast.Source{Name: "api/user.graphql", Input: `type Query {
   user(id: ID!): User
   userByEmail(email: String!): User
-  listUsers(cursor: ID, limit: Int, filter: String): UserListWithCursor
+  listUsers(pagenum: String, pagesize: String, filter: String): UserList
   role(id: ID!): Role
   listRoles: [Role!]
   permission(id: ID!): Permission
@@ -5099,9 +5207,11 @@ var parsedSchema = gqlparser.MustLoadSchema(
 
 type Mutation {
   createUser(input: CreateUserInput): User
+  createUserRoleRelationship(userId: ID!, roleId: ID!): User
   updateUser(id: ID!, input: UpdateUserInput): User
   deleteUser(id: ID!): DeleteItem
   createRole(input: CreateRoleInput): Role
+  createRolePermissionRelationship(roleId: ID!, permissionId: ID!): Role
   updateRole(id: ID!, input: UpdateRoleInput): Role
   deleteRole(id: ID!): DeleteItem
   createPermission(input: CreatePermissionInput): Permission
@@ -5149,11 +5259,10 @@ type User {
   roles: [Role!]
 }
 
-type UserListWithCursor {
+type UserList {
   users: [User!]!
-  nextCursor: ID!
-  previousCursor: ID!
-  limit: Int
+  pageNum: String
+  pageSize: String
   totalCount: Int!
 }
 

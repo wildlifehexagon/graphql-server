@@ -1,7 +1,7 @@
 type Query {
   user(id: ID!): User
   userByEmail(email: String!): User
-  listUsers(cursor: ID, limit: Int, filter: String): UserListWithCursor
+  listUsers(pagenum: String, pagesize: String, filter: String): UserList
   role(id: ID!): Role
   listRoles: [Role!]
   permission(id: ID!): Permission
@@ -10,9 +10,11 @@ type Query {
 
 type Mutation {
   createUser(input: CreateUserInput): User
+  createUserRoleRelationship(userId: ID!, roleId: ID!): User
   updateUser(id: ID!, input: UpdateUserInput): User
   deleteUser(id: ID!): DeleteItem
   createRole(input: CreateRoleInput): Role
+  createRolePermissionRelationship(roleId: ID!, permissionId: ID!): Role
   updateRole(id: ID!, input: UpdateRoleInput): Role
   deleteRole(id: ID!): DeleteItem
   createPermission(input: CreatePermissionInput): Permission
@@ -60,11 +62,10 @@ type User {
   roles: [Role!]
 }
 
-type UserListWithCursor {
+type UserList {
   users: [User!]!
-  nextCursor: ID!
-  previousCursor: ID!
-  limit: Int
+  pageNum: String
+  pageSize: String
   totalCount: Int!
 }
 

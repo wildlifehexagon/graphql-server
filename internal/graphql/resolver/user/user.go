@@ -39,7 +39,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 	attr := &user.UserAttributes{}
 	a := normalizeCreateUserAttr(input)
 	mapstructure.Decode(a, attr)
-	n, err := r.UserClient.CreateUser(context.Background(), &user.CreateUserRequest{
+	n, err := r.UserClient.CreateUser(ctx, &user.CreateUserRequest{
 		Data: &user.CreateUserRequest_Data{
 			Type: "user",
 			Attributes: &user.UserAttributes{
@@ -78,6 +78,38 @@ func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{
 		}
 	}
 	return newAttr
+}
+
+func (r *mutationResolver) CreateUserRoleRelationship(ctx context.Context, userId string, roleId string) (*user.User, error) {
+	uid, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", userId, err)
+		return nil, err
+	}
+	rid, err := strconv.ParseInt(roleId, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", roleId, err)
+		return nil, err
+	}
+	rr, err := r.UserClient.CreateRoleRelationship(ctx, &jsonapi.DataCollection{
+		Id: uid,
+		Data: []*jsonapi.Data{
+			{
+				Type: "role",
+				Id:   rid,
+			},
+		}})
+	if err != nil {
+		r.Logger.Errorf("error in creating role relationship with user %s", err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully created user ID %d relationship role with ID %d %s", uid, rid, rr)
+	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: uid})
+	if err != nil {
+		r.Logger.Errorf("error in getting user by ID %d: %s", uid, err)
+		return nil, err
+	}
+	return g, nil
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error) {
@@ -225,7 +257,7 @@ func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.Us
 	return g, nil
 }
 
-func (r *queryResolver) ListUsers(ctx context.Context, cursor *string, limit *int, filter *string) (*models.UserListWithCursor, error) {
+func (r *queryResolver) ListUsers(ctx context.Context, pagenum *string, pagesize *string, filter *string) (*models.UserList, error) {
 	panic("not implemented")
 }
 

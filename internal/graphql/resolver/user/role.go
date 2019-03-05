@@ -36,6 +36,37 @@ func (r *mutationResolver) CreateRole(ctx context.Context, input *models.CreateR
 	r.Logger.Infof("successfully created new role with ID %d", n.Data.Id)
 	return n, nil
 }
+func (r *mutationResolver) CreateRolePermissionRelationship(ctx context.Context, roleId string, permissionId string) (*user.Role, error) {
+	rid, err := strconv.ParseInt(roleId, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", roleId, err)
+		return nil, err
+	}
+	pid, err := strconv.ParseInt(permissionId, 10, 64)
+	if err != nil {
+		r.Logger.Errorf("error in parsing string %s to int %s", permissionId, err)
+		return nil, err
+	}
+	rr, err := r.RoleClient.CreatePermissionRelationship(ctx, &jsonapi.DataCollection{
+		Id: rid,
+		Data: []*jsonapi.Data{
+			{
+				Type: "permission",
+				Id:   pid,
+			},
+		}})
+	if err != nil {
+		r.Logger.Errorf("error in creating permission relationship with role %s", err)
+		return nil, err
+	}
+	r.Logger.Infof("successfully created role ID %d relationship permission with ID %d %s", rid, pid, rr)
+	g, err := r.RoleClient.GetRole(ctx, &jsonapi.GetRequest{Id: rid})
+	if err != nil {
+		r.Logger.Errorf("error in getting role by ID %d: %s", rid, err)
+		return nil, err
+	}
+	return g, nil
+}
 func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input *models.UpdateRoleInput) (*user.Role, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
