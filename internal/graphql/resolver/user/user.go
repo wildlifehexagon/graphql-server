@@ -86,43 +86,13 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
 		return nil, err
 	}
-	attr := &user.UserAttributes{}
-	if input.FirstName != nil {
-		attr.FirstName = *input.FirstName
+	f, err := r.UserClient.GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
+	if err != nil {
+		r.Logger.Errorf("error fetching user with ID %s %s", id, err)
+		return nil, err
 	}
-	if input.LastName != nil {
-		attr.LastName = *input.LastName
-	}
-	if input.Organization != nil {
-		attr.Organization = *input.Organization
-	}
-	if input.GroupName != nil {
-		attr.GroupName = *input.GroupName
-	}
-	if input.FirstAddress != nil {
-		attr.FirstAddress = *input.FirstAddress
-	}
-	if input.SecondAddress != nil {
-		attr.SecondAddress = *input.SecondAddress
-	}
-	if input.City != nil {
-		attr.City = *input.City
-	}
-	if input.State != nil {
-		attr.State = *input.State
-	}
-	if input.Zipcode != nil {
-		attr.Zipcode = *input.Zipcode
-	}
-	if input.Country != nil {
-		attr.Country = *input.Country
-	}
-	if input.Phone != nil {
-		attr.Phone = *input.Phone
-	}
-	if input.IsActive != nil {
-		attr.IsActive = *input.IsActive
-	}
+	attr := getUpdateUserAttributes(input, f)
+	attr.Email = f.Data.Attributes.Email
 	attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
 	n, err := r.UserClient.UpdateUser(context.Background(), &user.UpdateUserRequest{
 		Id: i,
@@ -143,6 +113,71 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	}
 	r.Logger.Infof("successfully updated user with ID %d", n.Data.Id)
 	return o, nil
+}
+
+func getUpdateUserAttributes(input *models.UpdateUserInput, f *user.User) *user.UserAttributes {
+	attr := &user.UserAttributes{}
+	if input.FirstName != nil {
+		attr.FirstName = *input.FirstName
+	} else {
+		attr.FirstName = f.Data.Attributes.FirstName
+	}
+	if input.LastName != nil {
+		attr.LastName = *input.LastName
+	} else {
+		attr.LastName = f.Data.Attributes.LastName
+	}
+	if input.Organization != nil {
+		attr.Organization = *input.Organization
+	} else {
+		attr.Organization = f.Data.Attributes.Organization
+	}
+	if input.GroupName != nil {
+		attr.GroupName = *input.GroupName
+	} else {
+		attr.GroupName = f.Data.Attributes.GroupName
+	}
+	if input.FirstAddress != nil {
+		attr.FirstAddress = *input.FirstAddress
+	} else {
+		attr.FirstAddress = f.Data.Attributes.FirstAddress
+	}
+	if input.SecondAddress != nil {
+		attr.SecondAddress = *input.SecondAddress
+	} else {
+		attr.SecondAddress = f.Data.Attributes.SecondAddress
+	}
+	if input.City != nil {
+		attr.City = *input.City
+	} else {
+		attr.City = f.Data.Attributes.City
+	}
+	if input.State != nil {
+		attr.State = *input.State
+	} else {
+		attr.State = f.Data.Attributes.State
+	}
+	if input.Zipcode != nil {
+		attr.Zipcode = *input.Zipcode
+	} else {
+		attr.Zipcode = f.Data.Attributes.Zipcode
+	}
+	if input.Country != nil {
+		attr.Country = *input.Country
+	} else {
+		attr.Country = f.Data.Attributes.Country
+	}
+	if input.Phone != nil {
+		attr.Phone = *input.Phone
+	} else {
+		attr.Phone = f.Data.Attributes.Phone
+	}
+	if input.IsActive != nil {
+		attr.IsActive = *input.IsActive
+	} else {
+		attr.IsActive = f.Data.Attributes.IsActive
+	}
+	return attr
 }
 
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error) {
