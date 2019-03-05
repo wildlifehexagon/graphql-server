@@ -98,7 +98,29 @@ func (r *queryResolver) Role(ctx context.Context, id string) (*user.Role, error)
 	return g, nil
 }
 func (r *queryResolver) ListRoles(ctx context.Context) ([]user.Role, error) {
-	panic("not implemented")
+	roles := []user.Role{}
+	l, err := r.RoleClient.ListRoles(ctx, &jsonapi.SimpleListRequest{})
+	if err != nil {
+		r.Logger.Errorf("error in listing roles %s", err)
+		return nil, err
+	}
+	for _, n := range l.Data {
+		item := user.Role{
+			Data: &user.RoleData{
+				Type: "role",
+				Id:   n.Id,
+				Attributes: &user.RoleAttributes{
+					Role:        n.Attributes.Role,
+					Description: n.Attributes.Description,
+					CreatedAt:   n.Attributes.CreatedAt,
+					UpdatedAt:   n.Attributes.UpdatedAt,
+				},
+			},
+		}
+		roles = append(roles, item)
+	}
+	r.Logger.Infof("successfully provided list of %d roles", len(roles))
+	return roles, nil
 }
 
 func (r *roleResolver) ID(ctx context.Context, obj *user.Role) (string, error) {

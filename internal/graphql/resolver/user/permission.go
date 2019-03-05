@@ -101,7 +101,30 @@ func (r *queryResolver) Permission(ctx context.Context, id string) (*user.Permis
 	return g, nil
 }
 func (r *queryResolver) ListPermissions(ctx context.Context) ([]user.Permission, error) {
-	panic("not implemented")
+	permissions := []user.Permission{}
+	l, err := r.PermissionClient.ListPermissions(ctx, &jsonapi.SimpleListRequest{})
+	if err != nil {
+		r.Logger.Errorf("error in listing permissions %s", err)
+		return nil, err
+	}
+	for _, n := range l.Data {
+		item := user.Permission{
+			Data: &user.PermissionData{
+				Type: "permission",
+				Id:   n.Id,
+				Attributes: &user.PermissionAttributes{
+					Permission:  n.Attributes.Permission,
+					Description: n.Attributes.Description,
+					CreatedAt:   n.Attributes.CreatedAt,
+					UpdatedAt:   n.Attributes.UpdatedAt,
+					Resource:    n.Attributes.Resource,
+				},
+			},
+		}
+		permissions = append(permissions, item)
+	}
+	r.Logger.Infof("successfully provided list of %d permissions", len(permissions))
+	return permissions, nil
 }
 
 func (r *permissionResolver) ID(ctx context.Context, obj *user.Permission) (string, error) {
