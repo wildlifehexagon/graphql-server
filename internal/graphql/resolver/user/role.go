@@ -139,5 +139,28 @@ func (r *roleResolver) UpdatedAt(ctx context.Context, obj *user.Role) (time.Time
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
 }
 func (r *roleResolver) Permissions(ctx context.Context, obj *user.Role) ([]user.Permission, error) {
-	panic("not implemented")
+	permissions := []user.Permission{}
+	rp, err := r.RoleClient.GetRelatedPermissions(ctx, &jsonapi.RelationshipRequest{Id: obj.Data.Id})
+	if err != nil {
+		r.Logger.Errorf("error getting list of related permissions for role ID %d: %s", obj.Data.Id, err)
+		return permissions, err
+	}
+	for _, n := range rp.Data {
+		item := user.Permission{
+			Data: &user.PermissionData{
+				Type: "permission",
+				Id:   n.Id,
+				Attributes: &user.PermissionAttributes{
+					Permission:  n.Attributes.Permission,
+					Description: n.Attributes.Description,
+					CreatedAt:   n.Attributes.CreatedAt,
+					UpdatedAt:   n.Attributes.UpdatedAt,
+					Resource:    n.Attributes.Resource,
+				},
+			},
+		}
+		permissions = append(permissions, item)
+	}
+	r.Logger.Infof("successfully retrieved list of %d permissions for role ID %d", len(permissions), obj.Data.Id)
+	return permissions, nil
 }

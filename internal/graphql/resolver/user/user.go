@@ -280,5 +280,27 @@ func (r *userResolver) UpdatedAt(ctx context.Context, obj *user.User) (time.Time
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
 }
 func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]user.Role, error) {
-	panic("not implemented")
+	roles := []user.Role{}
+	rr, err := r.UserClient.GetRelatedRoles(ctx, &jsonapi.RelationshipRequest{Id: obj.Data.Id})
+	if err != nil {
+		r.Logger.Errorf("error getting list of related roles for user ID %d: %s", obj.Data.Id, err)
+		return roles, err
+	}
+	for _, n := range rr.Data {
+		item := user.Role{
+			Data: &user.RoleData{
+				Type: "role",
+				Id:   n.Id,
+				Attributes: &user.RoleAttributes{
+					Role:        n.Attributes.Role,
+					Description: n.Attributes.Description,
+					CreatedAt:   n.Attributes.CreatedAt,
+					UpdatedAt:   n.Attributes.UpdatedAt,
+				},
+			},
+		}
+		roles = append(roles, item)
+	}
+	r.Logger.Infof("successfully retrieved list of %d roles for user ID %d", len(roles), obj.Data.Id)
+	return roles, nil
 }
