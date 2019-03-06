@@ -1,6 +1,7 @@
 type Query {
   stock(id: ID!): Stock
-  listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
+  listStrains(cursor: ID, limit: Int, filter: String): StockListWithCursor
+  listPlasmids(cursor: ID, limit: Int, filter: String): StockListWithCursor
 }
 
 type Mutation {
@@ -30,7 +31,7 @@ type Stock {
 
 type StrainProperties {
   systematic_name: String!
-  descriptor: String!
+  label: String!
   species: String!
   plasmid: String
   parent: String
@@ -64,7 +65,7 @@ input CreateStrainInput {
 
 input CreateStrainPropertiesInput {
   systematic_name: String!
-  descriptor: String!
+  label: String!
   species: String!
   plasmid: String
   parent: String
@@ -102,7 +103,7 @@ input UpdateStockInput {
 
 input UpdateStrainPropertiesInput {
   systematic_name: String
-  descriptor: String
+  label: String
   species: String
   plasmid: String
   parent: String
