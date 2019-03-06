@@ -25,7 +25,8 @@ type Query {
   # ): PublicationListWithCursor
   # Stock queries
   # stock(id: ID!): Stock
-  # listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
+  # listStrains(cursor: ID, limit: Int, filter: String): StockListWithCursor
+  # listPlasmids(cursor: ID, limit: Int, filter: String): StockListWithCursor
   # User queries
   user(id: ID!): User
   userByEmail(email: String!): User
