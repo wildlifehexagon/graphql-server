@@ -1,7 +1,7 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "graphql-server.fullname" . }}
+  name: {{ include "graphql-server.fullname" . }}
   labels:
     app: {{ template "graphql-server.fullname" . }}
     chart: {{ template "graphql-server.chart" . }}
@@ -29,11 +29,26 @@ spec:
           ports:
             - name: {{ .Values.service.name }}
               containerPort: {{ .Values.service.port }}
-      {{- if .Values.resources }}
+              protocol: TCP
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
           resources:
-{{ toYaml .Values.resources | indent 12 }}
-      {{- end }}
-    {{- if .Values.nodeSelector }}
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
-{{- end }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
