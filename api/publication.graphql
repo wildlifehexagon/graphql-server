@@ -1,3 +1,20 @@
+type Query {
+  publication(id: ID!): Publication
+  listPublications(
+    cursor: ID
+    limit: Int
+    filter: String
+  ): PublicationListWithCursor
+}
+
+type Mutation {
+  createPublication(input: CreatePublicationInput): Publication
+  updatePublication(id: ID!, input: UpdatePublicationInput): Publication
+  deletePublication(id: ID!): DeleteItem
+}
+
+scalar Timestamp
+
 type Publication {
   id: ID!
   doi: String

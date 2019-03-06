@@ -1,3 +1,17 @@
+type Query {
+  stock(id: ID!): Stock
+  listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
+}
+
+type Mutation {
+  createStrain(input: CreateStrainInput): Stock
+  createPlasmid(input: CreatePlasmidInput): Stock
+  updateStock(id: ID!, input: UpdateStockInput): Stock
+  deleteStock(id: ID!): DeleteItem
+}
+
+scalar Timestamp
+
 type Stock {
   id: ID!
   created_at: Timestamp!
@@ -19,7 +33,7 @@ type StrainProperties {
   descriptor: String!
   species: String!
   plasmid: String
-  parents: [String]
+  parent: String
   names: [String]
 }
 
@@ -53,7 +67,7 @@ input CreateStrainPropertiesInput {
   descriptor: String!
   species: String!
   plasmid: String
-  parents: [String]
+  parent: String
   names: [String]
 }
 
@@ -91,7 +105,7 @@ input UpdateStrainPropertiesInput {
   descriptor: String
   species: String
   plasmid: String
-  parents: [String]
+  parent: String
   names: [String]
 }
 
