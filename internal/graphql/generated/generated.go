@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/vektah/gqlparser"
@@ -35,6 +36,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Mutation() MutationResolver
+	Order() OrderResolver
 	Permission() PermissionResolver
 	Query() QueryResolver
 	Role() RoleResolver
@@ -50,6 +52,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateOrder                      func(childComplexity int, input *models.CreateOrderInput) int
+		UpdateOrder                      func(childComplexity int, id string, input *models.UpdateOrderInput) int
 		CreateUser                       func(childComplexity int, input *models.CreateUserInput) int
 		CreateUserRoleRelationship       func(childComplexity int, userId string, roleId string) int
 		UpdateUser                       func(childComplexity int, id string, input *models.UpdateUserInput) int
@@ -63,6 +67,30 @@ type ComplexityRoot struct {
 		DeletePermission                 func(childComplexity int, id string) int
 	}
 
+	Order struct {
+		Id               func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
+		Courier          func(childComplexity int) int
+		CourerAccount    func(childComplexity int) int
+		Comments         func(childComplexity int) int
+		Payment          func(childComplexity int) int
+		PurchaseOrderNum func(childComplexity int) int
+		Status           func(childComplexity int) int
+		Consumer         func(childComplexity int) int
+		Payer            func(childComplexity int) int
+		Purchaser        func(childComplexity int) int
+		Items            func(childComplexity int) int
+	}
+
+	OrderListWithCursor struct {
+		Orders         func(childComplexity int) int
+		NextCursor     func(childComplexity int) int
+		PreviousCursor func(childComplexity int) int
+		Limit          func(childComplexity int) int
+		TotalCount     func(childComplexity int) int
+	}
+
 	Permission struct {
 		Id          func(childComplexity int) int
 		Permission  func(childComplexity int) int
@@ -73,6 +101,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Order           func(childComplexity int, id string) int
+		ListOrders      func(childComplexity int, cursor *string, limit *int, filter *string) int
 		User            func(childComplexity int, id string) int
 		UserByEmail     func(childComplexity int, email string) int
 		ListUsers       func(childComplexity int, pagenum string, pagesize string, filter string) int
@@ -120,6 +150,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
+	CreateOrder(ctx context.Context, input *models.CreateOrderInput) (*order.Order, error)
+	UpdateOrder(ctx context.Context, id string, input *models.UpdateOrderInput) (*order.Order, error)
 	CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error)
 	CreateUserRoleRelationship(ctx context.Context, userId string, roleId string) (*user.User, error)
 	UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error)
@@ -132,6 +164,21 @@ type MutationResolver interface {
 	UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*user.Permission, error)
 	DeletePermission(ctx context.Context, id string) (*models.DeleteItem, error)
 }
+type OrderResolver interface {
+	ID(ctx context.Context, obj *order.Order) (string, error)
+	CreatedAt(ctx context.Context, obj *order.Order) (time.Time, error)
+	UpdatedAt(ctx context.Context, obj *order.Order) (time.Time, error)
+	Courier(ctx context.Context, obj *order.Order) (*string, error)
+	CourerAccount(ctx context.Context, obj *order.Order) (*string, error)
+	Comments(ctx context.Context, obj *order.Order) (*string, error)
+	Payment(ctx context.Context, obj *order.Order) (*string, error)
+	PurchaseOrderNum(ctx context.Context, obj *order.Order) (*string, error)
+	Status(ctx context.Context, obj *order.Order) (*string, error)
+	Consumer(ctx context.Context, obj *order.Order) (*string, error)
+	Payer(ctx context.Context, obj *order.Order) (*string, error)
+	Purchaser(ctx context.Context, obj *order.Order) (*string, error)
+	Items(ctx context.Context, obj *order.Order) ([]*string, error)
+}
 type PermissionResolver interface {
 	ID(ctx context.Context, obj *user.Permission) (string, error)
 	Permission(ctx context.Context, obj *user.Permission) (string, error)
@@ -141,6 +188,8 @@ type PermissionResolver interface {
 	Resource(ctx context.Context, obj *user.Permission) (*string, error)
 }
 type QueryResolver interface {
+	Order(ctx context.Context, id string) (*order.Order, error)
+	ListOrders(ctx context.Context, cursor *string, limit *int, filter *string) (*models.OrderListWithCursor, error)
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
@@ -175,6 +224,55 @@ type UserResolver interface {
 	CreatedAt(ctx context.Context, obj *user.User) (time.Time, error)
 	UpdatedAt(ctx context.Context, obj *user.User) (time.Time, error)
 	Roles(ctx context.Context, obj *user.User) ([]user.Role, error)
+}
+
+func field_Mutation_createOrder_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *models.CreateOrderInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		var ptr1 models.CreateOrderInput
+		if tmp != nil {
+			ptr1, err = UnmarshalCreateOrderInput(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+
+}
+
+func field_Mutation_updateOrder_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 *models.UpdateOrderInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		var ptr1 models.UpdateOrderInput
+		if tmp != nil {
+			ptr1, err = UnmarshalUpdateOrderInput(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+
 }
 
 func field_Mutation_createUser_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -417,6 +515,69 @@ func field_Mutation_deletePermission_args(rawArgs map[string]interface{}) (map[s
 
 }
 
+func field_Query_order_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+
+}
+
+func field_Query_listOrders_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["cursor"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalID(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		var err error
+		var ptr1 int
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalInt(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["filter"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalString(tmp)
+			arg2 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
+	return args, nil
+
+}
+
 func field_Query_user_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
 	var arg0 string
@@ -575,6 +736,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteItem.Success(childComplexity), true
 
+	case "Mutation.createOrder":
+		if e.complexity.Mutation.CreateOrder == nil {
+			break
+		}
+
+		args, err := field_Mutation_createOrder_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateOrder(childComplexity, args["input"].(*models.CreateOrderInput)), true
+
+	case "Mutation.updateOrder":
+		if e.complexity.Mutation.UpdateOrder == nil {
+			break
+		}
+
+		args, err := field_Mutation_updateOrder_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateOrder(childComplexity, args["id"].(string), args["input"].(*models.UpdateOrderInput)), true
+
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
 			break
@@ -707,6 +892,132 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeletePermission(childComplexity, args["id"].(string)), true
 
+	case "Order.id":
+		if e.complexity.Order.Id == nil {
+			break
+		}
+
+		return e.complexity.Order.Id(childComplexity), true
+
+	case "Order.created_at":
+		if e.complexity.Order.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Order.CreatedAt(childComplexity), true
+
+	case "Order.updated_at":
+		if e.complexity.Order.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Order.UpdatedAt(childComplexity), true
+
+	case "Order.courier":
+		if e.complexity.Order.Courier == nil {
+			break
+		}
+
+		return e.complexity.Order.Courier(childComplexity), true
+
+	case "Order.courer_account":
+		if e.complexity.Order.CourerAccount == nil {
+			break
+		}
+
+		return e.complexity.Order.CourerAccount(childComplexity), true
+
+	case "Order.comments":
+		if e.complexity.Order.Comments == nil {
+			break
+		}
+
+		return e.complexity.Order.Comments(childComplexity), true
+
+	case "Order.payment":
+		if e.complexity.Order.Payment == nil {
+			break
+		}
+
+		return e.complexity.Order.Payment(childComplexity), true
+
+	case "Order.purchase_order_num":
+		if e.complexity.Order.PurchaseOrderNum == nil {
+			break
+		}
+
+		return e.complexity.Order.PurchaseOrderNum(childComplexity), true
+
+	case "Order.status":
+		if e.complexity.Order.Status == nil {
+			break
+		}
+
+		return e.complexity.Order.Status(childComplexity), true
+
+	case "Order.consumer":
+		if e.complexity.Order.Consumer == nil {
+			break
+		}
+
+		return e.complexity.Order.Consumer(childComplexity), true
+
+	case "Order.payer":
+		if e.complexity.Order.Payer == nil {
+			break
+		}
+
+		return e.complexity.Order.Payer(childComplexity), true
+
+	case "Order.purchaser":
+		if e.complexity.Order.Purchaser == nil {
+			break
+		}
+
+		return e.complexity.Order.Purchaser(childComplexity), true
+
+	case "Order.Items":
+		if e.complexity.Order.Items == nil {
+			break
+		}
+
+		return e.complexity.Order.Items(childComplexity), true
+
+	case "OrderListWithCursor.orders":
+		if e.complexity.OrderListWithCursor.Orders == nil {
+			break
+		}
+
+		return e.complexity.OrderListWithCursor.Orders(childComplexity), true
+
+	case "OrderListWithCursor.nextCursor":
+		if e.complexity.OrderListWithCursor.NextCursor == nil {
+			break
+		}
+
+		return e.complexity.OrderListWithCursor.NextCursor(childComplexity), true
+
+	case "OrderListWithCursor.previousCursor":
+		if e.complexity.OrderListWithCursor.PreviousCursor == nil {
+			break
+		}
+
+		return e.complexity.OrderListWithCursor.PreviousCursor(childComplexity), true
+
+	case "OrderListWithCursor.limit":
+		if e.complexity.OrderListWithCursor.Limit == nil {
+			break
+		}
+
+		return e.complexity.OrderListWithCursor.Limit(childComplexity), true
+
+	case "OrderListWithCursor.totalCount":
+		if e.complexity.OrderListWithCursor.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.OrderListWithCursor.TotalCount(childComplexity), true
+
 	case "Permission.id":
 		if e.complexity.Permission.Id == nil {
 			break
@@ -748,6 +1059,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Permission.Resource(childComplexity), true
+
+	case "Query.order":
+		if e.complexity.Query.Order == nil {
+			break
+		}
+
+		args, err := field_Query_order_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Order(childComplexity, args["id"].(string)), true
+
+	case "Query.listOrders":
+		if e.complexity.Query.ListOrders == nil {
+			break
+		}
+
+		args, err := field_Query_listOrders_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ListOrders(childComplexity, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -1133,6 +1468,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createOrder":
+			out.Values[i] = ec._Mutation_createOrder(ctx, field)
+		case "updateOrder":
+			out.Values[i] = ec._Mutation_updateOrder(ctx, field)
 		case "createUser":
 			out.Values[i] = ec._Mutation_createUser(ctx, field)
 		case "createUserRoleRelationship":
@@ -1164,6 +1503,76 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		return graphql.Null
 	}
 	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_createOrder(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createOrder_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateOrder(rctx, args["input"].(*models.CreateOrderInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*order.Order)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Order(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_updateOrder(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_updateOrder_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateOrder(rctx, args["id"].(string), args["input"].(*models.UpdateOrderInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*order.Order)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Order(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -1551,6 +1960,705 @@ func (ec *executionContext) _Mutation_deletePermission(ctx context.Context, fiel
 	return ec._DeleteItem(ctx, field.Selections, res)
 }
 
+var orderImplementors = []string{"Order"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, obj *order.Order) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, orderImplementors)
+
+	var wg sync.WaitGroup
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Order")
+		case "id":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_id(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "created_at":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_created_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "updated_at":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_updated_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "courier":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_courier(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "courer_account":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_courer_account(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "comments":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_comments(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "payment":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_payment(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "purchase_order_num":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_purchase_order_num(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "status":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_status(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "consumer":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_consumer(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "payer":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_payer(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "purchaser":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_purchaser(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "Items":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Order_Items(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	wg.Wait()
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_id(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().ID(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_created_at(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().CreatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return models.MarshalTimestamp(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_updated_at(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().UpdatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return models.MarshalTimestamp(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_courier(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Courier(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_courer_account(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().CourerAccount(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_comments(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Comments(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_payment(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Payment(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_purchase_order_num(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().PurchaseOrderNum(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_status(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Status(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_consumer(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Consumer(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_payer(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Payer(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_purchaser(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Purchaser(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Order_Items(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Order",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Order().Items(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+var orderListWithCursorImplementors = []string{"OrderListWithCursor"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _OrderListWithCursor(ctx context.Context, sel ast.SelectionSet, obj *models.OrderListWithCursor) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, orderListWithCursorImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OrderListWithCursor")
+		case "orders":
+			out.Values[i] = ec._OrderListWithCursor_orders(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "nextCursor":
+			out.Values[i] = ec._OrderListWithCursor_nextCursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "previousCursor":
+			out.Values[i] = ec._OrderListWithCursor_previousCursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "limit":
+			out.Values[i] = ec._OrderListWithCursor_limit(ctx, field, obj)
+		case "totalCount":
+			out.Values[i] = ec._OrderListWithCursor_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _OrderListWithCursor_orders(ctx context.Context, field graphql.CollectedField, obj *models.OrderListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "OrderListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Orders, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]order.Order)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: &res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				return ec._Order(ctx, field.Selections, &res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _OrderListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *models.OrderListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "OrderListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NextCursor, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _OrderListWithCursor_previousCursor(ctx context.Context, field graphql.CollectedField, obj *models.OrderListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "OrderListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PreviousCursor, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _OrderListWithCursor_limit(ctx context.Context, field graphql.CollectedField, obj *models.OrderListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "OrderListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limit, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _OrderListWithCursor_totalCount(ctx context.Context, field graphql.CollectedField, obj *models.OrderListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "OrderListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalInt(res)
+}
+
 var permissionImplementors = []string{"Permission"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -1810,6 +2918,18 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "order":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_order(ctx, field)
+				wg.Done()
+			}(i, field)
+		case "listOrders":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_listOrders(ctx, field)
+				wg.Done()
+			}(i, field)
 		case "user":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
@@ -1865,6 +2985,76 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		return graphql.Null
 	}
 	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_order(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_order_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Order(rctx, args["id"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*order.Order)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Order(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_listOrders(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_listOrders_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ListOrders(rctx, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.OrderListWithCursor)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._OrderListWithCursor(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -4763,6 +5953,98 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.___Type(ctx, field.Selections, res)
 }
 
+func UnmarshalCreateOrderInput(v interface{}) (models.CreateOrderInput, error) {
+	var it models.CreateOrderInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "courier":
+			var err error
+			it.Courier, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "courer_account":
+			var err error
+			it.CourerAccount, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "comments":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Comments = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "payment":
+			var err error
+			it.Payment, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "purchase_order_num":
+			var err error
+			it.PurchaseOrderNum, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+			it.Status, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "consumer":
+			var err error
+			it.Consumer, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "payer":
+			var err error
+			it.Payer, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "purchaser":
+			var err error
+			it.Purchaser, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "Items":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Items = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Items[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func UnmarshalCreatePermissionInput(v interface{}) (models.CreatePermissionInput, error) {
 	var it models.CreatePermissionInput
 	var asMap = v.(map[string]interface{})
@@ -4943,6 +6225,105 @@ func UnmarshalCreateUserInput(v interface{}) (models.CreateUserInput, error) {
 		case "is_active":
 			var err error
 			it.IsActive, err = graphql.UnmarshalBoolean(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalUpdateOrderInput(v interface{}) (models.UpdateOrderInput, error) {
+	var it models.UpdateOrderInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "courier":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Courier = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "courier_account":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.CourierAccount = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "comments":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Comments = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "payment":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Payment = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "purchase_order_num":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.PurchaseOrderNum = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Status = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "Items":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Items = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Items[idx1] = &ptr2
+				}
+			}
 			if err != nil {
 				return it, err
 			}
@@ -5180,17 +6561,24 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var parsedSchema = gqlparser.MustLoadSchema(
-	&ast.Source{Name: "api/user.graphql", Input: `type Query {
-  user(id: ID!): User
-  userByEmail(email: String!): User
-  listUsers(pagenum: String!, pagesize: String!, filter: String!): UserList
-  role(id: ID!): Role
-  listRoles: [Role!]
-  permission(id: ID!): Permission
-  listPermissions: [Permission!]
-}
-
-type Mutation {
+	&ast.Source{Name: "api/mutation.graphql", Input: `type Mutation {
+  # Annotation mutations
+  # createAnnotation(input: CreateAnnotationInput): Annotation
+  # updateAnnotation(id: ID!, input: UpdateAnnotationInput): Annotation
+  # deleteAnnotation(id: ID!): DeleteItem
+  # Order mutations
+  createOrder(input: CreateOrderInput): Order
+  updateOrder(id: ID!, input: UpdateOrderInput): Order
+  # Publication mutations
+  # createPublication(input: CreatePublicationInput): Publication
+  # updatePublication(id: ID!, input: UpdatePublicationInput): Publication
+  # deletePublication(id: ID!): DeleteItem
+  # Stock mutations
+  # createStrain(input: CreateStrainInput): Stock
+  # createPlasmid(input: CreatePlasmidInput): Stock
+  # updateStock(id: ID!, input: UpdateStockInput): Stock
+  # deleteStock(id: ID!): DeleteItem
+  # User mutations
   createUser(input: CreateUserInput): User
   createUserRoleRelationship(userId: ID!, roleId: ID!): User
   updateUser(id: ID!, input: UpdateUserInput): User
@@ -5203,10 +6591,95 @@ type Mutation {
   updatePermission(id: ID!, input: UpdatePermissionInput): Permission
   deletePermission(id: ID!): DeleteItem
 }
+`},
+	&ast.Source{Name: "api/order.graphql", Input: `type Order {
+  id: ID!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  courier: String
+  courer_account: String
+  comments: String
+  payment: String
+  purchase_order_num: String
+  status: String
+  consumer: String
+  payer: String
+  purchaser: String
+  Items: [String]
+}
 
-scalar Timestamp
+type OrderListWithCursor {
+  orders: [Order!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
 
-type Permission {
+input CreateOrderInput {
+  courier: String!
+  courer_account: String!
+  comments: String
+  payment: String!
+  purchase_order_num: String!
+  status: String!
+  consumer: String!
+  payer: String!
+  purchaser: String!
+  Items: [String]!
+}
+
+input UpdateOrderInput {
+  courier: String
+  courier_account: String
+  comments: String
+  payment: String
+  purchase_order_num: String
+  status: String
+  Items: [String]
+}
+`},
+	&ast.Source{Name: "api/query.graphql", Input: `type Query {
+  # Annotation queries
+  # annotation(id: ID!): Annotation
+  # annotationByEntry(
+  #   tag: String!
+  #   entry_id: String!
+  #   ontology: String!
+  #   rank: Int
+  #   is_obsolete: Boolean
+  # ): Annotation
+  # listAnnotations(
+  #   cursor: ID
+  #   limit: Int
+  #   filter: String
+  # ): AnnotationListWithCursor
+  # Order queries
+  order(id: ID!): Order
+  listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
+  # Publication queries
+  # publication(id: ID!): Publication
+  # listPublications(
+  #   cursor: ID
+  #   limit: Int
+  #   filter: String
+  # ): PublicationListWithCursor
+  # Stock queries
+  # stock(id: ID!): Stock
+  # listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
+  # User queries
+  user(id: ID!): User
+  userByEmail(email: String!): User
+  listUsers(pagenum: String!, pagesize: String!, filter: String!): UserList
+  role(id: ID!): Role
+  listRoles: [Role!]
+  permission(id: ID!): Permission
+  listPermissions: [Permission!]
+}
+`},
+	&ast.Source{Name: "api/scalar.graphql", Input: `scalar Timestamp
+`},
+	&ast.Source{Name: "api/user.graphql", Input: `type Permission {
   id: ID!
   permission: String!
   description: String!

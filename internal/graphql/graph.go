@@ -4,7 +4,7 @@ package graph
 
 import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
-	resolver "github.com/dictyBase/graphql-server/internal/graphql/resolver/user"
+	resolver "github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )

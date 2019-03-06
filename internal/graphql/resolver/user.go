@@ -12,28 +12,11 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
-	"github.com/sirupsen/logrus"
 )
-
-type Resolver struct {
-	UserClient       user.UserServiceClient
-	RoleClient       user.RoleServiceClient
-	PermissionClient user.PermissionServiceClient
-	Logger           *logrus.Entry
-}
-
-func (r *Resolver) Mutation() generated.MutationResolver {
-	return &mutationResolver{r}
-}
-func (r *Resolver) Query() generated.QueryResolver {
-	return &queryResolver{r}
-}
 
 func (r *Resolver) User() generated.UserResolver {
 	return &userResolver{r}
 }
-
-type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error) {
 	attr := &user.UserAttributes{}
@@ -229,8 +212,6 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.D
 		Success: true,
 	}, nil
 }
-
-type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error) {
 	i, err := strconv.ParseInt(id, 10, 64)

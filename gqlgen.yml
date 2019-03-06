@@ -1,5 +1,9 @@
 schema:
+  - "api/query.graphql"
+  - "api/mutation.graphql"
+  - "api/scalar.graphql"
   - "api/user.graphql"
+  - "api/order.graphql"
 exec:
   filename: internal/graphql/generated/generated.go
   package: generated
@@ -7,7 +11,7 @@ model:
   filename: internal/graphql/models/models_gen.go
   package: models
 resolver:
-  filename: internal/graphql/resolver/user/user.go
+  filename: internal/graphql/resolver/resolver.go
   package: resolver
   type: Resolver
 models:
@@ -20,3 +24,5 @@ models:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.Role
   Permission:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.Permission
+  Order:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/order.Order

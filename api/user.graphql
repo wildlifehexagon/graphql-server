@@ -1,29 +1,3 @@
-type Query {
-  user(id: ID!): User
-  userByEmail(email: String!): User
-  listUsers(pagenum: String!, pagesize: String!, filter: String!): UserList
-  role(id: ID!): Role
-  listRoles: [Role!]
-  permission(id: ID!): Permission
-  listPermissions: [Permission!]
-}
-
-type Mutation {
-  createUser(input: CreateUserInput): User
-  createUserRoleRelationship(userId: ID!, roleId: ID!): User
-  updateUser(id: ID!, input: UpdateUserInput): User
-  deleteUser(id: ID!): DeleteItem
-  createRole(input: CreateRoleInput): Role
-  createRolePermissionRelationship(roleId: ID!, permissionId: ID!): Role
-  updateRole(id: ID!, input: UpdateRoleInput): Role
-  deleteRole(id: ID!): DeleteItem
-  createPermission(input: CreatePermissionInput): Permission
-  updatePermission(id: ID!, input: UpdatePermissionInput): Permission
-  deletePermission(id: ID!): DeleteItem
-}
-
-scalar Timestamp
-
 type Permission {
   id: ID!
   permission: String!

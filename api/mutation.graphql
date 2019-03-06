@@ -1,25 +1,27 @@
 type Mutation {
   # Annotation mutations
-  createAnnotation(input: CreateAnnotationInput): Annotation
-  updateAnnotation(id: ID!, input: UpdateAnnotationInput): Annotation
-  deleteAnnotation(id: ID!): DeleteItem
+  # createAnnotation(input: CreateAnnotationInput): Annotation
+  # updateAnnotation(id: ID!, input: UpdateAnnotationInput): Annotation
+  # deleteAnnotation(id: ID!): DeleteItem
   # Order mutations
   createOrder(input: CreateOrderInput): Order
   updateOrder(id: ID!, input: UpdateOrderInput): Order
   # Publication mutations
-  createPublication(input: CreatePublicationInput): Publication
-  updatePublication(id: ID!, input: UpdatePublicationInput): Publication
-  deletePublication(id: ID!): DeleteItem
+  # createPublication(input: CreatePublicationInput): Publication
+  # updatePublication(id: ID!, input: UpdatePublicationInput): Publication
+  # deletePublication(id: ID!): DeleteItem
   # Stock mutations
-  createStrain(input: CreateStrainInput): Stock
-  createPlasmid(input: CreatePlasmidInput): Stock
-  updateStock(id: ID!, input: UpdateStockInput): Stock
-  deleteStock(id: ID!): DeleteItem
+  # createStrain(input: CreateStrainInput): Stock
+  # createPlasmid(input: CreatePlasmidInput): Stock
+  # updateStock(id: ID!, input: UpdateStockInput): Stock
+  # deleteStock(id: ID!): DeleteItem
   # User mutations
   createUser(input: CreateUserInput): User
+  createUserRoleRelationship(userId: ID!, roleId: ID!): User
   updateUser(id: ID!, input: UpdateUserInput): User
   deleteUser(id: ID!): DeleteItem
   createRole(input: CreateRoleInput): Role
+  createRolePermissionRelationship(roleId: ID!, permissionId: ID!): Role
   updateRole(id: ID!, input: UpdateRoleInput): Role
   deleteRole(id: ID!): DeleteItem
   createPermission(input: CreatePermissionInput): Permission

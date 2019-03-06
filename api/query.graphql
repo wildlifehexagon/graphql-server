@@ -1,35 +1,35 @@
 type Query {
   # Annotation queries
-  annotation(id: ID!): Annotation
-  annotationByEntry(
-    tag: String!
-    entry_id: String!
-    ontology: String!
-    rank: Int
-    is_obsolete: Boolean
-  ): Annotation
-  listAnnotations(
-    cursor: ID
-    limit: Int
-    filter: String
-  ): AnnotationListWithCursor
+  # annotation(id: ID!): Annotation
+  # annotationByEntry(
+  #   tag: String!
+  #   entry_id: String!
+  #   ontology: String!
+  #   rank: Int
+  #   is_obsolete: Boolean
+  # ): Annotation
+  # listAnnotations(
+  #   cursor: ID
+  #   limit: Int
+  #   filter: String
+  # ): AnnotationListWithCursor
   # Order queries
   order(id: ID!): Order
   listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
   # Publication queries
-  publication(id: ID!): Publication
-  listPublications(
-    cursor: ID
-    limit: Int
-    filter: String
-  ): PublicationListWithCursor
+  # publication(id: ID!): Publication
+  # listPublications(
+  #   cursor: ID
+  #   limit: Int
+  #   filter: String
+  # ): PublicationListWithCursor
   # Stock queries
-  stock(id: ID!): Stock
-  listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
+  # stock(id: ID!): Stock
+  # listStocks(cursor: ID, limit: Int, filter: String): StockListWithCursor
   # User queries
   user(id: ID!): User
   userByEmail(email: String!): User
-  listUsers(cursor: ID, limit: Int, filter: String): UserListWithCursor
+  listUsers(pagenum: String!, pagesize: String!, filter: String!): UserList
   role(id: ID!): Role
   listRoles: [Role!]
   permission(id: ID!): Permission
