@@ -14,8 +14,8 @@ type Query {
   #   filter: String
   # ): AnnotationListWithCursor
   # Order queries
-  order(id: ID!): Order
-  listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
+  # order(id: ID!): Order
+  # listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
   # Publication queries
   # publication(id: ID!): Publication
   # listPublications(

@@ -3,22 +3,8 @@
 package models
 
 import (
-	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
-
-type CreateOrderInput struct {
-	Courier          string    `json:"courier"`
-	CourerAccount    string    `json:"courer_account"`
-	Comments         *string   `json:"comments"`
-	Payment          string    `json:"payment"`
-	PurchaseOrderNum string    `json:"purchase_order_num"`
-	Status           string    `json:"status"`
-	Consumer         string    `json:"consumer"`
-	Payer            string    `json:"payer"`
-	Purchaser        string    `json:"purchaser"`
-	Items            []*string `json:"Items"`
-}
 
 type CreatePermissionInput struct {
 	Permission  string `json:"permission"`
@@ -49,24 +35,6 @@ type CreateUserInput struct {
 
 type DeleteItem struct {
 	Success bool `json:"success"`
-}
-
-type OrderListWithCursor struct {
-	Orders         []order.Order `json:"orders"`
-	NextCursor     string        `json:"nextCursor"`
-	PreviousCursor string        `json:"previousCursor"`
-	Limit          *int          `json:"limit"`
-	TotalCount     int           `json:"totalCount"`
-}
-
-type UpdateOrderInput struct {
-	Courier          *string   `json:"courier"`
-	CourierAccount   *string   `json:"courier_account"`
-	Comments         *string   `json:"comments"`
-	Payment          *string   `json:"payment"`
-	PurchaseOrderNum *string   `json:"purchase_order_num"`
-	Status           *string   `json:"status"`
-	Items            []*string `json:"Items"`
 }
 
 type UpdatePermissionInput struct {

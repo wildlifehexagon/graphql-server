@@ -4,8 +4,8 @@ type Mutation {
   # updateAnnotation(id: ID!, input: UpdateAnnotationInput): Annotation
   # deleteAnnotation(id: ID!): DeleteItem
   # Order mutations
-  createOrder(input: CreateOrderInput): Order
-  updateOrder(id: ID!, input: UpdateOrderInput): Order
+  # createOrder(input: CreateOrderInput): Order
+  # updateOrder(id: ID!, input: UpdateOrderInput): Order
   # Publication mutations
   # createPublication(input: CreatePublicationInput): Publication
   # updatePublication(id: ID!, input: UpdatePublicationInput): Publication
