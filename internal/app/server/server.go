@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dictyBase/graphql-server/internal/registry"
+
 	"github.com/99designs/gqlgen/handler"
 	graph "github.com/dictyBase/graphql-server/internal/graphql"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
@@ -16,16 +18,21 @@ import (
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
 
-	u := fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port"))
-	r := fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port"))
-	p := fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port"))
-	s, err := graph.NewGraphQLServer(u, r, p, log)
+	nr, err := registry.NewRegistry()
+	if err != nil {
+		return cli.NewExitError(err.Error(), 2)
+	}
+	nr.AddAPIClient("user", fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")))
+	nr.AddAPIClient("role", fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")))
+	nr.AddAPIClient("permission", fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")))
+
+	s, err := graph.NewGraphQLServer(nr, log)
 	if err != nil {
 		return cli.NewExitError(err.Error(), 2)
 	}
 
-	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	http.Handle("/query", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
+	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
+	http.Handle("/graphql", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
 
 	log.Info("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))

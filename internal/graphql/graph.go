@@ -5,12 +5,15 @@ package graph
 import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	resolver "github.com/dictyBase/graphql-server/internal/graphql/resolver"
+	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
 // NewGraphQLServer acts as a constructor in dialing GRPC services and returning a defined struct.
-func NewGraphQLServer(u, r, p string, logger *logrus.Entry) (*resolver.Resolver, error) {
+func NewGraphQLServer(nr registry.Registry, logger *logrus.Entry) (*resolver.Resolver, error) {
+	// need to dial up with proper addresses
+	// that are stored in hashmap
 	uconn, err := grpc.Dial(
 		u,
 		grpc.WithInsecure(),
