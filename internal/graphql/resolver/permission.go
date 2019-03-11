@@ -7,7 +7,7 @@ import (
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
-	"github.com/dictyBase/go-genproto/dictybaseapis/user"
+	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
@@ -19,11 +19,11 @@ func (r *Resolver) Permission() generated.PermissionResolver {
 
 type permissionResolver struct{ *Resolver }
 
-func (r *mutationResolver) CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*user.Permission, error) {
-	n, err := r.PermissionClient.CreatePermission(context.Background(), &user.CreatePermissionRequest{
-		Data: &user.CreatePermissionRequest_Data{
+func (r *mutationResolver) CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*pb.Permission, error) {
+	n, err := r.PermissionClient.CreatePermission(context.Background(), &pb.CreatePermissionRequest{
+		Data: &pb.CreatePermissionRequest_Data{
 			Type: "permission",
-			Attributes: &user.PermissionAttributes{
+			Attributes: &pb.PermissionAttributes{
 				Permission:  input.Permission,
 				Description: input.Description,
 				Resource:    input.Resource,
@@ -37,18 +37,18 @@ func (r *mutationResolver) CreatePermission(ctx context.Context, input *models.C
 	r.Logger.Infof("successfully created new permission with ID %d", n.Data.Id)
 	return n, nil
 }
-func (r *mutationResolver) UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*user.Permission, error) {
+func (r *mutationResolver) UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*pb.Permission, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
 		return nil, err
 	}
-	n, err := r.PermissionClient.UpdatePermission(context.Background(), &user.UpdatePermissionRequest{
+	n, err := r.PermissionClient.UpdatePermission(context.Background(), &pb.UpdatePermissionRequest{
 		Id: i,
-		Data: &user.UpdatePermissionRequest_Data{
+		Data: &pb.UpdatePermissionRequest_Data{
 			Id:   i,
 			Type: "permission",
-			Attributes: &user.PermissionAttributes{
+			Attributes: &pb.PermissionAttributes{
 				Permission:  input.Permission,
 				Description: input.Description,
 				Resource:    input.Resource,
@@ -86,7 +86,7 @@ func (r *mutationResolver) DeletePermission(ctx context.Context, id string) (*mo
 	}, nil
 }
 
-func (r *queryResolver) Permission(ctx context.Context, id string) (*user.Permission, error) {
+func (r *queryResolver) Permission(ctx context.Context, id string) (*pb.Permission, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
@@ -100,19 +100,19 @@ func (r *queryResolver) Permission(ctx context.Context, id string) (*user.Permis
 	r.Logger.Infof("successfully found permission with ID %s", id)
 	return g, nil
 }
-func (r *queryResolver) ListPermissions(ctx context.Context) ([]user.Permission, error) {
-	permissions := []user.Permission{}
+func (r *queryResolver) ListPermissions(ctx context.Context) ([]pb.Permission, error) {
+	permissions := []pb.Permission{}
 	l, err := r.PermissionClient.ListPermissions(ctx, &jsonapi.SimpleListRequest{})
 	if err != nil {
 		r.Logger.Errorf("error in listing permissions %s", err)
 		return nil, err
 	}
 	for _, n := range l.Data {
-		item := user.Permission{
-			Data: &user.PermissionData{
+		item := pb.Permission{
+			Data: &pb.PermissionData{
 				Type: "permission",
 				Id:   n.Id,
-				Attributes: &user.PermissionAttributes{
+				Attributes: &pb.PermissionAttributes{
 					Permission:  n.Attributes.Permission,
 					Description: n.Attributes.Description,
 					CreatedAt:   n.Attributes.CreatedAt,
@@ -127,21 +127,21 @@ func (r *queryResolver) ListPermissions(ctx context.Context) ([]user.Permission,
 	return permissions, nil
 }
 
-func (r *permissionResolver) ID(ctx context.Context, obj *user.Permission) (string, error) {
+func (r *permissionResolver) ID(ctx context.Context, obj *pb.Permission) (string, error) {
 	return strconv.FormatInt(obj.Data.Id, 10), nil
 }
-func (r *permissionResolver) Permission(ctx context.Context, obj *user.Permission) (string, error) {
+func (r *permissionResolver) Permission(ctx context.Context, obj *pb.Permission) (string, error) {
 	return obj.Data.Attributes.Permission, nil
 }
-func (r *permissionResolver) Description(ctx context.Context, obj *user.Permission) (string, error) {
+func (r *permissionResolver) Description(ctx context.Context, obj *pb.Permission) (string, error) {
 	return obj.Data.Attributes.Description, nil
 }
-func (r *permissionResolver) CreatedAt(ctx context.Context, obj *user.Permission) (time.Time, error) {
+func (r *permissionResolver) CreatedAt(ctx context.Context, obj *pb.Permission) (time.Time, error) {
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
 }
-func (r *permissionResolver) UpdatedAt(ctx context.Context, obj *user.Permission) (time.Time, error) {
+func (r *permissionResolver) UpdatedAt(ctx context.Context, obj *pb.Permission) (time.Time, error) {
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
 }
-func (r *permissionResolver) Resource(ctx context.Context, obj *user.Permission) (*string, error) {
+func (r *permissionResolver) Resource(ctx context.Context, obj *pb.Permission) (*string, error) {
 	return &obj.Data.Attributes.Resource, nil
 }

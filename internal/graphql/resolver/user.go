@@ -7,7 +7,7 @@ import (
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
-	"github.com/dictyBase/go-genproto/dictybaseapis/user"
+	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/fatih/structs"
@@ -18,14 +18,14 @@ func (r *Resolver) User() generated.UserResolver {
 	return &userResolver{r}
 }
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error) {
-	attr := &user.UserAttributes{}
+func (r *mutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*pb.User, error) {
+	attr := &pb.UserAttributes{}
 	a := normalizeCreateUserAttr(input)
 	mapstructure.Decode(a, attr)
-	n, err := r.UserClient.CreateUser(ctx, &user.CreateUserRequest{
-		Data: &user.CreateUserRequest_Data{
+	n, err := r.UserClient.CreateUser(ctx, &pb.CreateUserRequest{
+		Data: &pb.CreateUserRequest_Data{
 			Type: "user",
-			Attributes: &user.UserAttributes{
+			Attributes: &pb.UserAttributes{
 				FirstName:     attr.FirstName,
 				LastName:      attr.LastName,
 				Email:         attr.Email,
@@ -63,7 +63,7 @@ func normalizeCreateUserAttr(attr *models.CreateUserInput) map[string]interface{
 	return newAttr
 }
 
-func (r *mutationResolver) CreateUserRoleRelationship(ctx context.Context, userId string, roleId string) (*user.User, error) {
+func (r *mutationResolver) CreateUserRoleRelationship(ctx context.Context, userId string, roleId string) (*pb.User, error) {
 	uid, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		r.Logger.Errorf("error in parsing string %s to int %s", userId, err)
@@ -95,7 +95,7 @@ func (r *mutationResolver) CreateUserRoleRelationship(ctx context.Context, userI
 	return g, nil
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*pb.User, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
@@ -109,9 +109,9 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	attr := getUpdateUserAttributes(input, f)
 	attr.Email = f.Data.Attributes.Email
 	attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
-	n, err := r.UserClient.UpdateUser(context.Background(), &user.UpdateUserRequest{
+	n, err := r.UserClient.UpdateUser(context.Background(), &pb.UpdateUserRequest{
 		Id: i,
-		Data: &user.UpdateUserRequest_Data{
+		Data: &pb.UpdateUserRequest_Data{
 			Id:         i,
 			Type:       "user",
 			Attributes: attr,
@@ -130,8 +130,8 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	return o, nil
 }
 
-func getUpdateUserAttributes(input *models.UpdateUserInput, f *user.User) *user.UserAttributes {
-	attr := &user.UserAttributes{}
+func getUpdateUserAttributes(input *models.UpdateUserInput, f *pb.User) *pb.UserAttributes {
+	attr := &pb.UserAttributes{}
 	if input.FirstName != nil {
 		attr.FirstName = *input.FirstName
 	} else {
@@ -213,7 +213,7 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (*models.D
 	}, nil
 }
 
-func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error) {
+func (r *queryResolver) User(ctx context.Context, id string) (*pb.User, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		r.Logger.Errorf("error in parsing string %s to int %s", id, err)
@@ -228,7 +228,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error)
 	return g, nil
 }
 
-func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.User, error) {
+func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*pb.User, error) {
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
 		r.Logger.Errorf("error in getting user by email %s: %s", email, err)
@@ -239,7 +239,7 @@ func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.Us
 }
 
 func (r *queryResolver) ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error) {
-	users := []user.User{}
+	users := []pb.User{}
 	pn, err := strconv.ParseInt(pagenum, 10, 64)
 	if err != nil {
 		r.Logger.Errorf("error in parsing string %s to int %s", pagenum, err)
@@ -260,11 +260,11 @@ func (r *queryResolver) ListUsers(ctx context.Context, pagenum string, pagesize 
 		return nil, err
 	}
 	for _, n := range g.Data {
-		item := user.User{
-			Data: &user.UserData{
+		item := pb.User{
+			Data: &pb.UserData{
 				Type: "user",
 				Id:   n.Id,
-				Attributes: &user.UserAttributes{
+				Attributes: &pb.UserAttributes{
 					FirstName:     n.Attributes.FirstName,
 					LastName:      n.Attributes.LastName,
 					Email:         n.Attributes.LastName,
@@ -294,67 +294,67 @@ func (r *queryResolver) ListUsers(ctx context.Context, pagenum string, pagesize 
 
 type userResolver struct{ *Resolver }
 
-func (r *userResolver) ID(ctx context.Context, obj *user.User) (string, error) {
+func (r *userResolver) ID(ctx context.Context, obj *pb.User) (string, error) {
 	return strconv.FormatInt(obj.Data.Id, 10), nil
 }
-func (r *userResolver) FirstName(ctx context.Context, obj *user.User) (string, error) {
+func (r *userResolver) FirstName(ctx context.Context, obj *pb.User) (string, error) {
 	return obj.Data.Attributes.FirstName, nil
 }
-func (r *userResolver) LastName(ctx context.Context, obj *user.User) (string, error) {
+func (r *userResolver) LastName(ctx context.Context, obj *pb.User) (string, error) {
 	return obj.Data.Attributes.LastName, nil
 }
-func (r *userResolver) Email(ctx context.Context, obj *user.User) (string, error) {
+func (r *userResolver) Email(ctx context.Context, obj *pb.User) (string, error) {
 	return obj.Data.Attributes.Email, nil
 }
-func (r *userResolver) Organization(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) Organization(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.Organization, nil
 }
-func (r *userResolver) GroupName(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) GroupName(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.GroupName, nil
 }
-func (r *userResolver) FirstAddress(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) FirstAddress(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.FirstAddress, nil
 }
-func (r *userResolver) SecondAddress(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) SecondAddress(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.SecondAddress, nil
 }
-func (r *userResolver) City(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) City(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.City, nil
 }
-func (r *userResolver) State(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) State(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.State, nil
 }
-func (r *userResolver) Zipcode(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) Zipcode(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.Zipcode, nil
 }
-func (r *userResolver) Country(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) Country(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.Country, nil
 }
-func (r *userResolver) Phone(ctx context.Context, obj *user.User) (*string, error) {
+func (r *userResolver) Phone(ctx context.Context, obj *pb.User) (*string, error) {
 	return &obj.Data.Attributes.Phone, nil
 }
-func (r *userResolver) IsActive(ctx context.Context, obj *user.User) (bool, error) {
+func (r *userResolver) IsActive(ctx context.Context, obj *pb.User) (bool, error) {
 	return obj.Data.Attributes.IsActive, nil
 }
-func (r *userResolver) CreatedAt(ctx context.Context, obj *user.User) (time.Time, error) {
+func (r *userResolver) CreatedAt(ctx context.Context, obj *pb.User) (time.Time, error) {
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
 }
-func (r *userResolver) UpdatedAt(ctx context.Context, obj *user.User) (time.Time, error) {
+func (r *userResolver) UpdatedAt(ctx context.Context, obj *pb.User) (time.Time, error) {
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
 }
-func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]user.Role, error) {
-	roles := []user.Role{}
+func (r *userResolver) Roles(ctx context.Context, obj *pb.User) ([]pb.Role, error) {
+	roles := []pb.Role{}
 	rr, err := r.UserClient.GetRelatedRoles(ctx, &jsonapi.RelationshipRequest{Id: obj.Data.Id})
 	if err != nil {
 		r.Logger.Errorf("error getting list of related roles for user ID %d: %s", obj.Data.Id, err)
 		return roles, err
 	}
 	for _, n := range rr.Data {
-		item := user.Role{
-			Data: &user.RoleData{
+		item := pb.Role{
+			Data: &pb.RoleData{
 				Type: "role",
 				Id:   n.Id,
-				Attributes: &user.RoleAttributes{
+				Attributes: &pb.RoleAttributes{
 					Role:        n.Attributes.Role,
 					Description: n.Attributes.Description,
 					CreatedAt:   n.Attributes.CreatedAt,

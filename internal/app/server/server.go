@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
+
 	"github.com/dictyBase/graphql-server/internal/registry"
 
 	"github.com/99designs/gqlgen/handler"
-	graph "github.com/dictyBase/graphql-server/internal/graphql"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/sirupsen/logrus"
 	cli "gopkg.in/urfave/cli.v1"
@@ -23,10 +24,7 @@ func RunGraphQLServer(c *cli.Context) error {
 	nr.AddAPIClient("role", fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")))
 	nr.AddAPIClient("permission", fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")))
 
-	s, err := graph.NewGraphQLServer(nr, log)
-	if err != nil {
-		return cli.NewExitError(err.Error(), 2)
-	}
+	s := resolver.NewResolver(nr, log)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
 	http.Handle("/graphql", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
