@@ -12,10 +12,11 @@ import (
 
 // NewGraphQLServer acts as a constructor in dialing GRPC services and returning a defined struct.
 func NewGraphQLServer(nr registry.Registry, logger *logrus.Entry) (*resolver.Resolver, error) {
-	// need to dial up with proper addresses
-	// that are stored in hashmap
+	// needs to be optimized
+	// code complexity will be too high soon
+	u, _ := nr.GetAPIClient("user")
 	uconn, err := grpc.Dial(
-		u,
+		u.(string),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
@@ -23,8 +24,9 @@ func NewGraphQLServer(nr registry.Registry, logger *logrus.Entry) (*resolver.Res
 		return nil, err
 	}
 	uc := user.NewUserServiceClient(uconn)
+	r, _ := nr.GetAPIClient("role")
 	rconn, err := grpc.Dial(
-		r,
+		r.(string),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
@@ -32,8 +34,9 @@ func NewGraphQLServer(nr registry.Registry, logger *logrus.Entry) (*resolver.Res
 		return nil, err
 	}
 	rc := user.NewRoleServiceClient(rconn)
+	p, _ := nr.GetAPIClient("permission")
 	pconn, err := grpc.Dial(
-		p,
+		p.(string),
 		grpc.WithInsecure(),
 	)
 	if err != nil {

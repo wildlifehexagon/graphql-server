@@ -12,8 +12,8 @@ type Registry interface {
 }
 
 // NewRegistry generates a new (empty) hashmap
-func NewRegistry() (Registry, error) {
-	return &Collection{ClientMap: hashmap.New()}, nil
+func NewRegistry() Registry {
+	return &Collection{ClientMap: hashmap.New()}
 }
 
 // AddAPIClient adds a new entry to the hashmap

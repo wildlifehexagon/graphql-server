@@ -18,10 +18,7 @@ import (
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
 
-	nr, err := registry.NewRegistry()
-	if err != nil {
-		return cli.NewExitError(err.Error(), 2)
-	}
+	nr := registry.NewRegistry()
 	nr.AddAPIClient("user", fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")))
 	nr.AddAPIClient("role", fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")))
 	nr.AddAPIClient("permission", fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")))
