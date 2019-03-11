@@ -2,14 +2,22 @@ package resolver
 
 import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/user"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-
-	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
 
 type Resolver struct {
+	registry.Registry
+	Logger *logrus.Entry
+}
+
+type MutationResolver struct {
+	registry.Registry
+	Logger *logrus.Entry
+}
+
+type QueryResolver struct {
 	registry.Registry
 	Logger *logrus.Entry
 }
@@ -19,32 +27,35 @@ func NewResolver(nr registry.Registry, l *logrus.Entry) *Resolver {
 }
 
 func (r *Resolver) Mutation() generated.MutationResolver {
-	return &mutationResolver{r}
+	return &MutationResolver{
+		Registry: r.Registry,
+		Logger:   r.Logger,
+	}
 }
 func (r *Resolver) Query() generated.QueryResolver {
-	return &queryResolver{r}
+	return &QueryResolver{
+		Registry: r.Registry,
+		Logger:   r.Logger,
+	}
 }
 
-type mutationResolver struct{ *Resolver }
-
-type queryResolver struct{ *Resolver }
-
-func (r *Resolver) GetPermissionClient() (permissionResolver, error) {
-	client, ok := r.GetAPIClient("permission")
-	if !ok {
-		panic("could not get permission client")
-	}
-	_, err := grpc.Dial(
-		client.(string),
-		grpc.WithInsecure(),
-	)
-	if err != nil {
-		r.Logger.Fatalf("cannot connect to grpc server for permission microservice")
-		return nil, err
-	}
-	uc, _ := client.(pb.PermissionServiceClient)
-	return permissionResolver{
-		Client: uc,
+func (r *Resolver) User() generated.UserResolver {
+	return &user.UserResolver{
+		Client: r.GetUserClient(registry.USER),
 		Logger: r.Logger,
-	}, nil
+	}
+}
+
+func (r *Resolver) Role() generated.RoleResolver {
+	return &user.RoleResolver{
+		Client: r.GetRoleClient(registry.ROLE),
+		Logger: r.Logger,
+	}
+}
+
+func (r *Resolver) Permission() generated.PermissionResolver {
+	return &user.PermissionResolver{
+		Client: r.GetPermissionClient(registry.PERMISSION),
+		Logger: r.Logger,
+	}
 }

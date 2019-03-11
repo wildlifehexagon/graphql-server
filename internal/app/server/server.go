@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
+	"google.golang.org/grpc"
 
 	"github.com/dictyBase/graphql-server/internal/registry"
 
@@ -19,10 +21,47 @@ import (
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
 
+	// need to think how to optimize this
+	// use NewRegistry to create connections?
+
+	uconn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot connect to user grpc microservice %s", err.Error()),
+			2,
+		)
+	}
+	uc := user.NewUserServiceClient(uconn)
+	rconn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot connect to role grpc microservice %s", err.Error()),
+			2,
+		)
+	}
+	rc := user.NewRoleServiceClient(rconn)
+	pconn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot connect to permission grpc microservice %s", err.Error()),
+			2,
+		)
+	}
+	pc := user.NewPermissionServiceClient(pconn)
+
 	nr := registry.NewRegistry()
-	nr.AddAPIClient("user", fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")))
-	nr.AddAPIClient("role", fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")))
-	nr.AddAPIClient("permission", fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")))
+	nr.AddAPIClient("user", uc)
+	nr.AddAPIClient("role", rc)
+	nr.AddAPIClient("permission", pc)
 
 	s := resolver.NewResolver(nr, log)
 
