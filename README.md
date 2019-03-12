@@ -85,3 +85,54 @@ After adding your new schema and running the generator script, you will need to 
    - Create new files as necessary for each microservice, each one containing their query and mutation methods. Look at [permission.go](./internal/graphql/resolver/permission.go) for an example. Make sure to update the receivers for each method. For queries we are using `(q *QueryResolver)` and for mutations `(m *MutationResolver)`.
 4. Now add any _unshared_ resolvers into a separate folder inside `resolver`. These resolvers are generally tied to the individual fields for that model, and they are unique to that particular client. You can look at the [user](./internal/graphql/resolver/user) folder for examples. Also update the package name if necessary.
 5. Fill out your resolver stubs and then test it out in the playground!
+
+### Folder Structure
+
+```
+.
+├── README.md
+├── build
+│   └── Dockerfile
+├── cmd
+│   └── graphql-server
+│       └── main.go
+├── deployments
+│   └── charts
+│       └── graphql-server
+│           ├── Chart.yaml
+│           ├── templates
+│           │   ├── NOTES.txt
+│           │   ├── _helpers.tpl
+│           │   ├── deployment.yaml
+│           │   └── service.yaml
+│           └── values.yaml
+├── go.mod
+├── go.sum
+├── gqlgen.yml
+├── graphql-server
+├── internal
+│   ├── app
+│   │   ├── server
+│   │   │   └── server.go
+│   │   └── validate
+│   │       └── validate.go
+│   ├── graphql
+│   │   ├── generated
+│   │   │   └── generated.go
+│   │   ├── models
+│   │   │   ├── models_gen.go
+│   │   │   └── timestamp.go
+│   │   └── resolver
+│   │       ├── permission.go
+│   │       ├── resolver.go
+│   │       ├── role.go
+│   │       ├── user
+│   │       │   ├── permission.go
+│   │       │   ├── role.go
+│   │       │   └── user.go
+│   │       └── user.go
+│   └── registry
+│       └── registry.go
+└── scripts
+    └── gqlgen.go
+```
