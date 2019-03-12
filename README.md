@@ -41,6 +41,7 @@ OPTIONS:
    --role-grpc-port value, --rp value        role grpc port [$ROLE_API_SERVICE_PORT]
    --permission-grpc-host value, --ph value  permission grpc host [$PERMISSION_API_SERVICE_HOST]
    --permission-grpc-port value, --pp value  permission grpc port [$PERMISSION_API_SERVICE_PORT]
+   --publication-api value, --pub value      publication api endpoint (default: "https://betafunc.dictybase.org/publications") [$PUBLICATION_API_ENDPOINT]
 ```
 
 ## Development
