@@ -46,13 +46,13 @@ OPTIONS:
 ## Development
 
 [glqgen](https://github.com/99designs/gqlgen) relies on GraphQL schema to generate its code. We are storing our schema
-files in the [api](./api) folder. There are three files that will be used for each type of schema introduced:
+files in the [dictyBase/graphql-schema](https://github.com/dictyBase/graphql-schema) repository. There are three files that will be used for each type of schema introduced:
 
-- [query.graphql](./api/query.graphql) - contains all queries
-- [mutation.graphql](./api/mutation.graphql) - contains all mutations
-- [scalar.graphql](./api/scalar.graphql) - contains any scalars (i.e. timestamp)
+- [query.graphql](https://github.com/dictyBase/graphql-schema/blob/master/query.graphql) - contains all queries
+- [mutation.graphql](https://github.com/dictyBase/graphql-schema/blob/master/mutation.graphql) - contains all mutations
+- [scalar.graphql](https://github.com/dictyBase/graphql-schema/blob/master/scalar.graphql) - contains any scalars (i.e. timestamp)
 
-Any unique types and inputs for a particular interface (i.e. user) should be placed in their own schema files in the same folder.
+Any unique types and inputs for a particular category (i.e. user) should be placed in their own schema files in the same folder.
 
 In order to generate the actual code, you need to update the [gqlgen.yml](./gqlgen.yml) file. Here are the steps to do so:
 
@@ -73,3 +73,15 @@ func (r *Resolver) User() generated.UserResolver {
 ```
 
 2. As stated above, you need to go in and compare the diff between the old resolver and the newly generated one, then make sure to add in the changes.
+
+### Next Steps for Development
+
+After adding your new schema and running the generator script, you will need to do a bit of additional refactoring.
+
+1. Use the `AddAPIClient` method to store the gRPC connection into our hashmap.
+2. Add a new method to the [registry](./internal/registry/registry.go) package for that client (a la `GetUserClient`). Also make sure to add a corresponding `const` for that client in that package.
+3. Next, look at the newly generated resolvers from your schema. Move any _shared_ resolvers into the root [resolver](./internal/graphql/resolver) folder.
+   - Put the main generated function (i.e. `Permission()`) in the [resolver.go](./internal/graphql/resolver/resolver.go) file and update it to match the format of the other functions.
+   - Create new files as necessary for each microservice, each one containing their query and mutation methods. Look at [permission.go](./internal/graphql/resolver/permission.go) for an example. Make sure to update the receivers for each method. For queries we are using `(q *QueryResolver)` and for mutations `(m *MutationResolver)`.
+4. Now add any _unshared_ resolvers into a separate folder inside `resolver`. These resolvers are generally tied to the individual fields for that model, and they are unique to that particular client. You can look at the [user](./internal/graphql/resolver/user) folder for examples. Also update the package name if necessary.
+5. Fill out your resolver stubs and then test it out in the playground!
