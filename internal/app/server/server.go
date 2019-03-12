@@ -24,53 +24,31 @@ func RunGraphQLServer(c *cli.Context) error {
 	if len(os.Getenv("PUBLICATION_API_ENDPOINT")) < 1 {
 		os.Setenv("PUBLICATION_API_ENDPOINT", c.String("publication-api"))
 	}
-	// need to think how to optimize this
-	// use NewRegistry to create connections?
-	uconn, err := grpc.Dial(
-		fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")),
-		grpc.WithInsecure(),
-	)
+	// establish grpc connections
+	uconn, err := grpc.Dial(fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")), grpc.WithInsecure())
 	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot connect to user grpc microservice %s", err.Error()),
-			2,
-		)
+		return fmt.Errorf("cannot connect to grpc user microservice for %s", err)
 	}
-	uc := user.NewUserServiceClient(uconn)
-	rconn, err := grpc.Dial(
-		fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")),
-		grpc.WithInsecure(),
-	)
+	rconn, err := grpc.Dial(fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")), grpc.WithInsecure())
 	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot connect to role grpc microservice %s", err.Error()),
-			2,
-		)
+		return fmt.Errorf("cannot connect to grpc role microservice for %s", err)
 	}
-	rc := user.NewRoleServiceClient(rconn)
-	pconn, err := grpc.Dial(
-		fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")),
-		grpc.WithInsecure(),
-	)
+	pconn, err := grpc.Dial(fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")), grpc.WithInsecure())
 	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot connect to permission grpc microservice %s", err.Error()),
-			2,
-		)
+		return fmt.Errorf("cannot connect to grpc permission microservice for %s", err)
 	}
-	pc := user.NewPermissionServiceClient(pconn)
-
+	// generate new (empty) hashmap
 	nr := registry.NewRegistry()
-	nr.AddAPIClient("user", uc)
-	nr.AddAPIClient("role", rc)
-	nr.AddAPIClient("permission", pc)
+	// add api clients to hashmap
+	nr.AddAPIClient(registry.USER, user.NewUserServiceClient(uconn))
+	nr.AddAPIClient(registry.ROLE, user.NewRoleServiceClient(rconn))
+	nr.AddAPIClient(registry.PERMISSION, user.NewPermissionServiceClient(pconn))
 
 	s := resolver.NewResolver(nr, log)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
 	http.Handle("/graphql", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
-
-	log.Debug("connect to http://localhost:8080/ for GraphQL playground")
+	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
 }
