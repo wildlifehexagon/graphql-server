@@ -62,6 +62,12 @@ func main() {
 					EnvVar: "PERMISSION_API_SERVICE_PORT",
 					Usage:  "permission grpc port",
 				},
+				cli.StringFlag{
+					Name:   "publication-api, pub",
+					EnvVar: "PUBLICATION_API_ENDPOINT",
+					Usage:  "publication api endpoint",
+					Value:  "https://betafunc.dictybase.org/publications",
+				},
 			},
 		},
 	}

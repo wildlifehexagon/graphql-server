@@ -20,10 +20,12 @@ import (
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
-
+	// ensure env exists for use in publication resolver
+	if len(os.Getenv("PUBLICATION_API_ENDPOINT")) < 1 {
+		os.Setenv("PUBLICATION_API_ENDPOINT", c.String("publication-api"))
+	}
 	// need to think how to optimize this
 	// use NewRegistry to create connections?
-
 	uconn, err := grpc.Dial(
 		fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")),
 		grpc.WithInsecure(),
@@ -68,7 +70,7 @@ func RunGraphQLServer(c *cli.Context) error {
 	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
 	http.Handle("/graphql", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
 
-	log.Info("connect to http://localhost:8080/ for GraphQL playground")
+	log.Debug("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
 }
