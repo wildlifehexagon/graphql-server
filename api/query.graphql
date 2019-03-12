@@ -17,7 +17,7 @@ type Query {
   # order(id: ID!): Order
   # listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
   # Publication queries
-  # publication(id: ID!): Publication
+  publication(id: ID!): Publication
   # listPublications(
   #   cursor: ID
   #   limit: Int

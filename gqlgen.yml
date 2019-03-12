@@ -3,6 +3,7 @@ schema:
   - "api/mutation.graphql"
   - "api/scalar.graphql"
   - "api/user.graphql"
+  - "api/publication.graphql"
 exec:
   filename: internal/graphql/generated/generated.go
   package: generated

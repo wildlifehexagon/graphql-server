@@ -3,8 +3,17 @@
 package models
 
 import (
+	"time"
+
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
+
+type Author struct {
+	LastName  *string `json:"last_name"`
+	FirstName *string `json:"first_name"`
+	Initials  *string `json:"initials"`
+	Rank      *string `json:"rank"`
+}
 
 type CreatePermissionInput struct {
 	Permission  string `json:"permission"`
@@ -35,6 +44,23 @@ type CreateUserInput struct {
 
 type DeleteItem struct {
 	Success bool `json:"success"`
+}
+
+type Publication struct {
+	ID       string     `json:"id"`
+	Doi      *string    `json:"doi"`
+	Title    *string    `json:"title"`
+	Abstract *string    `json:"abstract"`
+	Journal  *string    `json:"journal"`
+	PubDate  *time.Time `json:"pub_date"`
+	Volume   *string    `json:"volume"`
+	Pages    *string    `json:"pages"`
+	Issn     *string    `json:"issn"`
+	PubType  *string    `json:"pub_type"`
+	Source   *string    `json:"source"`
+	Issue    *string    `json:"issue"`
+	Status   *string    `json:"status"`
+	Authors  []*Author  `json:"authors"`
 }
 
 type UpdatePermissionInput struct {

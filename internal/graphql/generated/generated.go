@@ -45,6 +45,13 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Author struct {
+		LastName  func(childComplexity int) int
+		FirstName func(childComplexity int) int
+		Initials  func(childComplexity int) int
+		Rank      func(childComplexity int) int
+	}
+
 	DeleteItem struct {
 		Success func(childComplexity int) int
 	}
@@ -72,7 +79,25 @@ type ComplexityRoot struct {
 		Resource    func(childComplexity int) int
 	}
 
+	Publication struct {
+		Id       func(childComplexity int) int
+		Doi      func(childComplexity int) int
+		Title    func(childComplexity int) int
+		Abstract func(childComplexity int) int
+		Journal  func(childComplexity int) int
+		PubDate  func(childComplexity int) int
+		Volume   func(childComplexity int) int
+		Pages    func(childComplexity int) int
+		Issn     func(childComplexity int) int
+		PubType  func(childComplexity int) int
+		Source   func(childComplexity int) int
+		Issue    func(childComplexity int) int
+		Status   func(childComplexity int) int
+		Authors  func(childComplexity int) int
+	}
+
 	Query struct {
+		Publication     func(childComplexity int, id string) int
 		User            func(childComplexity int, id string) int
 		UserByEmail     func(childComplexity int, email string) int
 		ListUsers       func(childComplexity int, pagenum string, pagesize string, filter string) int
@@ -141,6 +166,7 @@ type PermissionResolver interface {
 	Resource(ctx context.Context, obj *user.Permission) (*string, error)
 }
 type QueryResolver interface {
+	Publication(ctx context.Context, id string) (*models.Publication, error)
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
@@ -417,6 +443,21 @@ func field_Mutation_deletePermission_args(rawArgs map[string]interface{}) (map[s
 
 }
 
+func field_Query_publication_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+
+}
+
 func field_Query_user_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
 	var arg0 string
@@ -567,6 +608,34 @@ func (e *executableSchema) Schema() *ast.Schema {
 
 func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]interface{}) (int, bool) {
 	switch typeName + "." + field {
+
+	case "Author.last_name":
+		if e.complexity.Author.LastName == nil {
+			break
+		}
+
+		return e.complexity.Author.LastName(childComplexity), true
+
+	case "Author.first_name":
+		if e.complexity.Author.FirstName == nil {
+			break
+		}
+
+		return e.complexity.Author.FirstName(childComplexity), true
+
+	case "Author.initials":
+		if e.complexity.Author.Initials == nil {
+			break
+		}
+
+		return e.complexity.Author.Initials(childComplexity), true
+
+	case "Author.rank":
+		if e.complexity.Author.Rank == nil {
+			break
+		}
+
+		return e.complexity.Author.Rank(childComplexity), true
 
 	case "DeleteItem.success":
 		if e.complexity.DeleteItem.Success == nil {
@@ -748,6 +817,116 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Permission.Resource(childComplexity), true
+
+	case "Publication.id":
+		if e.complexity.Publication.Id == nil {
+			break
+		}
+
+		return e.complexity.Publication.Id(childComplexity), true
+
+	case "Publication.doi":
+		if e.complexity.Publication.Doi == nil {
+			break
+		}
+
+		return e.complexity.Publication.Doi(childComplexity), true
+
+	case "Publication.title":
+		if e.complexity.Publication.Title == nil {
+			break
+		}
+
+		return e.complexity.Publication.Title(childComplexity), true
+
+	case "Publication.abstract":
+		if e.complexity.Publication.Abstract == nil {
+			break
+		}
+
+		return e.complexity.Publication.Abstract(childComplexity), true
+
+	case "Publication.journal":
+		if e.complexity.Publication.Journal == nil {
+			break
+		}
+
+		return e.complexity.Publication.Journal(childComplexity), true
+
+	case "Publication.pub_date":
+		if e.complexity.Publication.PubDate == nil {
+			break
+		}
+
+		return e.complexity.Publication.PubDate(childComplexity), true
+
+	case "Publication.volume":
+		if e.complexity.Publication.Volume == nil {
+			break
+		}
+
+		return e.complexity.Publication.Volume(childComplexity), true
+
+	case "Publication.pages":
+		if e.complexity.Publication.Pages == nil {
+			break
+		}
+
+		return e.complexity.Publication.Pages(childComplexity), true
+
+	case "Publication.issn":
+		if e.complexity.Publication.Issn == nil {
+			break
+		}
+
+		return e.complexity.Publication.Issn(childComplexity), true
+
+	case "Publication.pub_type":
+		if e.complexity.Publication.PubType == nil {
+			break
+		}
+
+		return e.complexity.Publication.PubType(childComplexity), true
+
+	case "Publication.source":
+		if e.complexity.Publication.Source == nil {
+			break
+		}
+
+		return e.complexity.Publication.Source(childComplexity), true
+
+	case "Publication.issue":
+		if e.complexity.Publication.Issue == nil {
+			break
+		}
+
+		return e.complexity.Publication.Issue(childComplexity), true
+
+	case "Publication.status":
+		if e.complexity.Publication.Status == nil {
+			break
+		}
+
+		return e.complexity.Publication.Status(childComplexity), true
+
+	case "Publication.authors":
+		if e.complexity.Publication.Authors == nil {
+			break
+		}
+
+		return e.complexity.Publication.Authors(childComplexity), true
+
+	case "Query.publication":
+		if e.complexity.Query.Publication == nil {
+			break
+		}
+
+		args, err := field_Query_publication_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Publication(childComplexity, args["id"].(string)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -1056,6 +1235,151 @@ func (e *executableSchema) Subscription(ctx context.Context, op *ast.OperationDe
 type executionContext struct {
 	*graphql.RequestContext
 	*executableSchema
+}
+
+var authorImplementors = []string{"Author"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Author(ctx context.Context, sel ast.SelectionSet, obj *models.Author) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, authorImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Author")
+		case "last_name":
+			out.Values[i] = ec._Author_last_name(ctx, field, obj)
+		case "first_name":
+			out.Values[i] = ec._Author_first_name(ctx, field, obj)
+		case "initials":
+			out.Values[i] = ec._Author_initials(ctx, field, obj)
+		case "rank":
+			out.Values[i] = ec._Author_rank(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Author_last_name(ctx context.Context, field graphql.CollectedField, obj *models.Author) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Author",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastName, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Author_first_name(ctx context.Context, field graphql.CollectedField, obj *models.Author) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Author",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstName, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Author_initials(ctx context.Context, field graphql.CollectedField, obj *models.Author) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Author",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Initials, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Author_rank(ctx context.Context, field graphql.CollectedField, obj *models.Author) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Author",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rank, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 var deleteItemImplementors = []string{"DeleteItem"}
@@ -1791,6 +2115,486 @@ func (ec *executionContext) _Permission_resource(ctx context.Context, field grap
 	return graphql.MarshalString(*res)
 }
 
+var publicationImplementors = []string{"Publication"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Publication(ctx context.Context, sel ast.SelectionSet, obj *models.Publication) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, publicationImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Publication")
+		case "id":
+			out.Values[i] = ec._Publication_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "doi":
+			out.Values[i] = ec._Publication_doi(ctx, field, obj)
+		case "title":
+			out.Values[i] = ec._Publication_title(ctx, field, obj)
+		case "abstract":
+			out.Values[i] = ec._Publication_abstract(ctx, field, obj)
+		case "journal":
+			out.Values[i] = ec._Publication_journal(ctx, field, obj)
+		case "pub_date":
+			out.Values[i] = ec._Publication_pub_date(ctx, field, obj)
+		case "volume":
+			out.Values[i] = ec._Publication_volume(ctx, field, obj)
+		case "pages":
+			out.Values[i] = ec._Publication_pages(ctx, field, obj)
+		case "issn":
+			out.Values[i] = ec._Publication_issn(ctx, field, obj)
+		case "pub_type":
+			out.Values[i] = ec._Publication_pub_type(ctx, field, obj)
+		case "source":
+			out.Values[i] = ec._Publication_source(ctx, field, obj)
+		case "issue":
+			out.Values[i] = ec._Publication_issue(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._Publication_status(ctx, field, obj)
+		case "authors":
+			out.Values[i] = ec._Publication_authors(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_id(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_doi(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Doi, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_title(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_abstract(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Abstract, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_journal(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Journal, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_pub_date(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PubDate, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return models.MarshalTimestamp(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_volume(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Volume, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_pages(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Pages, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_issn(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Issn, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_pub_type(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PubType, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_source(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Source, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_issue(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Issue, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_status(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Publication_authors(ctx context.Context, field graphql.CollectedField, obj *models.Publication) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Publication",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Authors, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Author)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Author(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
 var queryImplementors = []string{"Query"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -1810,6 +2614,12 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "publication":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_publication(ctx, field)
+				wg.Done()
+			}(i, field)
 		case "user":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
@@ -1865,6 +2675,41 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		return graphql.Null
 	}
 	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_publication(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_publication_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Publication(rctx, args["id"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Publication)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Publication(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -5211,6 +6056,78 @@ var parsedSchema = gqlparser.MustLoadSchema(
   deletePermission(id: ID!): DeleteItem
 }
 `},
+	&ast.Source{Name: "api/publication.graphql", Input: `type Publication {
+  id: ID!
+  doi: String
+  title: String
+  abstract: String
+  journal: String
+  pub_date: Timestamp
+  volume: String
+  pages: String
+  issn: String
+  pub_type: String
+  source: String
+  issue: String
+  status: String
+  authors: [Author]
+}
+
+# type PublicationListWithCursor {
+#   publications: [Publication!]!
+#   nextCursor: ID!
+#   previousCursor: ID!
+#   limit: Int
+#   totalCount: Int!
+# }
+
+type Author {
+  last_name: String
+  first_name: String
+  initials: String
+  rank: String
+}
+
+# input CreatePublicationInput {
+#   doi: String
+#   title: String
+#   abstract: String
+#   journal: String
+#   pub_date: Timestamp
+#   volume: String
+#   pages: String
+#   issn: String
+#   pub_type: String
+#   source: String
+#   issue: String
+#   status: String
+#   authors: [CreateAuthorInput]
+# }
+
+# input CreateAuthorInput {
+#   last_name: String
+#   first_name: String
+#   initials: String
+#   rank: String
+# }
+
+# input UpdatePublicationInput {
+#   pub_date: String
+#   volume: String
+#   pages: String
+#   pub_type: String
+#   source: String
+#   status: String
+#   authors: [UpdateAuthorInput]
+# }
+
+# input UpdateAuthorInput {
+#   last_name: String
+#   first_name: String
+#   initials: String
+#   rank: String
+# }
+`},
 	&ast.Source{Name: "api/query.graphql", Input: `type Query {
   # Annotation queries
   # annotation(id: ID!): Annotation
@@ -5230,7 +6147,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
   # order(id: ID!): Order
   # listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
   # Publication queries
-  # publication(id: ID!): Publication
+  publication(id: ID!): Publication
   # listPublications(
   #   cursor: ID
   #   limit: Int
