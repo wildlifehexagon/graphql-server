@@ -11,8 +11,8 @@ model:
   filename: internal/graphql/models/models_gen.go
   package: models
 resolver:
-  filename: internal/graphql/resolver/resolver.go
-  package: resolver
+  filename: internal/graphql/genresolver/genresolver.go
+  package: genresolver
   type: Resolver
 models:
   # Custom scalars point to the name without the Marshal|Unmarshal in front
