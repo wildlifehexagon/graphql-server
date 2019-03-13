@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
+
+	"github.com/dictyBase/graphql-server/internal/registry"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 )
@@ -54,7 +55,8 @@ type Author struct {
 
 // Publication is the resolver for getting an individual publication by ID.
 func (q *QueryResolver) Publication(ctx context.Context, id string) (*models.Publication, error) {
-	url := os.Getenv("PUBLICATION_API_ENDPOINT") + "/" + id
+	endpoint := q.GetAPIEndpoint(registry.PUBLICATION)
+	url := endpoint + "/" + id
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("error in http get request %s", err)
