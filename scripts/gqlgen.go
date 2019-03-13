@@ -63,5 +63,5 @@ func main() {
 		fmt.Printf("successfully wrote file %s\n", fp)
 	}
 	cmd.Execute()
-	fmt.Printf("successfully removed temporary directory %s", dir)
+	fmt.Printf("successfully removed temporary directory %s\n", dir)
 }

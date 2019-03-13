@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/dictyBase/graphql-server/internal/registry"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
@@ -54,7 +55,7 @@ type Author struct {
 }
 
 // Publication is the resolver for getting an individual publication by ID.
-func (q *QueryResolver) Publication(ctx context.Context, id string) (*models.Publication, error) {
+func (q *QueryResolver) Publication(ctx context.Context, id string) (*publication.Publication, error) {
 	endpoint := q.GetAPIEndpoint(registry.PUBLICATION)
 	url := endpoint + "/" + id
 	res, err := http.Get(url)

@@ -24,3 +24,7 @@ models:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.Role
   Permission:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.Permission
+  Publication:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/publication.Publication
+  Author:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/publication.Author

@@ -3,6 +3,7 @@ package resolver
 
 import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/publication"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/user"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
@@ -57,6 +58,18 @@ func (r *Resolver) Role() generated.RoleResolver {
 func (r *Resolver) Permission() generated.PermissionResolver {
 	return &user.PermissionResolver{
 		Client: r.GetPermissionClient(registry.PERMISSION),
+		Logger: r.Logger,
+	}
+}
+
+func (r *Resolver) Publication() generated.PublicationResolver {
+	return &publication.PublicationResolver{
+		Logger: r.Logger,
+	}
+}
+
+func (r *Resolver) Author() generated.AuthorResolver {
+	return &publication.AuthorResolver{
 		Logger: r.Logger,
 	}
 }
