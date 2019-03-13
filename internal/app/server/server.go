@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"google.golang.org/grpc"
 
@@ -20,30 +19,20 @@ import (
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
-	// ensure env exists for use in publication resolver
-	if len(os.Getenv("PUBLICATION_API_ENDPOINT")) < 1 {
-		os.Setenv("PUBLICATION_API_ENDPOINT", c.String("publication-api"))
-	}
-	// establish grpc connections
-	uconn, err := grpc.Dial(fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")), grpc.WithInsecure())
-	if err != nil {
-		return fmt.Errorf("cannot connect to grpc user microservice for %s", err)
-	}
-	rconn, err := grpc.Dial(fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")), grpc.WithInsecure())
-	if err != nil {
-		return fmt.Errorf("cannot connect to grpc role microservice for %s", err)
-	}
-	pconn, err := grpc.Dial(fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")), grpc.WithInsecure())
-	if err != nil {
-		return fmt.Errorf("cannot connect to grpc permission microservice for %s", err)
-	}
 	// generate new (empty) hashmap
 	nr := registry.NewRegistry()
-	// add api clients to hashmap
-	nr.AddAPIClient(registry.USER, user.NewUserServiceClient(uconn))
-	nr.AddAPIClient(registry.ROLE, user.NewRoleServiceClient(rconn))
-	nr.AddAPIClient(registry.PERMISSION, user.NewPermissionServiceClient(pconn))
-
+	for k, v := range registry.ServiceMap {
+		host := c.String(fmt.Sprintf("%s-grpc-host", k))
+		port := c.String(fmt.Sprintf("%s-grpc-port", k))
+		// establish grpc connections
+		conn, err := grpc.Dial(fmt.Sprintf("%s:%s", host, port, grpc.WithInsecure()))
+		if err != nil {
+			return fmt.Errorf("cannot connect to grpc user microservice for %s", err)
+		}
+		// add api clients to hashmap
+		nr.AddAPIConnection(v, conn)
+	}
+	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
 	s := resolver.NewResolver(nr, log)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
