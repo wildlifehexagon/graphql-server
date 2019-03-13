@@ -1,23 +1,34 @@
 package registry
 
 import (
+	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/emirpasic/gods/maps/hashmap"
+	"google.golang.org/grpc"
 )
 
 const (
-	USER       = "user"
-	ROLE       = "role"
-	PERMISSION = "permission"
+	USER        = "user"
+	ROLE        = "role"
+	PERMISSION  = "permission"
+	PUBLICATION = "publication"
 )
 
+var ServiceMap = map[string]string{
+	"user":       USER,
+	"role":       ROLE,
+	"permission": PERMISSION,
+}
+
 type collection struct {
-	clientMap *hashmap.Map
+	connMap *hashmap.Map
 }
 
 type Registry interface {
-	AddAPIClient(key string, client interface{})
-	GetAPIClient(key string) (interface{}, bool)
+	AddAPIEndpoint(key, endpoint string)
+	AddAPIConnection(key string, conn *grpc.ClientConn)
+	GetAPIConnection(key string) (conn *grpc.ClientConn)
+	GetAPIEndpoint(key string) string
 	GetUserClient(key string) pb.UserServiceClient
 	GetRoleClient(key string) pb.RoleServiceClient
 	GetPermissionClient(key string) pb.PermissionServiceClient
@@ -26,42 +37,45 @@ type Registry interface {
 // NewRegistry constructs a hashmap for our grpc clients
 func NewRegistry() Registry {
 	m := hashmap.New()
-	return &collection{clientMap: m}
+	return &collection{connMap: m}
+}
+
+func (c *collection) AddAPIEndpoint(key, endpoint string) {
+	c.connMap.Put(key, endpoint)
 }
 
 // AddAPIClient adds a new entry to the hashmap
-func (c *collection) AddAPIClient(key string, client interface{}) {
-	c.clientMap.Put(key, client)
+func (c *collection) AddAPIConnection(key string, conn *grpc.ClientConn) {
+	c.connMap.Put(key, conn)
 }
 
 // GetAPIClient looks up a client in the hashmap
-func (c *collection) GetAPIClient(key string) (interface{}, bool) {
-	return c.clientMap.Get(key)
+func (c *collection) GetAPIConnection(key string) (conn *grpc.ClientConn) {
+	v, ok := c.connMap.Get(key)
+	if !ok {
+		panic("could not get grpc client connection")
+	}
+	conn, _ = v.(*grpc.ClientConn)
+	return conn
 }
 
 func (c *collection) GetUserClient(key string) pb.UserServiceClient {
-	client, ok := c.GetAPIClient(key)
-	if !ok {
-		panic("could not get user client")
-	}
-	uc, _ := client.(pb.UserServiceClient)
-	return uc
+	return user.NewUserServiceClient(c.GetAPIConnection(key))
 }
 
 func (c *collection) GetRoleClient(key string) pb.RoleServiceClient {
-	client, ok := c.GetAPIClient(key)
-	if !ok {
-		panic("could not get role client")
-	}
-	rc, _ := client.(pb.RoleServiceClient)
-	return rc
+	return user.NewRoleServiceClient(c.GetAPIConnection(key))
 }
 
 func (c *collection) GetPermissionClient(key string) pb.PermissionServiceClient {
-	client, ok := c.GetAPIClient(key)
+	return user.NewPermissionServiceClient(c.GetAPIConnection(key))
+}
+
+func (c *collection) GetAPIEndpoint(key string) string {
+	v, ok := c.connMap.Get(key)
 	if !ok {
-		panic("could not get permission client")
+		panic("could not get api endpoint")
 	}
-	pc, _ := client.(pb.PermissionServiceClient)
-	return pc
+	endpoint, _ := v.(string)
+	return endpoint
 }
