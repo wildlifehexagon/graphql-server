@@ -12,5 +12,6 @@ type AuthorResolver struct {
 }
 
 func (r *AuthorResolver) Rank(ctx context.Context, obj *publication.Author) (*string, error) {
-	panic("not implemented")
+	s := ""
+	return &s, nil
 }

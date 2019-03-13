@@ -8,10 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
+	"github.com/dictyBase/apihelpers/aphgrpc"
+	pb "github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/dictyBase/graphql-server/internal/registry"
-
-	"github.com/dictyBase/graphql-server/internal/graphql/models"
 )
 
 type PubJsonAPI struct {
@@ -55,7 +54,7 @@ type Author struct {
 }
 
 // Publication is the resolver for getting an individual publication by ID.
-func (q *QueryResolver) Publication(ctx context.Context, id string) (*publication.Publication, error) {
+func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publication, error) {
 	endpoint := q.GetAPIEndpoint(registry.PUBLICATION)
 	url := endpoint + "/" + id
 	res, err := http.Get(url)
@@ -80,31 +79,36 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*publicatio
 	}
 	// convert issue to expected string format
 	issue := strconv.Itoa(int(attr.Issue))
-	p := &models.Publication{
-		ID:       pub.Data.ID,
-		Doi:      &attr.Doi,
-		Title:    &attr.Title,
-		Abstract: &attr.Abstract,
-		Journal:  &attr.Journal,
-		PubDate:  &pd,
-		Pages:    &attr.Page,
-		Issn:     &attr.Issn,
-		PubType:  &attr.PubType,
-		Source:   &attr.Source,
-		Issue:    &issue,
-		Status:   &attr.Status,
-		// Volume: nil,
+	p := &pb.Publication{
+		Data: &pb.Publication_Data{
+			Type: "publication",
+			Id:   id,
+			Attributes: &pb.PublicationAttributes{
+				Doi:      attr.Doi,
+				Title:    attr.Title,
+				Abstract: attr.Abstract,
+				Journal:  attr.Journal,
+				PubDate:  aphgrpc.TimestampProto(pd),
+				Pages:    attr.Page,
+				Issn:     attr.Issn,
+				PubType:  attr.PubType,
+				Source:   attr.Source,
+				Issue:    issue,
+				Status:   attr.Status,
+				Volume:   "",
+			},
+		},
 	}
-	var authors []*models.Author
+	var authors []*pb.Author
 	for _, a := range attr.Authors {
-		authors = append(authors, &models.Author{
-			FirstName: &a.FirstName,
-			LastName:  &a.LastName,
-			// Rank:      nil,
-			Initials: &a.Initials,
+		authors = append(authors, &pb.Author{
+			FirstName: a.FirstName,
+			LastName:  a.LastName,
+			// Rank:      0,
+			Initials: a.Initials,
 		})
 	}
-	p.Authors = authors
+	p.Data.Attributes.Authors = authors
 	q.Logger.Debugf("successfully found publication with ID %s", pub.Data.ID)
 	return p, nil
 }
