@@ -59,18 +59,18 @@ func (m *MutationResolver) UpdatePermission(ctx context.Context, id string, inpu
 	m.Logger.Debugf("successfully updated permission with ID %d", n.Data.Id)
 	return o, nil
 }
-func (m *MutationResolver) DeletePermission(ctx context.Context, id string) (*models.DeleteItem, error) {
+func (m *MutationResolver) DeletePermission(ctx context.Context, id string) (*models.DeletePermission, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
 	if _, err := m.GetPermissionClient(registry.PERMISSION).DeletePermission(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
-		return &models.DeleteItem{
+		return &models.DeletePermission{
 			Success: false,
 		}, fmt.Errorf("error deleting permission with ID %s: %s", id, err)
 	}
 	m.Logger.Debugf("successfully deleted permission with ID %s", id)
-	return &models.DeleteItem{
+	return &models.DeletePermission{
 		Success: true,
 	}, nil
 }

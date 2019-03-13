@@ -184,18 +184,18 @@ func getUpdateUserAttributes(input *models.UpdateUserInput, f *pb.User) *pb.User
 	return attr
 }
 
-func (m *MutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteItem, error) {
+func (m *MutationResolver) DeleteUser(ctx context.Context, id string) (*models.DeleteUser, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
 	if _, err := m.GetUserClient(registry.USER).DeleteUser(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
-		return &models.DeleteItem{
+		return &models.DeleteUser{
 			Success: false,
 		}, fmt.Errorf("error deleting user with ID %s: %s", id, err)
 	}
 	m.Logger.Debugf("successfully deleted user with ID %s", id)
-	return &models.DeleteItem{
+	return &models.DeleteUser{
 		Success: true,
 	}, nil
 }
