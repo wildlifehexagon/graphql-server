@@ -25,9 +25,9 @@ func RunGraphQLServer(c *cli.Context) error {
 		host := c.String(fmt.Sprintf("%s-grpc-host", k))
 		port := c.String(fmt.Sprintf("%s-grpc-port", k))
 		// establish grpc connections
-		conn, err := grpc.Dial(fmt.Sprintf("%s:%s", host, port, grpc.WithInsecure()))
+		conn, err := grpc.Dial(fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure())
 		if err != nil {
-			return fmt.Errorf("cannot connect to grpc user microservice for %s", err)
+			return fmt.Errorf("cannot connect to grpc microservice for %s", err)
 		}
 		// add api clients to hashmap
 		nr.AddAPIConnection(v, conn)
