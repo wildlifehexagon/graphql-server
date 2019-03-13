@@ -27,11 +27,30 @@ func RunGraphQLServer(c *cli.Context) error {
 		// establish grpc connections
 		conn, err := grpc.Dial(fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure())
 		if err != nil {
-			return fmt.Errorf("cannot connect to grpc microservice for %s", err)
+			return cli.NewExitError(
+				fmt.Sprintf("cannot connect to grpc microservice for %s", err),
+				2,
+			)
 		}
 		// add api clients to hashmap
 		nr.AddAPIConnection(v, conn)
 	}
+	// verify if publication api endpoint is running
+	// need to use Get method here because Head returns 405 status
+	res, err := http.Get(c.String("publication-api") + "/" + "30048658")
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot reach publication api endpoint %s", err),
+			2,
+		)
+	}
+	if res.StatusCode != http.StatusOK {
+		return cli.NewExitError(
+			fmt.Sprintf("did not get ok status from publication api endpoint, got %v instead", res.StatusCode),
+			2,
+		)
+	}
+	// publication api status is fine, so add it to registry
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
 	s := resolver.NewResolver(nr, log)
 
