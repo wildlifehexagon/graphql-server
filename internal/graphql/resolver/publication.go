@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
@@ -29,21 +28,21 @@ type PubData struct {
 }
 
 type Publication struct {
-	Abstract      string    `json:"abstract"`
-	Doi           string    `json:"doi,omitempty"`
-	FullTextURL   string    `json:"full_text_url,omitempty"`
-	PubmedURL     string    `json:"pubmed_url"`
-	Journal       string    `json:"journal"`
-	Issn          string    `json:"issn,omitempty"`
-	Page          string    `json:"page,omitempty"`
-	Pubmed        string    `json:"pubmed"`
-	Title         string    `json:"title"`
-	Source        string    `json:"source"`
-	Status        string    `json:"status"`
-	PubType       string    `json:"pub_type"`
-	Issue         int64     `json:"issue,omitempty"`
-	PublishedDate string    `json:"publication_date"`
-	Authors       []*Author `json:"authors"`
+	Abstract      string      `json:"abstract"`
+	Doi           string      `json:"doi,omitempty"`
+	FullTextURL   string      `json:"full_text_url,omitempty"`
+	PubmedURL     string      `json:"pubmed_url"`
+	Journal       string      `json:"journal"`
+	Issn          string      `json:"issn,omitempty"`
+	Page          string      `json:"page,omitempty"`
+	Pubmed        string      `json:"pubmed"`
+	Title         string      `json:"title"`
+	Source        string      `json:"source"`
+	Status        string      `json:"status"`
+	PubType       string      `json:"pub_type"`
+	Issue         json.Number `json:"issue,omitempty"`
+	PublishedDate string      `json:"publication_date"`
+	Authors       []*Author   `json:"authors"`
 }
 
 type Author struct {
@@ -77,8 +76,6 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publica
 	if err != nil {
 		return nil, fmt.Errorf("could not parse published date %s", err)
 	}
-	// convert issue to expected string format
-	issue := strconv.Itoa(int(attr.Issue))
 	p := &pb.Publication{
 		Data: &pb.Publication_Data{
 			Type: "publication",
@@ -93,7 +90,7 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publica
 				Issn:     attr.Issn,
 				PubType:  attr.PubType,
 				Source:   attr.Source,
-				Issue:    issue,
+				Issue:    string(attr.Issue),
 				Status:   attr.Status,
 				Volume:   "", // field does not exist yet
 			},
@@ -104,7 +101,7 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publica
 		authors = append(authors, &pb.Author{
 			FirstName: a.FirstName,
 			LastName:  a.LastName,
-			Rank:      int64(i), // field does not exist yet
+			Rank:      int64(i),
 			Initials:  a.Initials,
 		})
 	}
