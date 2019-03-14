@@ -33,7 +33,15 @@ type CreateUserInput struct {
 	IsActive      bool    `json:"is_active"`
 }
 
-type DeleteItem struct {
+type DeletePermission struct {
+	Success bool `json:"success"`
+}
+
+type DeleteRole struct {
+	Success bool `json:"success"`
+}
+
+type DeleteUser struct {
 	Success bool `json:"success"`
 }
 

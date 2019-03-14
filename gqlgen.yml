@@ -3,6 +3,7 @@ schema:
   - "api/mutation.graphql"
   - "api/scalar.graphql"
   - "api/user.graphql"
+  - "api/publication.graphql"
 exec:
   filename: internal/graphql/generated/generated.go
   package: generated
@@ -10,8 +11,8 @@ model:
   filename: internal/graphql/models/models_gen.go
   package: models
 resolver:
-  filename: internal/graphql/resolver/resolver.go
-  package: resolver
+  filename: internal/graphql/genresolver/genresolver.go
+  package: genresolver
   type: Resolver
 models:
   # Custom scalars point to the name without the Marshal|Unmarshal in front
@@ -23,3 +24,7 @@ models:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.Role
   Permission:
     model: github.com/dictyBase/go-genproto/dictybaseapis/user.Permission
+  Publication:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/publication.Publication
+  Author:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/publication.Author

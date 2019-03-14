@@ -84,18 +84,18 @@ func (m *MutationResolver) UpdateRole(ctx context.Context, id string, input *mod
 	m.Logger.Debugf("successfully updated role with ID %d", n.Data.Id)
 	return o, nil
 }
-func (m *MutationResolver) DeleteRole(ctx context.Context, id string) (*models.DeleteItem, error) {
+func (m *MutationResolver) DeleteRole(ctx context.Context, id string) (*models.DeleteRole, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
 	if _, err := m.GetRoleClient(registry.ROLE).DeleteRole(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
-		return &models.DeleteItem{
+		return &models.DeleteRole{
 			Success: false,
 		}, fmt.Errorf("error deleting role with ID %s: %s", id, err)
 	}
 	m.Logger.Debugf("successfully deleted role with ID %s", id)
-	return &models.DeleteItem{
+	return &models.DeleteRole{
 		Success: true,
 	}, nil
 }

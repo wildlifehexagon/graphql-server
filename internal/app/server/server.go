@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"google.golang.org/grpc"
 
@@ -20,55 +19,44 @@ import (
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
-
-	// need to think how to optimize this
-	// use NewRegistry to create connections?
-
-	uconn, err := grpc.Dial(
-		fmt.Sprintf("%s:%s", c.String("user-grpc-host"), c.String("user-grpc-port")),
-		grpc.WithInsecure(),
-	)
-	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot connect to user grpc microservice %s", err.Error()),
-			2,
-		)
-	}
-	uc := user.NewUserServiceClient(uconn)
-	rconn, err := grpc.Dial(
-		fmt.Sprintf("%s:%s", c.String("role-grpc-host"), c.String("role-grpc-port")),
-		grpc.WithInsecure(),
-	)
-	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot connect to role grpc microservice %s", err.Error()),
-			2,
-		)
-	}
-	rc := user.NewRoleServiceClient(rconn)
-	pconn, err := grpc.Dial(
-		fmt.Sprintf("%s:%s", c.String("permission-grpc-host"), c.String("permission-grpc-port")),
-		grpc.WithInsecure(),
-	)
-	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot connect to permission grpc microservice %s", err.Error()),
-			2,
-		)
-	}
-	pc := user.NewPermissionServiceClient(pconn)
-
+	// generate new (empty) hashmap
 	nr := registry.NewRegistry()
-	nr.AddAPIClient("user", uc)
-	nr.AddAPIClient("role", rc)
-	nr.AddAPIClient("permission", pc)
-
+	for k, v := range registry.ServiceMap {
+		host := c.String(fmt.Sprintf("%s-grpc-host", k))
+		port := c.String(fmt.Sprintf("%s-grpc-port", k))
+		// establish grpc connections
+		conn, err := grpc.Dial(fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure())
+		if err != nil {
+			return cli.NewExitError(
+				fmt.Sprintf("cannot connect to grpc microservice for %s", err),
+				2,
+			)
+		}
+		// add api clients to hashmap
+		nr.AddAPIConnection(v, conn)
+	}
+	// verify if publication api endpoint is running
+	// need to use Get method here because Head returns 405 status
+	res, err := http.Get(c.String("publication-api") + "/" + "30048658")
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot reach publication api endpoint %s", err),
+			2,
+		)
+	}
+	if res.StatusCode != http.StatusOK {
+		return cli.NewExitError(
+			fmt.Sprintf("did not get ok status from publication api endpoint, got %v instead", res.StatusCode),
+			2,
+		)
+	}
+	// publication api status is fine, so add it to registry
+	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
 	s := resolver.NewResolver(nr, log)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
 	http.Handle("/graphql", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
-
-	log.Info("connect to http://localhost:8080/ for GraphQL playground")
+	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
 }
