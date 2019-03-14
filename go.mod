@@ -6,7 +6,7 @@ require (
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/dictyBase/apihelpers v0.0.0-20181218160245-dce81474776f
-	github.com/dictyBase/go-genproto v0.0.0-20190108210140-245692b4c03c
+	github.com/dictyBase/go-genproto v0.0.0-20190225231732-662920fc4435
 	github.com/emirpasic/gods v1.12.0
 	github.com/fatih/structs v1.1.0
 	github.com/garyburd/redigo v1.6.0 // indirect
