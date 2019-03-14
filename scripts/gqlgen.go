@@ -26,6 +26,7 @@ func main() {
 	}
 	// create temporary directory for genresolver if it doesn't exist
 	if _, err := os.Stat(grdir); os.IsNotExist(err) {
+		// 0777 denotes read, write, & execute for owner, group and others
 		os.Mkdir(grdir, 0777)
 	}
 	// create temporary directory for schema if it doesn't exist
@@ -33,7 +34,13 @@ func main() {
 		os.Mkdir(dir, 0777)
 	}
 	// remove temp directory and its contents at end of script
-	defer os.RemoveAll(dir)
+	defer func() {
+		err := os.RemoveAll(dir)
+		if err != nil {
+			log.Fatalf("error removing temporary schema directory %s", err)
+		}
+		fmt.Printf("successfully removed temporary schema directory %s\n", dir)
+	}()
 	// initialize github client
 	client := github.NewClient(nil)
 	// get all files from our schema repo
@@ -63,5 +70,4 @@ func main() {
 		fmt.Printf("successfully wrote file %s\n", fp)
 	}
 	cmd.Execute()
-	fmt.Printf("successfully removed temporary directory %s\n", dir)
 }
