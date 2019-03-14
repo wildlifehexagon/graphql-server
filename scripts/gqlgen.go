@@ -23,8 +23,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not get absolute path %s", err)
 	}
-	grdir := "../genresolver"
-	grfile := filepath.Join(grdir, "/genresolver.go")
+	grdir, err := filepath.Abs("../genresolver")
+	if err != nil {
+		log.Fatalf("could not get absolute path for genresolver %s", err)
+	}
+	grfile := filepath.Join(grdir, "genresolver.go")
 	// if generated resolver file already exists, remove it
 	if _, err := os.Stat(grfile); err == nil {
 		os.Remove(grfile)
@@ -55,7 +58,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("error decoding github file contents", err)
 		}
-		fp := filepath.Join(dir, "/", file.GetName())
+		fp := filepath.Join(apath, file.GetName())
 		err = ioutil.WriteFile(fp, d, 0777)
 		if err != nil {
 			log.Fatalf("error writing file", err)
@@ -67,7 +70,7 @@ func main() {
 
 func cleanup(path string) {
 	s := strings.Split(path, "/")
-	tmpfile := path + "/query.graphql"
+	tmpfile := filepath.Join(path, "query.graphql")
 	if _, err := os.Stat(tmpfile); err == nil {
 		if s[len(s)-2] == "graphql-server" {
 			err = os.RemoveAll(path)
