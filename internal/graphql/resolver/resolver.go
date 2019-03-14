@@ -71,13 +71,15 @@ func (r *Resolver) Author() generated.AuthorResolver {
 }
 func (r *Resolver) Strain() generated.StrainResolver {
 	return &stock.StrainResolver{
-		Client: r.GetStockClient(registry.STOCK),
-		Logger: r.Logger,
+		Client:     r.GetStockClient(registry.STOCK),
+		UserClient: r.GetUserClient(registry.USER),
+		Logger:     r.Logger,
 	}
 }
 func (r *Resolver) Plasmid() generated.PlasmidResolver {
 	return &stock.PlasmidResolver{
-		Client: r.GetStockClient(registry.STOCK),
-		Logger: r.Logger,
+		Client:     r.GetStockClient(registry.STOCK),
+		UserClient: r.GetUserClient(registry.USER),
+		Logger:     r.Logger,
 	}
 }

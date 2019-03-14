@@ -2,9 +2,12 @@ package stock
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
+	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
@@ -13,8 +16,9 @@ import (
 )
 
 type StrainResolver struct {
-	Client pb.StockServiceClient
-	Logger *logrus.Entry
+	Client     pb.StockServiceClient
+	UserClient user.UserServiceClient
+	Logger     *logrus.Entry
 }
 
 func (r *StrainResolver) ID(ctx context.Context, obj *pb.Stock) (string, error) {
@@ -27,10 +31,30 @@ func (r *StrainResolver) UpdatedAt(ctx context.Context, obj *pb.Stock) (time.Tim
 	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
 }
 func (r *StrainResolver) CreatedBy(ctx context.Context, obj *pb.Stock) (user.User, error) {
-	panic("not implemented")
+	user := user.User{}
+	id, err := strconv.ParseInt(obj.Data.Attributes.CreatedBy, 10, 64)
+	if err != nil {
+		return user, fmt.Errorf("error in parsing string %s to int %s", id, err)
+	}
+	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: id})
+	if err != nil {
+		return user, fmt.Errorf("error in getting user by ID %d: %s", id, err)
+	}
+	r.Logger.Debugf("successfully found user with ID %s", id)
+	return *g, nil
 }
 func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *pb.Stock) (user.User, error) {
-	panic("not implemented")
+	user := user.User{}
+	id, err := strconv.ParseInt(obj.Data.Attributes.UpdatedBy, 10, 64)
+	if err != nil {
+		return user, fmt.Errorf("error in parsing string %s to int %s", id, err)
+	}
+	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: id})
+	if err != nil {
+		return user, fmt.Errorf("error in getting user by ID %d: %s", id, err)
+	}
+	r.Logger.Debugf("successfully found user with ID %s", id)
+	return *g, nil
 }
 func (r *StrainResolver) Summary(ctx context.Context, obj *pb.Stock) (*string, error) {
 	return &obj.Data.Attributes.Summary, nil
@@ -42,13 +66,25 @@ func (r *StrainResolver) Depositor(ctx context.Context, obj *pb.Stock) (*string,
 	return &obj.Data.Attributes.Depositor, nil
 }
 func (r *StrainResolver) Genes(ctx context.Context, obj *pb.Stock) ([]*string, error) {
-	panic("not implemented")
+	genes := []*string{}
+	for _, n := range obj.Data.Attributes.Genes {
+		genes = append(genes, &n)
+	}
+	return genes, nil
 }
 func (r *StrainResolver) Dbxrefs(ctx context.Context, obj *pb.Stock) ([]*string, error) {
-	panic("not implemented")
+	dbxrefs := []*string{}
+	for _, n := range obj.Data.Attributes.Dbxrefs {
+		dbxrefs = append(dbxrefs, &n)
+	}
+	return dbxrefs, nil
 }
 func (r *StrainResolver) Publications(ctx context.Context, obj *pb.Stock) ([]*publication.Publication, error) {
-	panic("not implemented")
+	pub := []*publication.Publication{}
+	// for _, n := range obj.Data.Attributes.Publications {
+
+	// }
+	return pub, nil
 }
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *pb.Stock) (string, error) {
 	return obj.Data.Attributes.StrainProperties.SystematicName, nil
@@ -66,7 +102,11 @@ func (r *StrainResolver) Parent(ctx context.Context, obj *pb.Stock) (*pb.Stock, 
 	panic("not implemented")
 }
 func (r *StrainResolver) Names(ctx context.Context, obj *pb.Stock) ([]*string, error) {
-	panic("not implemented")
+	names := []*string{}
+	for _, n := range obj.Data.Attributes.StrainProperties.Names {
+		names = append(names, &n)
+	}
+	return names, nil
 }
 
 /*
