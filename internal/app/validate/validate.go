@@ -15,6 +15,8 @@ func ValidateServerArgs(c *cli.Context) error {
 		"role-grpc-port",
 		"permission-grpc-host",
 		"permission-grpc-port",
+		"stock-grpc-host",
+		"stock-grpc-port",
 	} {
 		if len(c.String(p)) == 0 {
 			return cli.NewExitError(
