@@ -3,6 +3,8 @@
 package models
 
 import (
+	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
+	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
 
@@ -12,9 +14,50 @@ type CreatePermissionInput struct {
 	Resource    string `json:"resource"`
 }
 
+type CreatePlasmidInput struct {
+	ID               string    `json:"id"`
+	CreatedBy        string    `json:"created_by"`
+	UpdatedBy        string    `json:"updated_by"`
+	Summary          *string   `json:"summary"`
+	EditableSummary  *string   `json:"editable_summary"`
+	Depositor        *string   `json:"depositor"`
+	Genes            []*string `json:"genes"`
+	Dbxrefs          []*string `json:"dbxrefs"`
+	Publications     []*string `json:"publications"`
+	ImageMap         *string   `json:"image_map"`
+	Sequence         *string   `json:"sequence"`
+	InStock          bool      `json:"in_stock"`
+	Keywords         []*string `json:"keywords"`
+	GenbankAccession *string   `json:"genbank_accession"`
+}
+
 type CreateRoleInput struct {
 	Role        string `json:"role"`
 	Description string `json:"description"`
+}
+
+type CreateStrainInput struct {
+	ID                  string    `json:"id"`
+	CreatedBy           string    `json:"created_by"`
+	UpdatedBy           string    `json:"updated_by"`
+	Summary             *string   `json:"summary"`
+	EditableSummary     *string   `json:"editable_summary"`
+	Depositor           *string   `json:"depositor"`
+	Genes               []*string `json:"genes"`
+	Dbxrefs             []*string `json:"dbxrefs"`
+	Publications        []*string `json:"publications"`
+	SystematicName      string    `json:"systematic_name"`
+	Descriptor          string    `json:"descriptor"`
+	Species             string    `json:"species"`
+	Plasmid             *string   `json:"plasmid"`
+	Parent              *string   `json:"parent"`
+	Names               []*string `json:"names"`
+	InStock             bool      `json:"in_stock"`
+	Phenotypes          []*string `json:"phenotypes"`
+	GeneticModification *string   `json:"genetic_modification"`
+	MutagenesisMethod   *string   `json:"mutagenesis_method"`
+	Characteristics     []*string `json:"characteristics"`
+	Genotypes           []*string `json:"genotypes"`
 }
 
 type CreateUserInput struct {
@@ -41,8 +84,35 @@ type DeleteRole struct {
 	Success bool `json:"success"`
 }
 
+type DeleteStock struct {
+	Success bool `json:"success"`
+}
+
 type DeleteUser struct {
 	Success bool `json:"success"`
+}
+
+type Phenotype struct {
+	Phenotype    *string                    `json:"phenotype"`
+	Notes        *string                    `json:"notes"`
+	Dbxrefs      []*string                  `json:"dbxrefs"`
+	Publications []*publication.Publication `json:"publications"`
+}
+
+type PlasmidListWithCursor struct {
+	Plasmids       []stock.Stock `json:"plasmids"`
+	NextCursor     string        `json:"nextCursor"`
+	PreviousCursor string        `json:"previousCursor"`
+	Limit          *int          `json:"limit"`
+	TotalCount     int           `json:"totalCount"`
+}
+
+type StrainListWithCursor struct {
+	Strains        []stock.Stock `json:"strains"`
+	NextCursor     string        `json:"nextCursor"`
+	PreviousCursor string        `json:"previousCursor"`
+	Limit          *int          `json:"limit"`
+	TotalCount     int           `json:"totalCount"`
 }
 
 type UpdatePermissionInput struct {
@@ -51,9 +121,48 @@ type UpdatePermissionInput struct {
 	Resource    string `json:"resource"`
 }
 
+type UpdatePlasmidInput struct {
+	ID               string    `json:"id"`
+	UpdatedBy        string    `json:"updated_by"`
+	Summary          *string   `json:"summary"`
+	EditableSummary  *string   `json:"editable_summary"`
+	Depositor        *string   `json:"depositor"`
+	Genes            []*string `json:"genes"`
+	Dbxrefs          []*string `json:"dbxrefs"`
+	Publications     []*string `json:"publications"`
+	ImageMap         *string   `json:"image_map"`
+	Sequence         *string   `json:"sequence"`
+	InStock          *bool     `json:"in_stock"`
+	Keywords         []*string `json:"keywords"`
+	GenbankAccession *string   `json:"genbank_accession"`
+}
+
 type UpdateRoleInput struct {
 	Role        string `json:"role"`
 	Description string `json:"description"`
+}
+
+type UpdateStrainInput struct {
+	ID                  string    `json:"id"`
+	UpdatedBy           string    `json:"updated_by"`
+	Summary             *string   `json:"summary"`
+	EditableSummary     *string   `json:"editable_summary"`
+	Depositor           *string   `json:"depositor"`
+	Genes               []*string `json:"genes"`
+	Dbxrefs             []*string `json:"dbxrefs"`
+	Publications        []*string `json:"publications"`
+	SystematicName      string    `json:"systematic_name"`
+	Descriptor          string    `json:"descriptor"`
+	Species             string    `json:"species"`
+	Plasmid             *string   `json:"plasmid"`
+	Parent              *string   `json:"parent"`
+	Names               []*string `json:"names"`
+	InStock             *bool     `json:"in_stock"`
+	Phenotypes          []*string `json:"phenotypes"`
+	GeneticModification *string   `json:"genetic_modification"`
+	MutagenesisMethod   *string   `json:"mutagenesis_method"`
+	Characteristics     []*string `json:"characteristics"`
+	Genotypes           []*string `json:"genotypes"`
 }
 
 type UpdateUserInput struct {

@@ -4,6 +4,7 @@ schema:
   - "api/scalar.graphql"
   - "api/user.graphql"
   - "api/publication.graphql"
+  - "api/stock.graphql"
 exec:
   filename: internal/graphql/generated/generated.go
   package: generated
@@ -28,3 +29,7 @@ models:
     model: github.com/dictyBase/go-genproto/dictybaseapis/publication.Publication
   Author:
     model: github.com/dictyBase/go-genproto/dictybaseapis/publication.Author
+  Strain:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/stock.Stock
+  Plasmid:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/stock.Stock

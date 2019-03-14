@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
+	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/vektah/gqlparser"
@@ -38,9 +39,11 @@ type ResolverRoot interface {
 	Author() AuthorResolver
 	Mutation() MutationResolver
 	Permission() PermissionResolver
+	Plasmid() PlasmidResolver
 	Publication() PublicationResolver
 	Query() QueryResolver
 	Role() RoleResolver
+	Strain() StrainResolver
 	User() UserResolver
 }
 
@@ -63,11 +66,20 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	DeleteStock struct {
+		Success func(childComplexity int) int
+	}
+
 	DeleteUser struct {
 		Success func(childComplexity int) int
 	}
 
 	Mutation struct {
+		CreateStrain                     func(childComplexity int, input *models.CreateStrainInput) int
+		CreatePlasmid                    func(childComplexity int, input *models.CreatePlasmidInput) int
+		UpdateStrain                     func(childComplexity int, id string, input *models.UpdateStrainInput) int
+		UpdatePlasmid                    func(childComplexity int, id string, input *models.UpdatePlasmidInput) int
+		DeleteStock                      func(childComplexity int, id string) int
 		CreateUser                       func(childComplexity int, input *models.CreateUserInput) int
 		CreateUserRoleRelationship       func(childComplexity int, userId string, roleId string) int
 		UpdateUser                       func(childComplexity int, id string, input *models.UpdateUserInput) int
@@ -90,6 +102,40 @@ type ComplexityRoot struct {
 		Resource    func(childComplexity int) int
 	}
 
+	Phenotype struct {
+		Phenotype    func(childComplexity int) int
+		Notes        func(childComplexity int) int
+		Dbxrefs      func(childComplexity int) int
+		Publications func(childComplexity int) int
+	}
+
+	Plasmid struct {
+		Id               func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
+		CreatedBy        func(childComplexity int) int
+		UpdatedBy        func(childComplexity int) int
+		Summary          func(childComplexity int) int
+		EditableSummary  func(childComplexity int) int
+		Depositor        func(childComplexity int) int
+		Genes            func(childComplexity int) int
+		Dbxrefs          func(childComplexity int) int
+		Publications     func(childComplexity int) int
+		ImageMap         func(childComplexity int) int
+		Sequence         func(childComplexity int) int
+		InStock          func(childComplexity int) int
+		Keywords         func(childComplexity int) int
+		GenbankAccession func(childComplexity int) int
+	}
+
+	PlasmidListWithCursor struct {
+		Plasmids       func(childComplexity int) int
+		NextCursor     func(childComplexity int) int
+		PreviousCursor func(childComplexity int) int
+		Limit          func(childComplexity int) int
+		TotalCount     func(childComplexity int) int
+	}
+
 	Publication struct {
 		Id       func(childComplexity int) int
 		Doi      func(childComplexity int) int
@@ -109,6 +155,10 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Publication     func(childComplexity int, id string) int
+		Plasmid         func(childComplexity int, id string) int
+		Strain          func(childComplexity int, id string) int
+		ListStrains     func(childComplexity int, cursor *string, limit *int, filter *string) int
+		ListPlasmids    func(childComplexity int, cursor *string, limit *int, filter *string) int
 		User            func(childComplexity int, id string) int
 		UserByEmail     func(childComplexity int, email string) int
 		ListUsers       func(childComplexity int, pagenum string, pagesize string, filter string) int
@@ -125,6 +175,40 @@ type ComplexityRoot struct {
 		CreatedAt   func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 		Permissions func(childComplexity int) int
+	}
+
+	Strain struct {
+		Id                  func(childComplexity int) int
+		CreatedAt           func(childComplexity int) int
+		UpdatedAt           func(childComplexity int) int
+		CreatedBy           func(childComplexity int) int
+		UpdatedBy           func(childComplexity int) int
+		Summary             func(childComplexity int) int
+		EditableSummary     func(childComplexity int) int
+		Depositor           func(childComplexity int) int
+		Genes               func(childComplexity int) int
+		Dbxrefs             func(childComplexity int) int
+		Publications        func(childComplexity int) int
+		SystematicName      func(childComplexity int) int
+		Descriptor          func(childComplexity int) int
+		Species             func(childComplexity int) int
+		Plasmid             func(childComplexity int) int
+		Parent              func(childComplexity int) int
+		Names               func(childComplexity int) int
+		InStock             func(childComplexity int) int
+		Phenotypes          func(childComplexity int) int
+		GeneticModification func(childComplexity int) int
+		MutagenesisMethod   func(childComplexity int) int
+		Characteristics     func(childComplexity int) int
+		Genotypes           func(childComplexity int) int
+	}
+
+	StrainListWithCursor struct {
+		Strains        func(childComplexity int) int
+		NextCursor     func(childComplexity int) int
+		PreviousCursor func(childComplexity int) int
+		Limit          func(childComplexity int) int
+		TotalCount     func(childComplexity int) int
 	}
 
 	User struct {
@@ -159,6 +243,11 @@ type AuthorResolver interface {
 	Rank(ctx context.Context, obj *publication.Author) (*string, error)
 }
 type MutationResolver interface {
+	CreateStrain(ctx context.Context, input *models.CreateStrainInput) (*stock.Stock, error)
+	CreatePlasmid(ctx context.Context, input *models.CreatePlasmidInput) (*stock.Stock, error)
+	UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*stock.Stock, error)
+	UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*stock.Stock, error)
+	DeleteStock(ctx context.Context, id string) (*models.DeleteStock, error)
 	CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error)
 	CreateUserRoleRelationship(ctx context.Context, userId string, roleId string) (*user.User, error)
 	UpdateUser(ctx context.Context, id string, input *models.UpdateUserInput) (*user.User, error)
@@ -179,6 +268,24 @@ type PermissionResolver interface {
 	UpdatedAt(ctx context.Context, obj *user.Permission) (time.Time, error)
 	Resource(ctx context.Context, obj *user.Permission) (*string, error)
 }
+type PlasmidResolver interface {
+	ID(ctx context.Context, obj *stock.Stock) (string, error)
+	CreatedAt(ctx context.Context, obj *stock.Stock) (time.Time, error)
+	UpdatedAt(ctx context.Context, obj *stock.Stock) (time.Time, error)
+	CreatedBy(ctx context.Context, obj *stock.Stock) (user.User, error)
+	UpdatedBy(ctx context.Context, obj *stock.Stock) (user.User, error)
+	Summary(ctx context.Context, obj *stock.Stock) (*string, error)
+	EditableSummary(ctx context.Context, obj *stock.Stock) (*string, error)
+	Depositor(ctx context.Context, obj *stock.Stock) (*string, error)
+	Genes(ctx context.Context, obj *stock.Stock) ([]*string, error)
+	Dbxrefs(ctx context.Context, obj *stock.Stock) ([]*string, error)
+	Publications(ctx context.Context, obj *stock.Stock) ([]*publication.Publication, error)
+	ImageMap(ctx context.Context, obj *stock.Stock) (*string, error)
+	Sequence(ctx context.Context, obj *stock.Stock) (*string, error)
+	InStock(ctx context.Context, obj *stock.Stock) (bool, error)
+	Keywords(ctx context.Context, obj *stock.Stock) ([]*string, error)
+	GenbankAccession(ctx context.Context, obj *stock.Stock) (*string, error)
+}
 type PublicationResolver interface {
 	ID(ctx context.Context, obj *publication.Publication) (string, error)
 	Doi(ctx context.Context, obj *publication.Publication) (*string, error)
@@ -197,6 +304,10 @@ type PublicationResolver interface {
 }
 type QueryResolver interface {
 	Publication(ctx context.Context, id string) (*publication.Publication, error)
+	Plasmid(ctx context.Context, id string) (*stock.Stock, error)
+	Strain(ctx context.Context, id string) (*stock.Stock, error)
+	ListStrains(ctx context.Context, cursor *string, limit *int, filter *string) (*models.StrainListWithCursor, error)
+	ListPlasmids(ctx context.Context, cursor *string, limit *int, filter *string) (*models.PlasmidListWithCursor, error)
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
@@ -212,6 +323,31 @@ type RoleResolver interface {
 	CreatedAt(ctx context.Context, obj *user.Role) (time.Time, error)
 	UpdatedAt(ctx context.Context, obj *user.Role) (time.Time, error)
 	Permissions(ctx context.Context, obj *user.Role) ([]user.Permission, error)
+}
+type StrainResolver interface {
+	ID(ctx context.Context, obj *stock.Stock) (string, error)
+	CreatedAt(ctx context.Context, obj *stock.Stock) (time.Time, error)
+	UpdatedAt(ctx context.Context, obj *stock.Stock) (time.Time, error)
+	CreatedBy(ctx context.Context, obj *stock.Stock) (user.User, error)
+	UpdatedBy(ctx context.Context, obj *stock.Stock) (user.User, error)
+	Summary(ctx context.Context, obj *stock.Stock) (*string, error)
+	EditableSummary(ctx context.Context, obj *stock.Stock) (*string, error)
+	Depositor(ctx context.Context, obj *stock.Stock) (*string, error)
+	Genes(ctx context.Context, obj *stock.Stock) ([]*string, error)
+	Dbxrefs(ctx context.Context, obj *stock.Stock) ([]*string, error)
+	Publications(ctx context.Context, obj *stock.Stock) ([]*publication.Publication, error)
+	SystematicName(ctx context.Context, obj *stock.Stock) (string, error)
+	Descriptor(ctx context.Context, obj *stock.Stock) (string, error)
+	Species(ctx context.Context, obj *stock.Stock) (string, error)
+	Plasmid(ctx context.Context, obj *stock.Stock) (*string, error)
+	Parent(ctx context.Context, obj *stock.Stock) (*stock.Stock, error)
+	Names(ctx context.Context, obj *stock.Stock) ([]*string, error)
+	InStock(ctx context.Context, obj *stock.Stock) (bool, error)
+	Phenotypes(ctx context.Context, obj *stock.Stock) ([]*models.Phenotype, error)
+	GeneticModification(ctx context.Context, obj *stock.Stock) (*string, error)
+	MutagenesisMethod(ctx context.Context, obj *stock.Stock) (*string, error)
+	Characteristics(ctx context.Context, obj *stock.Stock) ([]*string, error)
+	Genotypes(ctx context.Context, obj *stock.Stock) ([]*string, error)
 }
 type UserResolver interface {
 	ID(ctx context.Context, obj *user.User) (string, error)
@@ -231,6 +367,119 @@ type UserResolver interface {
 	CreatedAt(ctx context.Context, obj *user.User) (time.Time, error)
 	UpdatedAt(ctx context.Context, obj *user.User) (time.Time, error)
 	Roles(ctx context.Context, obj *user.User) ([]user.Role, error)
+}
+
+func field_Mutation_createStrain_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *models.CreateStrainInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		var ptr1 models.CreateStrainInput
+		if tmp != nil {
+			ptr1, err = UnmarshalCreateStrainInput(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+
+}
+
+func field_Mutation_createPlasmid_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *models.CreatePlasmidInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		var ptr1 models.CreatePlasmidInput
+		if tmp != nil {
+			ptr1, err = UnmarshalCreatePlasmidInput(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+
+}
+
+func field_Mutation_updateStrain_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 *models.UpdateStrainInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		var ptr1 models.UpdateStrainInput
+		if tmp != nil {
+			ptr1, err = UnmarshalUpdateStrainInput(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+
+}
+
+func field_Mutation_updatePlasmid_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 *models.UpdatePlasmidInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		var ptr1 models.UpdatePlasmidInput
+		if tmp != nil {
+			ptr1, err = UnmarshalUpdatePlasmidInput(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+
+}
+
+func field_Mutation_deleteStock_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+
 }
 
 func field_Mutation_createUser_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -488,6 +737,132 @@ func field_Query_publication_args(rawArgs map[string]interface{}) (map[string]in
 
 }
 
+func field_Query_plasmid_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+
+}
+
+func field_Query_strain_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+
+}
+
+func field_Query_listStrains_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["cursor"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalID(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		var err error
+		var ptr1 int
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalInt(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["filter"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalString(tmp)
+			arg2 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
+	return args, nil
+
+}
+
+func field_Query_listPlasmids_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["cursor"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalID(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		var err error
+		var ptr1 int
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalInt(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["filter"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalString(tmp)
+			arg2 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
+	return args, nil
+
+}
+
 func field_Query_user_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
 	var arg0 string
@@ -681,12 +1056,79 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteRole.Success(childComplexity), true
 
+	case "DeleteStock.success":
+		if e.complexity.DeleteStock.Success == nil {
+			break
+		}
+
+		return e.complexity.DeleteStock.Success(childComplexity), true
+
 	case "DeleteUser.success":
 		if e.complexity.DeleteUser.Success == nil {
 			break
 		}
 
 		return e.complexity.DeleteUser.Success(childComplexity), true
+
+	case "Mutation.createStrain":
+		if e.complexity.Mutation.CreateStrain == nil {
+			break
+		}
+
+		args, err := field_Mutation_createStrain_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateStrain(childComplexity, args["input"].(*models.CreateStrainInput)), true
+
+	case "Mutation.createPlasmid":
+		if e.complexity.Mutation.CreatePlasmid == nil {
+			break
+		}
+
+		args, err := field_Mutation_createPlasmid_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePlasmid(childComplexity, args["input"].(*models.CreatePlasmidInput)), true
+
+	case "Mutation.updateStrain":
+		if e.complexity.Mutation.UpdateStrain == nil {
+			break
+		}
+
+		args, err := field_Mutation_updateStrain_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateStrain(childComplexity, args["id"].(string), args["input"].(*models.UpdateStrainInput)), true
+
+	case "Mutation.updatePlasmid":
+		if e.complexity.Mutation.UpdatePlasmid == nil {
+			break
+		}
+
+		args, err := field_Mutation_updatePlasmid_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePlasmid(childComplexity, args["id"].(string), args["input"].(*models.UpdatePlasmidInput)), true
+
+	case "Mutation.deleteStock":
+		if e.complexity.Mutation.DeleteStock == nil {
+			break
+		}
+
+		args, err := field_Mutation_deleteStock_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteStock(childComplexity, args["id"].(string)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -862,6 +1304,181 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Permission.Resource(childComplexity), true
 
+	case "Phenotype.phenotype":
+		if e.complexity.Phenotype.Phenotype == nil {
+			break
+		}
+
+		return e.complexity.Phenotype.Phenotype(childComplexity), true
+
+	case "Phenotype.notes":
+		if e.complexity.Phenotype.Notes == nil {
+			break
+		}
+
+		return e.complexity.Phenotype.Notes(childComplexity), true
+
+	case "Phenotype.dbxrefs":
+		if e.complexity.Phenotype.Dbxrefs == nil {
+			break
+		}
+
+		return e.complexity.Phenotype.Dbxrefs(childComplexity), true
+
+	case "Phenotype.publications":
+		if e.complexity.Phenotype.Publications == nil {
+			break
+		}
+
+		return e.complexity.Phenotype.Publications(childComplexity), true
+
+	case "Plasmid.id":
+		if e.complexity.Plasmid.Id == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Id(childComplexity), true
+
+	case "Plasmid.created_at":
+		if e.complexity.Plasmid.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.CreatedAt(childComplexity), true
+
+	case "Plasmid.updated_at":
+		if e.complexity.Plasmid.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.UpdatedAt(childComplexity), true
+
+	case "Plasmid.created_by":
+		if e.complexity.Plasmid.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.CreatedBy(childComplexity), true
+
+	case "Plasmid.updated_by":
+		if e.complexity.Plasmid.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.UpdatedBy(childComplexity), true
+
+	case "Plasmid.summary":
+		if e.complexity.Plasmid.Summary == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Summary(childComplexity), true
+
+	case "Plasmid.editable_summary":
+		if e.complexity.Plasmid.EditableSummary == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.EditableSummary(childComplexity), true
+
+	case "Plasmid.depositor":
+		if e.complexity.Plasmid.Depositor == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Depositor(childComplexity), true
+
+	case "Plasmid.genes":
+		if e.complexity.Plasmid.Genes == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Genes(childComplexity), true
+
+	case "Plasmid.dbxrefs":
+		if e.complexity.Plasmid.Dbxrefs == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Dbxrefs(childComplexity), true
+
+	case "Plasmid.publications":
+		if e.complexity.Plasmid.Publications == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Publications(childComplexity), true
+
+	case "Plasmid.image_map":
+		if e.complexity.Plasmid.ImageMap == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.ImageMap(childComplexity), true
+
+	case "Plasmid.sequence":
+		if e.complexity.Plasmid.Sequence == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Sequence(childComplexity), true
+
+	case "Plasmid.in_stock":
+		if e.complexity.Plasmid.InStock == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.InStock(childComplexity), true
+
+	case "Plasmid.keywords":
+		if e.complexity.Plasmid.Keywords == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Keywords(childComplexity), true
+
+	case "Plasmid.genbank_accession":
+		if e.complexity.Plasmid.GenbankAccession == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.GenbankAccession(childComplexity), true
+
+	case "PlasmidListWithCursor.plasmids":
+		if e.complexity.PlasmidListWithCursor.Plasmids == nil {
+			break
+		}
+
+		return e.complexity.PlasmidListWithCursor.Plasmids(childComplexity), true
+
+	case "PlasmidListWithCursor.nextCursor":
+		if e.complexity.PlasmidListWithCursor.NextCursor == nil {
+			break
+		}
+
+		return e.complexity.PlasmidListWithCursor.NextCursor(childComplexity), true
+
+	case "PlasmidListWithCursor.previousCursor":
+		if e.complexity.PlasmidListWithCursor.PreviousCursor == nil {
+			break
+		}
+
+		return e.complexity.PlasmidListWithCursor.PreviousCursor(childComplexity), true
+
+	case "PlasmidListWithCursor.limit":
+		if e.complexity.PlasmidListWithCursor.Limit == nil {
+			break
+		}
+
+		return e.complexity.PlasmidListWithCursor.Limit(childComplexity), true
+
+	case "PlasmidListWithCursor.totalCount":
+		if e.complexity.PlasmidListWithCursor.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.PlasmidListWithCursor.TotalCount(childComplexity), true
+
 	case "Publication.id":
 		if e.complexity.Publication.Id == nil {
 			break
@@ -971,6 +1588,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Publication(childComplexity, args["id"].(string)), true
+
+	case "Query.plasmid":
+		if e.complexity.Query.Plasmid == nil {
+			break
+		}
+
+		args, err := field_Query_plasmid_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Plasmid(childComplexity, args["id"].(string)), true
+
+	case "Query.strain":
+		if e.complexity.Query.Strain == nil {
+			break
+		}
+
+		args, err := field_Query_strain_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Strain(childComplexity, args["id"].(string)), true
+
+	case "Query.listStrains":
+		if e.complexity.Query.ListStrains == nil {
+			break
+		}
+
+		args, err := field_Query_listStrains_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ListStrains(childComplexity, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string)), true
+
+	case "Query.listPlasmids":
+		if e.complexity.Query.ListPlasmids == nil {
+			break
+		}
+
+		args, err := field_Query_listPlasmids_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ListPlasmids(childComplexity, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -1087,6 +1752,202 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Role.Permissions(childComplexity), true
+
+	case "Strain.id":
+		if e.complexity.Strain.Id == nil {
+			break
+		}
+
+		return e.complexity.Strain.Id(childComplexity), true
+
+	case "Strain.created_at":
+		if e.complexity.Strain.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Strain.CreatedAt(childComplexity), true
+
+	case "Strain.updated_at":
+		if e.complexity.Strain.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Strain.UpdatedAt(childComplexity), true
+
+	case "Strain.created_by":
+		if e.complexity.Strain.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Strain.CreatedBy(childComplexity), true
+
+	case "Strain.updated_by":
+		if e.complexity.Strain.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Strain.UpdatedBy(childComplexity), true
+
+	case "Strain.summary":
+		if e.complexity.Strain.Summary == nil {
+			break
+		}
+
+		return e.complexity.Strain.Summary(childComplexity), true
+
+	case "Strain.editable_summary":
+		if e.complexity.Strain.EditableSummary == nil {
+			break
+		}
+
+		return e.complexity.Strain.EditableSummary(childComplexity), true
+
+	case "Strain.depositor":
+		if e.complexity.Strain.Depositor == nil {
+			break
+		}
+
+		return e.complexity.Strain.Depositor(childComplexity), true
+
+	case "Strain.genes":
+		if e.complexity.Strain.Genes == nil {
+			break
+		}
+
+		return e.complexity.Strain.Genes(childComplexity), true
+
+	case "Strain.dbxrefs":
+		if e.complexity.Strain.Dbxrefs == nil {
+			break
+		}
+
+		return e.complexity.Strain.Dbxrefs(childComplexity), true
+
+	case "Strain.publications":
+		if e.complexity.Strain.Publications == nil {
+			break
+		}
+
+		return e.complexity.Strain.Publications(childComplexity), true
+
+	case "Strain.systematic_name":
+		if e.complexity.Strain.SystematicName == nil {
+			break
+		}
+
+		return e.complexity.Strain.SystematicName(childComplexity), true
+
+	case "Strain.descriptor":
+		if e.complexity.Strain.Descriptor == nil {
+			break
+		}
+
+		return e.complexity.Strain.Descriptor(childComplexity), true
+
+	case "Strain.species":
+		if e.complexity.Strain.Species == nil {
+			break
+		}
+
+		return e.complexity.Strain.Species(childComplexity), true
+
+	case "Strain.plasmid":
+		if e.complexity.Strain.Plasmid == nil {
+			break
+		}
+
+		return e.complexity.Strain.Plasmid(childComplexity), true
+
+	case "Strain.parent":
+		if e.complexity.Strain.Parent == nil {
+			break
+		}
+
+		return e.complexity.Strain.Parent(childComplexity), true
+
+	case "Strain.names":
+		if e.complexity.Strain.Names == nil {
+			break
+		}
+
+		return e.complexity.Strain.Names(childComplexity), true
+
+	case "Strain.in_stock":
+		if e.complexity.Strain.InStock == nil {
+			break
+		}
+
+		return e.complexity.Strain.InStock(childComplexity), true
+
+	case "Strain.phenotypes":
+		if e.complexity.Strain.Phenotypes == nil {
+			break
+		}
+
+		return e.complexity.Strain.Phenotypes(childComplexity), true
+
+	case "Strain.genetic_modification":
+		if e.complexity.Strain.GeneticModification == nil {
+			break
+		}
+
+		return e.complexity.Strain.GeneticModification(childComplexity), true
+
+	case "Strain.mutagenesis_method":
+		if e.complexity.Strain.MutagenesisMethod == nil {
+			break
+		}
+
+		return e.complexity.Strain.MutagenesisMethod(childComplexity), true
+
+	case "Strain.characteristics":
+		if e.complexity.Strain.Characteristics == nil {
+			break
+		}
+
+		return e.complexity.Strain.Characteristics(childComplexity), true
+
+	case "Strain.genotypes":
+		if e.complexity.Strain.Genotypes == nil {
+			break
+		}
+
+		return e.complexity.Strain.Genotypes(childComplexity), true
+
+	case "StrainListWithCursor.strains":
+		if e.complexity.StrainListWithCursor.Strains == nil {
+			break
+		}
+
+		return e.complexity.StrainListWithCursor.Strains(childComplexity), true
+
+	case "StrainListWithCursor.nextCursor":
+		if e.complexity.StrainListWithCursor.NextCursor == nil {
+			break
+		}
+
+		return e.complexity.StrainListWithCursor.NextCursor(childComplexity), true
+
+	case "StrainListWithCursor.previousCursor":
+		if e.complexity.StrainListWithCursor.PreviousCursor == nil {
+			break
+		}
+
+		return e.complexity.StrainListWithCursor.PreviousCursor(childComplexity), true
+
+	case "StrainListWithCursor.limit":
+		if e.complexity.StrainListWithCursor.Limit == nil {
+			break
+		}
+
+		return e.complexity.StrainListWithCursor.Limit(childComplexity), true
+
+	case "StrainListWithCursor.totalCount":
+		if e.complexity.StrainListWithCursor.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.StrainListWithCursor.TotalCount(childComplexity), true
 
 	case "User.id":
 		if e.complexity.User.Id == nil {
@@ -1533,6 +2394,63 @@ func (ec *executionContext) _DeleteRole_success(ctx context.Context, field graph
 	return graphql.MarshalBoolean(res)
 }
 
+var deleteStockImplementors = []string{"DeleteStock"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _DeleteStock(ctx context.Context, sel ast.SelectionSet, obj *models.DeleteStock) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, deleteStockImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteStock")
+		case "success":
+			out.Values[i] = ec._DeleteStock_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _DeleteStock_success(ctx context.Context, field graphql.CollectedField, obj *models.DeleteStock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "DeleteStock",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalBoolean(res)
+}
+
 var deleteUserImplementors = []string{"DeleteUser"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -1608,6 +2526,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createStrain":
+			out.Values[i] = ec._Mutation_createStrain(ctx, field)
+		case "createPlasmid":
+			out.Values[i] = ec._Mutation_createPlasmid(ctx, field)
+		case "updateStrain":
+			out.Values[i] = ec._Mutation_updateStrain(ctx, field)
+		case "updatePlasmid":
+			out.Values[i] = ec._Mutation_updatePlasmid(ctx, field)
+		case "deleteStock":
+			out.Values[i] = ec._Mutation_deleteStock(ctx, field)
 		case "createUser":
 			out.Values[i] = ec._Mutation_createUser(ctx, field)
 		case "createUserRoleRelationship":
@@ -1639,6 +2567,181 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		return graphql.Null
 	}
 	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_createStrain(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createStrain_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateStrain(rctx, args["input"].(*models.CreateStrainInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Strain(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_createPlasmid(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createPlasmid_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreatePlasmid(rctx, args["input"].(*models.CreatePlasmidInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Plasmid(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_updateStrain(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_updateStrain_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateStrain(rctx, args["id"].(string), args["input"].(*models.UpdateStrainInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Strain(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_updatePlasmid(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_updatePlasmid_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdatePlasmid(rctx, args["id"].(string), args["input"].(*models.UpdatePlasmidInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Plasmid(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_deleteStock(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_deleteStock_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteStock(rctx, args["id"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.DeleteStock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._DeleteStock(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -2266,6 +3369,1053 @@ func (ec *executionContext) _Permission_resource(ctx context.Context, field grap
 	return graphql.MarshalString(*res)
 }
 
+var phenotypeImplementors = []string{"Phenotype"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Phenotype(ctx context.Context, sel ast.SelectionSet, obj *models.Phenotype) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, phenotypeImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Phenotype")
+		case "phenotype":
+			out.Values[i] = ec._Phenotype_phenotype(ctx, field, obj)
+		case "notes":
+			out.Values[i] = ec._Phenotype_notes(ctx, field, obj)
+		case "dbxrefs":
+			out.Values[i] = ec._Phenotype_dbxrefs(ctx, field, obj)
+		case "publications":
+			out.Values[i] = ec._Phenotype_publications(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Phenotype_phenotype(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Phenotype",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Phenotype, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Phenotype_notes(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Phenotype",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Notes, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Phenotype_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Phenotype",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Dbxrefs, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Phenotype_publications(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Phenotype",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Publications, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*publication.Publication)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Publication(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+var plasmidImplementors = []string{"Plasmid"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, obj *stock.Stock) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, plasmidImplementors)
+
+	var wg sync.WaitGroup
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Plasmid")
+		case "id":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_id(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "created_at":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_created_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "updated_at":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_updated_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "created_by":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_created_by(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "updated_by":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_updated_by(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "summary":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_summary(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "editable_summary":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_editable_summary(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "depositor":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_depositor(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "genes":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_genes(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "dbxrefs":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_dbxrefs(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "publications":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_publications(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "image_map":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_image_map(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "sequence":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_sequence(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "in_stock":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_in_stock(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "keywords":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_keywords(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "genbank_accession":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Plasmid_genbank_accession(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	wg.Wait()
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_id(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().ID(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_created_at(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().CreatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return models.MarshalTimestamp(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_updated_at(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().UpdatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return models.MarshalTimestamp(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_created_by(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().CreatedBy(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(user.User)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	return ec._User(ctx, field.Selections, &res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_updated_by(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().UpdatedBy(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(user.User)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	return ec._User(ctx, field.Selections, &res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Summary(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_editable_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().EditableSummary(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Depositor(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Genes(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Dbxrefs(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_publications(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Publications(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*publication.Publication)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Publication(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_image_map(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().ImageMap(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_sequence(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Sequence(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_in_stock(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().InStock(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalBoolean(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_keywords(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Keywords(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Plasmid_genbank_accession(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Plasmid",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().GenbankAccession(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+var plasmidListWithCursorImplementors = []string{"PlasmidListWithCursor"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _PlasmidListWithCursor(ctx context.Context, sel ast.SelectionSet, obj *models.PlasmidListWithCursor) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, plasmidListWithCursorImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PlasmidListWithCursor")
+		case "plasmids":
+			out.Values[i] = ec._PlasmidListWithCursor_plasmids(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "nextCursor":
+			out.Values[i] = ec._PlasmidListWithCursor_nextCursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "previousCursor":
+			out.Values[i] = ec._PlasmidListWithCursor_previousCursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "limit":
+			out.Values[i] = ec._PlasmidListWithCursor_limit(ctx, field, obj)
+		case "totalCount":
+			out.Values[i] = ec._PlasmidListWithCursor_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _PlasmidListWithCursor_plasmids(ctx context.Context, field graphql.CollectedField, obj *models.PlasmidListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "PlasmidListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Plasmids, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: &res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				return ec._Plasmid(ctx, field.Selections, &res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _PlasmidListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *models.PlasmidListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "PlasmidListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NextCursor, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _PlasmidListWithCursor_previousCursor(ctx context.Context, field graphql.CollectedField, obj *models.PlasmidListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "PlasmidListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PreviousCursor, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _PlasmidListWithCursor_limit(ctx context.Context, field graphql.CollectedField, obj *models.PlasmidListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "PlasmidListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limit, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _PlasmidListWithCursor_totalCount(ctx context.Context, field graphql.CollectedField, obj *models.PlasmidListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "PlasmidListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalInt(res)
+}
+
 var publicationImplementors = []string{"Publication"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -2828,6 +4978,30 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				out.Values[i] = ec._Query_publication(ctx, field)
 				wg.Done()
 			}(i, field)
+		case "plasmid":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_plasmid(ctx, field)
+				wg.Done()
+			}(i, field)
+		case "strain":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_strain(ctx, field)
+				wg.Done()
+			}(i, field)
+		case "listStrains":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_listStrains(ctx, field)
+				wg.Done()
+			}(i, field)
+		case "listPlasmids":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_listPlasmids(ctx, field)
+				wg.Done()
+			}(i, field)
 		case "user":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
@@ -2918,6 +5092,146 @@ func (ec *executionContext) _Query_publication(ctx context.Context, field graphq
 	}
 
 	return ec._Publication(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_plasmid(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_plasmid_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Plasmid(rctx, args["id"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Plasmid(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_strain(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_strain_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Strain(rctx, args["id"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Strain(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_listStrains(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_listStrains_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ListStrains(rctx, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.StrainListWithCursor)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._StrainListWithCursor(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_listPlasmids(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_listPlasmids_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ListPlasmids(rctx, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.PlasmidListWithCursor)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._PlasmidListWithCursor(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -3540,6 +5854,1162 @@ func (ec *executionContext) _Role_permissions(ctx context.Context, field graphql
 	}
 	wg.Wait()
 	return arr1
+}
+
+var strainImplementors = []string{"Strain"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, obj *stock.Stock) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, strainImplementors)
+
+	var wg sync.WaitGroup
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Strain")
+		case "id":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_id(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "created_at":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_created_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "updated_at":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_updated_at(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "created_by":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_created_by(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "updated_by":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_updated_by(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "summary":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_summary(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "editable_summary":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_editable_summary(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "depositor":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_depositor(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "genes":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_genes(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "dbxrefs":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_dbxrefs(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "publications":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_publications(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "systematic_name":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_systematic_name(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "descriptor":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_descriptor(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "species":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_species(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "plasmid":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_plasmid(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "parent":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_parent(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "names":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_names(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "in_stock":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_in_stock(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		case "phenotypes":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_phenotypes(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "genetic_modification":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_genetic_modification(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "mutagenesis_method":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_mutagenesis_method(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "characteristics":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_characteristics(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		case "genotypes":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Strain_genotypes(ctx, field, obj)
+				wg.Done()
+			}(i, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	wg.Wait()
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_id(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().ID(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_created_at(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().CreatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return models.MarshalTimestamp(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_updated_at(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().UpdatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return models.MarshalTimestamp(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_created_by(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().CreatedBy(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(user.User)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	return ec._User(ctx, field.Selections, &res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_updated_by(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().UpdatedBy(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(user.User)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	return ec._User(ctx, field.Selections, &res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Summary(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_editable_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().EditableSummary(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Depositor(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Genes(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Dbxrefs(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_publications(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Publications(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*publication.Publication)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Publication(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_systematic_name(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().SystematicName(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_descriptor(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Descriptor(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_species(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Species(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_plasmid(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Plasmid(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_parent(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Parent(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Strain(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_names(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Names(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_in_stock(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().InStock(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalBoolean(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_phenotypes(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Phenotypes(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Phenotype)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Phenotype(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_genetic_modification(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().GeneticModification(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_mutagenesis_method(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().MutagenesisMethod(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_characteristics(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Characteristics(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Strain_genotypes(ctx context.Context, field graphql.CollectedField, obj *stock.Stock) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "Strain",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Strain().Genotypes(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+
+	for idx1 := range res {
+		arr1[idx1] = func() graphql.Marshaler {
+
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return graphql.MarshalString(*res[idx1])
+		}()
+	}
+
+	return arr1
+}
+
+var strainListWithCursorImplementors = []string{"StrainListWithCursor"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _StrainListWithCursor(ctx context.Context, sel ast.SelectionSet, obj *models.StrainListWithCursor) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, strainListWithCursorImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StrainListWithCursor")
+		case "strains":
+			out.Values[i] = ec._StrainListWithCursor_strains(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "nextCursor":
+			out.Values[i] = ec._StrainListWithCursor_nextCursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "previousCursor":
+			out.Values[i] = ec._StrainListWithCursor_previousCursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "limit":
+			out.Values[i] = ec._StrainListWithCursor_limit(ctx, field, obj)
+		case "totalCount":
+			out.Values[i] = ec._StrainListWithCursor_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _StrainListWithCursor_strains(ctx context.Context, field graphql.CollectedField, obj *models.StrainListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "StrainListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Strains, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]stock.Stock)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: &res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				return ec._Strain(ctx, field.Selections, &res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _StrainListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *models.StrainListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "StrainListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NextCursor, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _StrainListWithCursor_previousCursor(ctx context.Context, field graphql.CollectedField, obj *models.StrainListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "StrainListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PreviousCursor, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalID(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _StrainListWithCursor_limit(ctx context.Context, field graphql.CollectedField, obj *models.StrainListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "StrainListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limit, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _StrainListWithCursor_totalCount(ctx context.Context, field graphql.CollectedField, obj *models.StrainListWithCursor) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object: "StrainListWithCursor",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalInt(res)
 }
 
 var userImplementors = []string{"User"}
@@ -5846,6 +9316,192 @@ func UnmarshalCreatePermissionInput(v interface{}) (models.CreatePermissionInput
 	return it, nil
 }
 
+func UnmarshalCreatePlasmidInput(v interface{}) (models.CreatePlasmidInput, error) {
+	var it models.CreatePlasmidInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = graphql.UnmarshalID(v)
+			if err != nil {
+				return it, err
+			}
+		case "created_by":
+			var err error
+			it.CreatedBy, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "updated_by":
+			var err error
+			it.UpdatedBy, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Summary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "editable_summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.EditableSummary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "depositor":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Depositor = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "genes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Genes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Genes[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "dbxrefs":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Dbxrefs = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Dbxrefs[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "publications":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Publications = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Publications[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "image_map":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.ImageMap = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "sequence":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Sequence = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "in_stock":
+			var err error
+			it.InStock, err = graphql.UnmarshalBoolean(v)
+			if err != nil {
+				return it, err
+			}
+		case "keywords":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Keywords = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Keywords[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "genbank_accession":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.GenbankAccession = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func UnmarshalCreateRoleInput(v interface{}) (models.CreateRoleInput, error) {
 	var it models.CreateRoleInput
 	var asMap = v.(map[string]interface{})
@@ -5861,6 +9517,284 @@ func UnmarshalCreateRoleInput(v interface{}) (models.CreateRoleInput, error) {
 		case "description":
 			var err error
 			it.Description, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalCreateStrainInput(v interface{}) (models.CreateStrainInput, error) {
+	var it models.CreateStrainInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = graphql.UnmarshalID(v)
+			if err != nil {
+				return it, err
+			}
+		case "created_by":
+			var err error
+			it.CreatedBy, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "updated_by":
+			var err error
+			it.UpdatedBy, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Summary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "editable_summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.EditableSummary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "depositor":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Depositor = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "genes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Genes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Genes[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "dbxrefs":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Dbxrefs = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Dbxrefs[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "publications":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Publications = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Publications[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "systematic_name":
+			var err error
+			it.SystematicName, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "descriptor":
+			var err error
+			it.Descriptor, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "species":
+			var err error
+			it.Species, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "plasmid":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Plasmid = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "parent":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Parent = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "names":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Names = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Names[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "in_stock":
+			var err error
+			it.InStock, err = graphql.UnmarshalBoolean(v)
+			if err != nil {
+				return it, err
+			}
+		case "phenotypes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Phenotypes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Phenotypes[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "genetic_modification":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.GeneticModification = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "mutagenesis_method":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.MutagenesisMethod = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "characteristics":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Characteristics = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Characteristics[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "genotypes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Genotypes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Genotypes[idx1] = &ptr2
+				}
+			}
 			if err != nil {
 				return it, err
 			}
@@ -6035,6 +9969,191 @@ func UnmarshalUpdatePermissionInput(v interface{}) (models.UpdatePermissionInput
 	return it, nil
 }
 
+func UnmarshalUpdatePlasmidInput(v interface{}) (models.UpdatePlasmidInput, error) {
+	var it models.UpdatePlasmidInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = graphql.UnmarshalID(v)
+			if err != nil {
+				return it, err
+			}
+		case "updated_by":
+			var err error
+			it.UpdatedBy, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Summary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "editable_summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.EditableSummary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "depositor":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Depositor = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "genes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Genes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Genes[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "dbxrefs":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Dbxrefs = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Dbxrefs[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "publications":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Publications = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Publications[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "image_map":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.ImageMap = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "sequence":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Sequence = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "in_stock":
+			var err error
+			var ptr1 bool
+			if v != nil {
+				ptr1, err = graphql.UnmarshalBoolean(v)
+				it.InStock = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "keywords":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Keywords = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Keywords[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "genbank_accession":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.GenbankAccession = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func UnmarshalUpdateRoleInput(v interface{}) (models.UpdateRoleInput, error) {
 	var it models.UpdateRoleInput
 	var asMap = v.(map[string]interface{})
@@ -6050,6 +10169,283 @@ func UnmarshalUpdateRoleInput(v interface{}) (models.UpdateRoleInput, error) {
 		case "description":
 			var err error
 			it.Description, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalUpdateStrainInput(v interface{}) (models.UpdateStrainInput, error) {
+	var it models.UpdateStrainInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = graphql.UnmarshalID(v)
+			if err != nil {
+				return it, err
+			}
+		case "updated_by":
+			var err error
+			it.UpdatedBy, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Summary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "editable_summary":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.EditableSummary = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "depositor":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Depositor = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "genes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Genes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Genes[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "dbxrefs":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Dbxrefs = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Dbxrefs[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "publications":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Publications = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Publications[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "systematic_name":
+			var err error
+			it.SystematicName, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "descriptor":
+			var err error
+			it.Descriptor, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "species":
+			var err error
+			it.Species, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "plasmid":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Plasmid = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "parent":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Parent = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "names":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Names = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Names[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "in_stock":
+			var err error
+			var ptr1 bool
+			if v != nil {
+				ptr1, err = graphql.UnmarshalBoolean(v)
+				it.InStock = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "phenotypes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Phenotypes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Phenotypes[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "genetic_modification":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.GeneticModification = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "mutagenesis_method":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.MutagenesisMethod = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "characteristics":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Characteristics = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Characteristics[idx1] = &ptr2
+				}
+			}
+			if err != nil {
+				return it, err
+			}
+		case "genotypes":
+			var err error
+			var rawIf1 []interface{}
+			if v != nil {
+				if tmp1, ok := v.([]interface{}); ok {
+					rawIf1 = tmp1
+				} else {
+					rawIf1 = []interface{}{v}
+				}
+			}
+			it.Genotypes = make([]*string, len(rawIf1))
+			for idx1 := range rawIf1 {
+				var ptr2 string
+				if rawIf1[idx1] != nil {
+					ptr2, err = graphql.UnmarshalString(rawIf1[idx1])
+					it.Genotypes[idx1] = &ptr2
+				}
+			}
 			if err != nil {
 				return it, err
 			}
@@ -6238,11 +10634,11 @@ var parsedSchema = gqlparser.MustLoadSchema(
   # createOrder(input: CreateOrderInput): Order
   # updateOrder(id: ID!, input: UpdateOrderInput): Order
   # Stock mutations
-  # createStrain(input: CreateStrainInput): Strain
-  # createPlasmid(input: CreatePlasmidInput): Plasmid
-  # updateStrain(id: ID!, input: UpdateStrainInput): Strain
-  # updatePlasmid(id: ID!, input: UpdatePlasmidInput): Plasmid
-  # deleteStock(id: ID!): DeleteStock
+  createStrain(input: CreateStrainInput): Strain
+  createPlasmid(input: CreatePlasmidInput): Plasmid
+  updateStrain(id: ID!, input: UpdateStrainInput): Strain
+  updatePlasmid(id: ID!, input: UpdatePlasmidInput): Plasmid
+  deleteStock(id: ID!): DeleteStock
   # User mutations
   createUser(input: CreateUserInput): User
   createUserRoleRelationship(userId: ID!, roleId: ID!): User
@@ -6340,10 +10736,10 @@ type Author {
   # Publication queries
   publication(id: ID!): Publication
   # Stock queries
-  # plasmid(id: ID!): Plasmid
-  # strain(id: ID!): Stock
-  # listStrains(cursor: ID, limit: Int, filter: String): StrainListWithCursor
-  # listPlasmids(cursor: ID, limit: Int, filter: String): PlasmidListWithCursor
+  plasmid(id: ID!): Plasmid
+  strain(id: ID!): Strain
+  listStrains(cursor: ID, limit: Int, filter: String): StrainListWithCursor
+  listPlasmids(cursor: ID, limit: Int, filter: String): PlasmidListWithCursor
   # User queries
   user(id: ID!): User
   userByEmail(email: String!): User
@@ -6355,6 +10751,170 @@ type Author {
 }
 `},
 	&ast.Source{Name: "api/scalar.graphql", Input: `scalar Timestamp
+`},
+	&ast.Source{Name: "api/stock.graphql", Input: `type Strain {
+  id: ID!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  created_by: User!
+  updated_by: User!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [Publication]
+  # from strain_properties
+  systematic_name: String!
+  descriptor: String!
+  species: String!
+  plasmid: String # update to Plasmid later?
+  parent: Strain
+  names: [String]
+  # new additions
+  in_stock: Boolean!
+  phenotypes: [Phenotype]
+  genetic_modification: String
+  mutagenesis_method: String
+  characteristics: [String]
+  genotypes: [String]
+}
+
+type Phenotype {
+  phenotype: String
+  notes: String
+  dbxrefs: [String]
+  publications: [Publication]
+}
+
+type Plasmid {
+  id: ID!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  created_by: User!
+  updated_by: User!
+  summary: String # same as description field?
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [Publication]
+  # from plasmid_properties
+  image_map: String
+  sequence: String
+  # new additions
+  in_stock: Boolean!
+  keywords: [String]
+  genbank_accession: String
+}
+
+type StrainListWithCursor {
+  strains: [Strain!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
+
+type PlasmidListWithCursor {
+  plasmids: [Plasmid!]!
+  nextCursor: ID!
+  previousCursor: ID!
+  limit: Int
+  totalCount: Int!
+}
+
+type DeleteStock {
+  success: Boolean!
+}
+
+input CreateStrainInput {
+  id: ID!
+  created_by: String!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  # from strain_properties
+  systematic_name: String!
+  descriptor: String!
+  species: String!
+  plasmid: String
+  parent: String
+  names: [String]
+  # new additions
+  in_stock: Boolean!
+  phenotypes: [String]
+  genetic_modification: String
+  mutagenesis_method: String
+  characteristics: [String]
+  genotypes: [String]
+}
+
+input CreatePlasmidInput {
+  id: ID!
+  created_by: String!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  # from plasmid_properties
+  image_map: String
+  sequence: String
+  # new additions
+  in_stock: Boolean!
+  keywords: [String]
+  genbank_accession: String
+}
+
+input UpdateStrainInput {
+  id: ID!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  # from strain_properties
+  systematic_name: String!
+  descriptor: String!
+  species: String!
+  plasmid: String
+  parent: String
+  names: [String]
+  # new additions
+  in_stock: Boolean
+  phenotypes: [String]
+  genetic_modification: String
+  mutagenesis_method: String
+  characteristics: [String]
+  genotypes: [String]
+}
+
+input UpdatePlasmidInput {
+  id: ID!
+  updated_by: String!
+  summary: String
+  editable_summary: String
+  depositor: String
+  genes: [String]
+  dbxrefs: [String]
+  publications: [String]
+  # from plasmid_properties
+  image_map: String
+  sequence: String
+  # new additions
+  in_stock: Boolean
+  keywords: [String]
+  genbank_accession: String
+}
 `},
 	&ast.Source{Name: "api/user.graphql", Input: `type Permission {
   id: ID!
