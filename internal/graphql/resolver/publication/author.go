@@ -2,6 +2,7 @@ package publication
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/sirupsen/logrus"
@@ -12,6 +13,6 @@ type AuthorResolver struct {
 }
 
 func (r *AuthorResolver) Rank(ctx context.Context, obj *publication.Author) (*string, error) {
-	s := ""
-	return &s, nil
+	rank := strconv.Itoa(int(obj.Rank))
+	return &rank, nil
 }

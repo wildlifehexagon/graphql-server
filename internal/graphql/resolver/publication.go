@@ -100,12 +100,12 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publica
 		},
 	}
 	var authors []*pb.Author
-	for _, a := range attr.Authors {
+	for i, a := range attr.Authors {
 		authors = append(authors, &pb.Author{
 			FirstName: a.FirstName,
 			LastName:  a.LastName,
-			// Rank:      0, // field does not exist yet
-			Initials: a.Initials,
+			Rank:      int64(i), // field does not exist yet
+			Initials:  a.Initials,
 		})
 	}
 	p.Data.Attributes.Authors = authors
