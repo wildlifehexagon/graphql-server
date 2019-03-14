@@ -99,7 +99,13 @@ func (r *StrainResolver) Plasmid(ctx context.Context, obj *pb.Stock) (*string, e
 	return &obj.Data.Attributes.StrainProperties.Plasmid, nil
 }
 func (r *StrainResolver) Parent(ctx context.Context, obj *pb.Stock) (*pb.Stock, error) {
-	panic("not implemented")
+	parent := obj.Data.Attributes.StrainProperties.Parent
+	strain, err := r.Client.GetStock(ctx, &pb.StockId{Id: parent})
+	if err != nil {
+		return nil, fmt.Errorf("error in getting parent strain with ID %d: %s", parent, err)
+	}
+	r.Logger.Debugf("successfully found parent strain with ID %s", parent)
+	return strain, nil
 }
 func (r *StrainResolver) Names(ctx context.Context, obj *pb.Stock) ([]*string, error) {
 	names := []*string{}
