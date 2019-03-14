@@ -55,24 +55,18 @@ type Author struct {
 
 // Publication is the resolver for getting an individual publication by ID.
 func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publication, error) {
-	// get publication endpoint from registry
 	endpoint := q.GetAPIEndpoint(registry.PUBLICATION)
 	url := endpoint + "/" + id
-	// get data from endpoint
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("error in http get request %s", err)
 	}
-	// close body when done reading from it
 	defer res.Body.Close()
-	// if response is not 200 (OK) then there's an error
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf("error fetching publication with ID %s", id)
 	}
-	// create new json decoder
 	decoder := json.NewDecoder(res.Body)
 	var pub PubJsonAPI
-	// decode the json into established struct
 	err = decoder.Decode(&pub)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding json %s", err)
@@ -85,7 +79,6 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publica
 	}
 	// convert issue to expected string format
 	issue := strconv.Itoa(int(attr.Issue))
-	// convert to expected pb model
 	p := &pb.Publication{
 		Data: &pb.Publication_Data{
 			Type: "publication",
@@ -107,7 +100,6 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publica
 		},
 	}
 	var authors []*pb.Author
-	// get the list of authors and add it to model
 	for _, a := range attr.Authors {
 		authors = append(authors, &pb.Author{
 			FirstName: a.FirstName,
