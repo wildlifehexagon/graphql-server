@@ -134,11 +134,79 @@ func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]inte
 }
 
 func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*pb.Stock, error) {
-	panic("not implemented")
+	g, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	if err != nil {
+		return nil, fmt.Errorf("error fetching strain with ID %s %s", id, err)
+	}
+	attr := getUpdateStrainAttributes(input, g)
+	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
+		Data: &pb.StockUpdate_Data{
+			Type:       "strain",
+			Id:         id,
+			Attributes: attr,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error updating strain %s: %s", n.Data.Id, err)
+	}
+	u, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	if err != nil {
+		return nil, fmt.Errorf("error fetching strain with ID %s %s", id, err)
+	}
+	m.Logger.Debugf("successfully updated strain with ID %s", n.Data.Id)
+	return u, nil
 }
+
+func getUpdateStrainAttributes(input *models.UpdateStrainInput, f *pb.Stock) *pb.StockUpdateAttributes {
+	// Need to use this to check if input field exists
+	// If it does, overwrite the old field content
+	// If not, make sure old field remains
+	attr := &pb.StockUpdateAttributes{}
+	// if input.ID != nil {
+	// 	attr.ID = input.ID
+	// } else {
+	// 	attr.ID = f.Data.Id
+	// }
+	return attr
+}
+
 func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*pb.Stock, error) {
-	panic("not implemented")
+	g, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	if err != nil {
+		return nil, fmt.Errorf("error fetching plasmid with ID %s %s", id, err)
+	}
+	attr := getUpdatePlasmidAttributes(input, g)
+	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
+		Data: &pb.StockUpdate_Data{
+			Type:       "plasmid",
+			Id:         id,
+			Attributes: attr,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error updating plasmid %s: %s", n.Data.Id, err)
+	}
+	u, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	if err != nil {
+		return nil, fmt.Errorf("error fetching plasmid with ID %s %s", id, err)
+	}
+	m.Logger.Debugf("successfully updated plasmid with ID %s", n.Data.Id)
+	return u, nil
 }
+
+func getUpdatePlasmidAttributes(input *models.UpdatePlasmidInput, f *pb.Stock) *pb.StockUpdateAttributes {
+	// Need to use this to check if input field exists
+	// If it does, overwrite the old field content
+	// If not, make sure old field remains
+	attr := &pb.StockUpdateAttributes{}
+	// if input.ID != nil {
+	// 	attr.ID = input.ID
+	// } else {
+	// 	attr.ID = f.Data.Id
+	// }
+	return attr
+}
+
 func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.DeleteStock, error) {
 	if _, err := m.GetStockClient(registry.STOCK).RemoveStock(ctx, &pb.StockId{Id: id}); err != nil {
 		return &models.DeleteStock{
@@ -154,19 +222,21 @@ func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.
 func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*pb.Stock, error) {
 	plasmid, err := q.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting plasmid with ID %d: %s", id, err)
+		return nil, fmt.Errorf("error in getting plasmid with ID %s: %s", id, err)
 	}
 	q.Logger.Debugf("successfully found plasmid with ID %s", id)
 	return plasmid, nil
 }
+
 func (q *QueryResolver) Strain(ctx context.Context, id string) (*pb.Stock, error) {
 	strain, err := q.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting strain with ID %d: %s", id, err)
+		return nil, fmt.Errorf("error in getting strain with ID %s: %s", id, err)
 	}
 	q.Logger.Debugf("successfully found strain with ID %s", id)
 	return strain, nil
 }
+
 func (q *QueryResolver) ListStrains(ctx context.Context, cursor *string, limit *int, filter *string) (*models.StrainListWithCursor, error) {
 	c, err := strconv.ParseInt(*cursor, 10, 64)
 	if err != nil {
@@ -214,6 +284,7 @@ func (q *QueryResolver) ListStrains(ctx context.Context, cursor *string, limit *
 		TotalCount: len(strains),
 	}, nil
 }
+
 func (q *QueryResolver) ListPlasmids(ctx context.Context, cursor *string, limit *int, filter *string) (*models.PlasmidListWithCursor, error) {
 	c, err := strconv.ParseInt(*cursor, 10, 64)
 	if err != nil {
