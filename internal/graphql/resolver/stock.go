@@ -244,9 +244,10 @@ func (q *QueryResolver) Strain(ctx context.Context, id string) (*pb.Stock, error
 }
 
 func (q *QueryResolver) ListStrains(ctx context.Context, cursor *string, limit *int, filter *string) (*models.StrainListWithCursor, error) {
-	c, err := strconv.ParseInt(*cursor, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("could not convert string to int64 %s", err)
+	var c int64
+	if len(*cursor) > 0 {
+		c, _ = strconv.ParseInt(*cursor, 10, 64)
+		fmt.Println(c)
 	}
 	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: c, Limit: int64(*limit), Filter: *filter})
 	if err != nil {
@@ -292,9 +293,10 @@ func (q *QueryResolver) ListStrains(ctx context.Context, cursor *string, limit *
 }
 
 func (q *QueryResolver) ListPlasmids(ctx context.Context, cursor *string, limit *int, filter *string) (*models.PlasmidListWithCursor, error) {
-	c, err := strconv.ParseInt(*cursor, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("could not convert string to int64 %s", err)
+	var c int64
+	if len(*cursor) > 0 {
+		c, _ = strconv.ParseInt(*cursor, 10, 64)
+		fmt.Println(c)
 	}
 	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: c, Limit: int64(*limit), Filter: *filter})
 	if err != nil {
