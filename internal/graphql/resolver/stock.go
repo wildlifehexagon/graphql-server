@@ -17,6 +17,8 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 	attr := &pb.NewStockAttributes{}
 	norm := normalizeCreateStrainAttr(input)
 	mapstructure.Decode(norm, attr)
+	prop := &pb.StrainProperties{}
+	mapstructure.Decode(norm, prop)
 	n, err := m.GetStockClient(registry.STOCK).CreateStock(ctx, &pb.NewStock{
 		Data: &pb.NewStock_Data{
 			Type: "strain",
@@ -30,12 +32,12 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 				Dbxrefs:         attr.Dbxrefs,
 				Publications:    attr.Publications,
 				StrainProperties: &pb.StrainProperties{
-					SystematicName: attr.StrainProperties.SystematicName,
-					Label:          attr.StrainProperties.Label,
-					Species:        attr.StrainProperties.Species,
-					Plasmid:        attr.StrainProperties.Plasmid,
-					Parent:         attr.StrainProperties.Parent,
-					Names:          attr.StrainProperties.Names,
+					SystematicName: prop.SystematicName,
+					Label:          prop.Label,
+					Species:        prop.Species,
+					Plasmid:        prop.Plasmid,
+					Parent:         prop.Parent,
+					Names:          prop.Names,
 				},
 			},
 		},
@@ -53,23 +55,26 @@ func normalizeCreateStrainAttr(attr *models.CreateStrainInput) map[string]interf
 	newAttr := make(map[string]interface{})
 	for _, k := range fields {
 		if !k.IsZero() {
-			newAttr[k.Name()] = k.Value()
+			if k.Name() == "Descriptor" {
+				newAttr["label"] = k.Value()
+			} else {
+				newAttr[k.Name()] = k.Value()
+			}
 		} else {
-			// use nil empty slices
-			if k.Name() == "genes" {
-				newAttr["genes"] = nil
-			} else if k.Name() == "dbxrefs" {
-				newAttr["dbxrefs"] = nil
-			} else if k.Name() == "publications" {
-				newAttr["publications"] = nil
-			} else if k.Name() == "names" {
-				newAttr["names"] = nil
-			} else if k.Name() == "phenotypes" {
-				newAttr["phenotypes"] = nil
-			} else if k.Name() == "characteristics" {
-				newAttr["characteristics"] = nil
-			} else if k.Name() == "genotypes" {
-				newAttr["genotypes"] = nil
+			if k.Name() == "Genes" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Dbxrefs" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Publications" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Names" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Phenotypes" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Characteristics" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Genotypes" {
+				newAttr[k.Name()] = nil
 			} else {
 				newAttr[k.Name()] = ""
 			}
@@ -82,6 +87,8 @@ func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.Crea
 	attr := &pb.NewStockAttributes{}
 	norm := normalizeCreatePlasmidAttr(input)
 	mapstructure.Decode(norm, attr)
+	prop := &pb.PlasmidProperties{}
+	mapstructure.Decode(norm, prop)
 	n, err := m.GetStockClient(registry.STOCK).CreateStock(ctx, &pb.NewStock{
 		Data: &pb.NewStock_Data{
 			Type: "plasmid",
@@ -95,8 +102,8 @@ func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.Crea
 				Dbxrefs:         attr.Dbxrefs,
 				Publications:    attr.Publications,
 				PlasmidProperties: &pb.PlasmidProperties{
-					ImageMap: attr.PlasmidProperties.ImageMap,
-					Sequence: attr.PlasmidProperties.Sequence,
+					ImageMap: prop.ImageMap,
+					Sequence: prop.Sequence,
 				},
 			},
 		},
@@ -116,15 +123,14 @@ func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]inte
 		if !k.IsZero() {
 			newAttr[k.Name()] = k.Value()
 		} else {
-			// use nil empty slices
-			if k.Name() == "genes" {
-				newAttr["genes"] = nil
-			} else if k.Name() == "dbxrefs" {
-				newAttr["dbxrefs"] = nil
-			} else if k.Name() == "publications" {
-				newAttr["publications"] = nil
-			} else if k.Name() == "keywords" {
-				newAttr["keywords"] = nil
+			if k.Name() == "Genes" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Dbxrefs" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Publications" {
+				newAttr[k.Name()] = nil
+			} else if k.Name() == "Keywords" {
+				newAttr[k.Name()] = nil
 			} else {
 				newAttr[k.Name()] = ""
 			}
