@@ -15,7 +15,7 @@ import (
 )
 
 func (m *MutationResolver) CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*pb.Permission, error) {
-	n, err := m.GetPermissionClient(registry.PERMISSION).CreatePermission(context.Background(), &pb.CreatePermissionRequest{
+	n, err := m.GetPermissionClient(registry.PERMISSION).CreatePermission(ctx, &pb.CreatePermissionRequest{
 		Data: &pb.CreatePermissionRequest_Data{
 			Type: "permission",
 			Attributes: &pb.PermissionAttributes{
@@ -36,7 +36,7 @@ func (m *MutationResolver) UpdatePermission(ctx context.Context, id string, inpu
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
-	n, err := m.GetPermissionClient(registry.PERMISSION).UpdatePermission(context.Background(), &pb.UpdatePermissionRequest{
+	n, err := m.GetPermissionClient(registry.PERMISSION).UpdatePermission(ctx, &pb.UpdatePermissionRequest{
 		Id: i,
 		Data: &pb.UpdatePermissionRequest_Data{
 			Id:   i,
@@ -52,7 +52,7 @@ func (m *MutationResolver) UpdatePermission(ctx context.Context, id string, inpu
 	if err != nil {
 		return nil, fmt.Errorf("error updating permission %d: %s", n.Data.Id, err)
 	}
-	o, err := m.GetPermissionClient(registry.PERMISSION).GetPermission(context.Background(), &jsonapi.GetRequestWithFields{Id: i})
+	o, err := m.GetPermissionClient(registry.PERMISSION).GetPermission(ctx, &jsonapi.GetRequestWithFields{Id: i})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching recently updated permission: %s", err)
 	}
@@ -64,7 +64,7 @@ func (m *MutationResolver) DeletePermission(ctx context.Context, id string) (*mo
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
-	if _, err := m.GetPermissionClient(registry.PERMISSION).DeletePermission(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
+	if _, err := m.GetPermissionClient(registry.PERMISSION).DeletePermission(ctx, &jsonapi.DeleteRequest{Id: i}); err != nil {
 		return &models.DeletePermission{
 			Success: false,
 		}, fmt.Errorf("error deleting permission with ID %s: %s", id, err)

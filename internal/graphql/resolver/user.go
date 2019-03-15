@@ -93,14 +93,14 @@ func (m *MutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
-	f, err := m.GetUserClient(registry.USER).GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
+	f, err := m.GetUserClient(registry.USER).GetUser(ctx, &jsonapi.GetRequest{Id: i})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching user with ID %s %s", id, err)
 	}
 	attr := getUpdateUserAttributes(input, f)
 	attr.Email = f.Data.Attributes.Email
 	attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
-	n, err := m.GetUserClient(registry.USER).UpdateUser(context.Background(), &pb.UpdateUserRequest{
+	n, err := m.GetUserClient(registry.USER).UpdateUser(ctx, &pb.UpdateUserRequest{
 		Id: i,
 		Data: &pb.UpdateUserRequest_Data{
 			Id:         i,
@@ -111,7 +111,7 @@ func (m *MutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	if err != nil {
 		return nil, fmt.Errorf("error updating user %d: %s", n.Data.Id, err)
 	}
-	o, err := m.GetUserClient(registry.USER).GetUser(context.Background(), &jsonapi.GetRequest{Id: i})
+	o, err := m.GetUserClient(registry.USER).GetUser(ctx, &jsonapi.GetRequest{Id: i})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching recently updated user: %s", err)
 	}
@@ -189,7 +189,7 @@ func (m *MutationResolver) DeleteUser(ctx context.Context, id string) (*models.D
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
-	if _, err := m.GetUserClient(registry.USER).DeleteUser(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
+	if _, err := m.GetUserClient(registry.USER).DeleteUser(ctx, &jsonapi.DeleteRequest{Id: i}); err != nil {
 		return &models.DeleteUser{
 			Success: false,
 		}, fmt.Errorf("error deleting user with ID %s: %s", id, err)
