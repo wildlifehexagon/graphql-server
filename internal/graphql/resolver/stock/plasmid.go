@@ -3,7 +3,6 @@ package stock
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
@@ -31,28 +30,22 @@ func (r *PlasmidResolver) UpdatedAt(ctx context.Context, obj *pb.Stock) (time.Ti
 }
 func (r *PlasmidResolver) CreatedBy(ctx context.Context, obj *pb.Stock) (user.User, error) {
 	user := user.User{}
-	id, err := strconv.ParseInt(obj.Data.Attributes.CreatedBy, 10, 64)
+	email := obj.Data.Attributes.CreatedBy
+	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return user, fmt.Errorf("error in parsing string %s to int %s", id, err)
+		return user, fmt.Errorf("error in getting user by email %s: %s", email, err)
 	}
-	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: id})
-	if err != nil {
-		return user, fmt.Errorf("error in getting user by ID %d: %s", id, err)
-	}
-	r.Logger.Debugf("successfully found user with ID %s", id)
+	r.Logger.Debugf("successfully found user with email %s", email)
 	return *g, nil
 }
 func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *pb.Stock) (user.User, error) {
 	user := user.User{}
-	id, err := strconv.ParseInt(obj.Data.Attributes.UpdatedBy, 10, 64)
+	email := obj.Data.Attributes.UpdatedBy
+	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return user, fmt.Errorf("error in parsing string %s to int %s", id, err)
+		return user, fmt.Errorf("error in getting user by email %s: %s", email, err)
 	}
-	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: id})
-	if err != nil {
-		return user, fmt.Errorf("error in getting user by ID %d: %s", id, err)
-	}
-	r.Logger.Debugf("successfully found user with ID %s", id)
+	r.Logger.Debugf("successfully found user with email %s", email)
 	return *g, nil
 }
 func (r *PlasmidResolver) Summary(ctx context.Context, obj *pb.Stock) (*string, error) {
