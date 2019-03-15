@@ -2,7 +2,9 @@ package stock
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
@@ -10,12 +12,14 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
+	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
 )
 
 type PlasmidResolver struct {
 	Client     pb.StockServiceClient
 	UserClient user.UserServiceClient
+	Registry   registry.Registry
 	Logger     *logrus.Entry
 }
 
@@ -72,7 +76,63 @@ func (r *PlasmidResolver) Dbxrefs(ctx context.Context, obj *pb.Stock) ([]*string
 	return dbxrefs, nil
 }
 func (r *PlasmidResolver) Publications(ctx context.Context, obj *pb.Stock) ([]*publication.Publication, error) {
-	panic("not implemented")
+	pubs := []*publication.Publication{}
+	for _, id := range obj.Data.Attributes.Publications {
+		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
+		url := endpoint + "/" + id
+		res, err := http.Get(url)
+		if err != nil {
+			return nil, fmt.Errorf("error in http get request %s", err)
+		}
+		defer res.Body.Close()
+		if res.StatusCode != 200 {
+			return nil, fmt.Errorf("error fetching publication with ID %s", id)
+		}
+		decoder := json.NewDecoder(res.Body)
+		var pub PubJsonAPI
+		err = decoder.Decode(&pub)
+		if err != nil {
+			return nil, fmt.Errorf("error decoding json %s", err)
+		}
+		attr := pub.Data.Attributes
+		pd, err := time.Parse("2006-01-02", attr.PublishedDate)
+		if err != nil {
+			return nil, fmt.Errorf("could not parse published date %s", err)
+		}
+		p := &publication.Publication{
+			Data: &publication.Publication_Data{
+				Type: "publication",
+				Id:   id,
+				Attributes: &publication.PublicationAttributes{
+					Doi:      attr.Doi,
+					Title:    attr.Title,
+					Abstract: attr.Abstract,
+					Journal:  attr.Journal,
+					PubDate:  aphgrpc.TimestampProto(pd),
+					Pages:    attr.Page,
+					Issn:     attr.Issn,
+					PubType:  attr.PubType,
+					Source:   attr.Source,
+					Issue:    string(attr.Issue),
+					Status:   attr.Status,
+					Volume:   "", // field does not exist yet
+				},
+			},
+		}
+		var authors []*publication.Author
+		for i, a := range attr.Authors {
+			authors = append(authors, &publication.Author{
+				FirstName: a.FirstName,
+				LastName:  a.LastName,
+				Rank:      int64(i),
+				Initials:  a.Initials,
+			})
+		}
+		p.Data.Attributes.Authors = authors
+		r.Logger.Debugf("successfully found publication with ID %s", pub.Data.ID)
+		pubs = append(pubs, p)
+	}
+	return pubs, nil
 }
 func (r *PlasmidResolver) ImageMap(ctx context.Context, obj *pb.Stock) (*string, error) {
 	return &obj.Data.Attributes.PlasmidProperties.ImageMap, nil
