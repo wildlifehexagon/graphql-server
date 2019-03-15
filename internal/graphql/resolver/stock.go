@@ -24,7 +24,15 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	panic("not implemented")
 }
 func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.DeleteStock, error) {
-	panic("not implemented")
+	if _, err := m.GetStockClient(registry.STOCK).RemoveStock(ctx, &stock.StockId{Id: id}); err != nil {
+		return &models.DeleteStock{
+			Success: false,
+		}, fmt.Errorf("error deleting stock with ID %s: %s", id, err)
+	}
+	m.Logger.Debugf("successfully deleted stock with ID %s", id)
+	return &models.DeleteStock{
+		Success: true,
+	}, nil
 }
 
 func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*stock.Stock, error) {
