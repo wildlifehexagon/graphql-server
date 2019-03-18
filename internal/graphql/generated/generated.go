@@ -9322,12 +9322,6 @@ func UnmarshalCreatePlasmidInput(v interface{}) (models.CreatePlasmidInput, erro
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
-			var err error
-			it.ID, err = graphql.UnmarshalID(v)
-			if err != nil {
-				return it, err
-			}
 		case "created_by":
 			var err error
 			it.CreatedBy, err = graphql.UnmarshalString(v)
@@ -9532,12 +9526,6 @@ func UnmarshalCreateStrainInput(v interface{}) (models.CreateStrainInput, error)
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
-			var err error
-			it.ID, err = graphql.UnmarshalID(v)
-			if err != nil {
-				return it, err
-			}
 		case "created_by":
 			var err error
 			it.CreatedBy, err = graphql.UnmarshalString(v)
@@ -10832,7 +10820,6 @@ type DeleteStock {
 }
 
 input CreateStrainInput {
-  id: ID!
   created_by: String!
   updated_by: String!
   summary: String
@@ -10858,7 +10845,6 @@ input CreateStrainInput {
 }
 
 input CreatePlasmidInput {
-  id: ID!
   created_by: String!
   updated_by: String!
   summary: String

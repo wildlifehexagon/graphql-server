@@ -208,7 +208,6 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	mapstructure.Decode(norm, attr)
 	prop := &pb.PlasmidProperties{}
 	mapstructure.Decode(norm, prop)
-	// attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
 	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
 		Data: &pb.StockUpdate_Data{
 			Type: "plasmid",
@@ -284,7 +283,6 @@ func (q *QueryResolver) ListStrains(ctx context.Context, cursor *string, limit *
 	var c int64
 	if len(*cursor) > 0 {
 		c, _ = strconv.ParseInt(*cursor, 10, 64)
-		fmt.Println(c)
 	}
 	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: c, Limit: int64(*limit), Filter: *filter})
 	if err != nil {

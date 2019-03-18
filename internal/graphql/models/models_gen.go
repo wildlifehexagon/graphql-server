@@ -15,7 +15,6 @@ type CreatePermissionInput struct {
 }
 
 type CreatePlasmidInput struct {
-	ID               string    `json:"id"`
 	CreatedBy        string    `json:"created_by"`
 	UpdatedBy        string    `json:"updated_by"`
 	Summary          *string   `json:"summary"`
@@ -37,7 +36,6 @@ type CreateRoleInput struct {
 }
 
 type CreateStrainInput struct {
-	ID                  string    `json:"id"`
 	CreatedBy           string    `json:"created_by"`
 	UpdatedBy           string    `json:"updated_by"`
 	Summary             *string   `json:"summary"`
