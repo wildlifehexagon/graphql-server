@@ -147,11 +147,29 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 	attr := &pb.StockUpdateAttributes{}
 	norm := normalizeUpdateStrainAttr(input)
 	mapstructure.Decode(norm, attr)
+	prop := &pb.StrainUpdateProperties{}
+	mapstructure.Decode(norm, prop)
 	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
 		Data: &pb.StockUpdate_Data{
-			Type:       "strain",
-			Id:         id,
-			Attributes: attr,
+			Type: "strain",
+			Id:   id,
+			Attributes: &pb.StockUpdateAttributes{
+				UpdatedBy:       attr.UpdatedBy,
+				Summary:         attr.Summary,
+				EditableSummary: attr.EditableSummary,
+				Depositor:       attr.Depositor,
+				Genes:           attr.Genes,
+				Dbxrefs:         attr.Dbxrefs,
+				Publications:    attr.Publications,
+				StrainProperties: &pb.StrainUpdateProperties{
+					SystematicName: prop.SystematicName,
+					Label:          prop.Label,
+					Species:        prop.Species,
+					Plasmid:        prop.Plasmid,
+					Parent:         prop.Parent,
+					Names:          prop.Names,
+				},
+			},
 		},
 	})
 	if err != nil {
@@ -170,7 +188,11 @@ func normalizeUpdateStrainAttr(attr *models.UpdateStrainInput) map[string]interf
 	newAttr := make(map[string]interface{})
 	for _, k := range fields {
 		if !k.IsZero() {
-			newAttr[k.Name()] = k.Value()
+			if k.Name() == "Descriptor" {
+				newAttr["label"] = k.Value()
+			} else {
+				newAttr[k.Name()] = k.Value()
+			}
 		}
 	}
 	return newAttr
@@ -184,12 +206,26 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	attr := &pb.StockUpdateAttributes{}
 	norm := normalizeUpdatePlasmidAttr(input)
 	mapstructure.Decode(norm, attr)
+	prop := &pb.PlasmidProperties{}
+	mapstructure.Decode(norm, prop)
 	// attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
 	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
 		Data: &pb.StockUpdate_Data{
-			Type:       "plasmid",
-			Id:         id,
-			Attributes: attr,
+			Type: "plasmid",
+			Id:   id,
+			Attributes: &pb.StockUpdateAttributes{
+				UpdatedBy:       attr.UpdatedBy,
+				Summary:         attr.Summary,
+				EditableSummary: attr.EditableSummary,
+				Depositor:       attr.Depositor,
+				Genes:           attr.Genes,
+				Dbxrefs:         attr.Dbxrefs,
+				Publications:    attr.Publications,
+				PlasmidProperties: &pb.PlasmidProperties{
+					ImageMap: prop.ImageMap,
+					Sequence: prop.Sequence,
+				},
+			},
 		},
 	})
 	if err != nil {
