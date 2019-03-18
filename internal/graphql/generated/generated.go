@@ -9975,12 +9975,6 @@ func UnmarshalUpdatePlasmidInput(v interface{}) (models.UpdatePlasmidInput, erro
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
-			var err error
-			it.ID, err = graphql.UnmarshalID(v)
-			if err != nil {
-				return it, err
-			}
 		case "updated_by":
 			var err error
 			it.UpdatedBy, err = graphql.UnmarshalString(v)
@@ -10184,12 +10178,6 @@ func UnmarshalUpdateStrainInput(v interface{}) (models.UpdateStrainInput, error)
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
-			var err error
-			it.ID, err = graphql.UnmarshalID(v)
-			if err != nil {
-				return it, err
-			}
 		case "updated_by":
 			var err error
 			it.UpdatedBy, err = graphql.UnmarshalString(v)
@@ -10294,19 +10282,34 @@ func UnmarshalUpdateStrainInput(v interface{}) (models.UpdateStrainInput, error)
 			}
 		case "systematic_name":
 			var err error
-			it.SystematicName, err = graphql.UnmarshalString(v)
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.SystematicName = &ptr1
+			}
+
 			if err != nil {
 				return it, err
 			}
 		case "descriptor":
 			var err error
-			it.Descriptor, err = graphql.UnmarshalString(v)
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Descriptor = &ptr1
+			}
+
 			if err != nil {
 				return it, err
 			}
 		case "species":
 			var err error
-			it.Species, err = graphql.UnmarshalString(v)
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Species = &ptr1
+			}
+
 			if err != nil {
 				return it, err
 			}
@@ -10874,7 +10877,6 @@ input CreatePlasmidInput {
 }
 
 input UpdateStrainInput {
-  id: ID!
   updated_by: String!
   summary: String
   editable_summary: String
@@ -10883,9 +10885,9 @@ input UpdateStrainInput {
   dbxrefs: [String]
   publications: [String]
   # from strain_properties
-  systematic_name: String!
-  descriptor: String!
-  species: String!
+  systematic_name: String
+  descriptor: String
+  species: String
   plasmid: String
   parent: String
   names: [String]
@@ -10899,7 +10901,6 @@ input UpdateStrainInput {
 }
 
 input UpdatePlasmidInput {
-  id: ID!
   updated_by: String!
   summary: String
   editable_summary: String

@@ -122,7 +122,6 @@ type UpdatePermissionInput struct {
 }
 
 type UpdatePlasmidInput struct {
-	ID               string    `json:"id"`
 	UpdatedBy        string    `json:"updated_by"`
 	Summary          *string   `json:"summary"`
 	EditableSummary  *string   `json:"editable_summary"`
@@ -143,7 +142,6 @@ type UpdateRoleInput struct {
 }
 
 type UpdateStrainInput struct {
-	ID                  string    `json:"id"`
 	UpdatedBy           string    `json:"updated_by"`
 	Summary             *string   `json:"summary"`
 	EditableSummary     *string   `json:"editable_summary"`
@@ -151,9 +149,9 @@ type UpdateStrainInput struct {
 	Genes               []*string `json:"genes"`
 	Dbxrefs             []*string `json:"dbxrefs"`
 	Publications        []*string `json:"publications"`
-	SystematicName      string    `json:"systematic_name"`
-	Descriptor          string    `json:"descriptor"`
-	Species             string    `json:"species"`
+	SystematicName      *string   `json:"systematic_name"`
+	Descriptor          *string   `json:"descriptor"`
+	Species             *string   `json:"species"`
 	Plasmid             *string   `json:"plasmid"`
 	Parent              *string   `json:"parent"`
 	Names               []*string `json:"names"`
