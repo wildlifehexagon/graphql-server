@@ -140,11 +140,13 @@ func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]inte
 }
 
 func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*pb.Stock, error) {
-	g, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	_, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching strain with ID %s %s", id, err)
 	}
-	attr := getUpdateStrainAttributes(input, g)
+	attr := &pb.StockUpdateAttributes{}
+	norm := normalizeUpdateStrainAttr(input)
+	mapstructure.Decode(norm, attr)
 	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
 		Data: &pb.StockUpdate_Data{
 			Type:       "strain",
@@ -163,25 +165,26 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 	return u, nil
 }
 
-func getUpdateStrainAttributes(input *models.UpdateStrainInput, f *pb.Stock) *pb.StockUpdateAttributes {
-	// Need to use this to check if input field exists
-	// If it does, overwrite the old field content
-	// If not, make sure old field remains
-	attr := &pb.StockUpdateAttributes{}
-	// if input.ID != nil {
-	// 	attr.ID = input.ID
-	// } else {
-	// 	attr.ID = f.Data.Id
-	// }
-	return attr
+func normalizeUpdateStrainAttr(attr *models.UpdateStrainInput) map[string]interface{} {
+	fields := structs.Fields(attr)
+	newAttr := make(map[string]interface{})
+	for _, k := range fields {
+		if !k.IsZero() {
+			newAttr[k.Name()] = k.Value()
+		}
+	}
+	return newAttr
 }
 
 func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*pb.Stock, error) {
-	g, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	_, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching plasmid with ID %s %s", id, err)
 	}
-	attr := getUpdatePlasmidAttributes(input, g)
+	attr := &pb.StockUpdateAttributes{}
+	norm := normalizeUpdatePlasmidAttr(input)
+	mapstructure.Decode(norm, attr)
+	// attr.UpdatedAt = aphgrpc.TimestampProto(time.Now())
 	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
 		Data: &pb.StockUpdate_Data{
 			Type:       "plasmid",
@@ -200,17 +203,15 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	return u, nil
 }
 
-func getUpdatePlasmidAttributes(input *models.UpdatePlasmidInput, f *pb.Stock) *pb.StockUpdateAttributes {
-	// Need to use this to check if input field exists
-	// If it does, overwrite the old field content
-	// If not, make sure old field remains
-	attr := &pb.StockUpdateAttributes{}
-	// if input.ID != nil {
-	// 	attr.ID = input.ID
-	// } else {
-	// 	attr.ID = f.Data.Id
-	// }
-	return attr
+func normalizeUpdatePlasmidAttr(attr *models.UpdatePlasmidInput) map[string]interface{} {
+	fields := structs.Fields(attr)
+	newAttr := make(map[string]interface{})
+	for _, k := range fields {
+		if !k.IsZero() {
+			newAttr[k.Name()] = k.Value()
+		}
+	}
+	return newAttr
 }
 
 func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.DeleteStock, error) {
