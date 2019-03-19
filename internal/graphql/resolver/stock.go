@@ -18,27 +18,11 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 	mapstructure.Decode(norm, attr)
 	prop := &pb.StrainProperties{}
 	mapstructure.Decode(norm, prop)
+	attr.StrainProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).CreateStock(ctx, &pb.NewStock{
 		Data: &pb.NewStock_Data{
-			Type: "strain",
-			Attributes: &pb.NewStockAttributes{
-				CreatedBy:       attr.CreatedBy,
-				UpdatedBy:       attr.UpdatedBy,
-				Summary:         attr.Summary,
-				EditableSummary: attr.EditableSummary,
-				Depositor:       attr.Depositor,
-				Genes:           attr.Genes,
-				Dbxrefs:         attr.Dbxrefs,
-				Publications:    attr.Publications,
-				StrainProperties: &pb.StrainProperties{
-					SystematicName: prop.SystematicName,
-					Label:          prop.Label,
-					Species:        prop.Species,
-					Plasmid:        prop.Plasmid,
-					Parent:         prop.Parent,
-					Names:          prop.Names,
-				},
-			},
+			Type:       "strain",
+			Attributes: attr,
 		},
 	})
 	if err != nil {
@@ -60,21 +44,22 @@ func normalizeCreateStrainAttr(attr *models.CreateStrainInput) map[string]interf
 				newAttr[k.Name()] = k.Value()
 			}
 		} else {
-			if k.Name() == "Genes" {
+			switch k.Name() {
+			case "Genes":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Dbxrefs" {
+			case "Dbxrefs":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Publications" {
+			case "Publications":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Names" {
+			case "Names":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Phenotypes" {
+			case "Phenotypes":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Characteristics" {
+			case "Characteristics":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Genotypes" {
+			case "Genotypes":
 				newAttr[k.Name()] = nil
-			} else {
+			default:
 				newAttr[k.Name()] = ""
 			}
 		}
@@ -88,23 +73,11 @@ func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.Crea
 	mapstructure.Decode(norm, attr)
 	prop := &pb.PlasmidProperties{}
 	mapstructure.Decode(norm, prop)
+	attr.PlasmidProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).CreateStock(ctx, &pb.NewStock{
 		Data: &pb.NewStock_Data{
-			Type: "plasmid",
-			Attributes: &pb.NewStockAttributes{
-				CreatedBy:       attr.CreatedBy,
-				UpdatedBy:       attr.UpdatedBy,
-				Summary:         attr.Summary,
-				EditableSummary: attr.EditableSummary,
-				Depositor:       attr.Depositor,
-				Genes:           attr.Genes,
-				Dbxrefs:         attr.Dbxrefs,
-				Publications:    attr.Publications,
-				PlasmidProperties: &pb.PlasmidProperties{
-					ImageMap: prop.ImageMap,
-					Sequence: prop.Sequence,
-				},
-			},
+			Type:       "plasmid",
+			Attributes: attr,
 		},
 	})
 	if err != nil {
@@ -122,15 +95,16 @@ func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]inte
 		if !k.IsZero() {
 			newAttr[k.Name()] = k.Value()
 		} else {
-			if k.Name() == "Genes" {
+			switch k.Name() {
+			case "Genes":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Dbxrefs" {
+			case "Dbxrefs":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Publications" {
+			case "Publications":
 				newAttr[k.Name()] = nil
-			} else if k.Name() == "Keywords" {
+			case "Keywords":
 				newAttr[k.Name()] = nil
-			} else {
+			default:
 				newAttr[k.Name()] = ""
 			}
 		}
@@ -148,27 +122,12 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 	mapstructure.Decode(norm, attr)
 	prop := &pb.StrainUpdateProperties{}
 	mapstructure.Decode(norm, prop)
+	attr.StrainProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
 		Data: &pb.StockUpdate_Data{
-			Type: "strain",
-			Id:   id,
-			Attributes: &pb.StockUpdateAttributes{
-				UpdatedBy:       attr.UpdatedBy,
-				Summary:         attr.Summary,
-				EditableSummary: attr.EditableSummary,
-				Depositor:       attr.Depositor,
-				Genes:           attr.Genes,
-				Dbxrefs:         attr.Dbxrefs,
-				Publications:    attr.Publications,
-				StrainProperties: &pb.StrainUpdateProperties{
-					SystematicName: prop.SystematicName,
-					Label:          prop.Label,
-					Species:        prop.Species,
-					Plasmid:        prop.Plasmid,
-					Parent:         prop.Parent,
-					Names:          prop.Names,
-				},
-			},
+			Type:       "strain",
+			Id:         id,
+			Attributes: attr,
 		},
 	})
 	if err != nil {
@@ -207,23 +166,12 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	mapstructure.Decode(norm, attr)
 	prop := &pb.PlasmidProperties{}
 	mapstructure.Decode(norm, prop)
+	attr.PlasmidProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
 		Data: &pb.StockUpdate_Data{
-			Type: "plasmid",
-			Id:   id,
-			Attributes: &pb.StockUpdateAttributes{
-				UpdatedBy:       attr.UpdatedBy,
-				Summary:         attr.Summary,
-				EditableSummary: attr.EditableSummary,
-				Depositor:       attr.Depositor,
-				Genes:           attr.Genes,
-				Dbxrefs:         attr.Dbxrefs,
-				Publications:    attr.Publications,
-				PlasmidProperties: &pb.PlasmidProperties{
-					ImageMap: prop.ImageMap,
-					Sequence: prop.Sequence,
-				},
-			},
+			Type:       "plasmid",
+			Id:         id,
+			Attributes: attr,
 		},
 	})
 	if err != nil {
@@ -289,7 +237,7 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 	if input.Limit != nil {
 		limit = int64(*input.Limit)
 	} else {
-		limit = 4000
+		limit = 10
 	}
 	if input.Filter != nil {
 		filter = *input.Filter
@@ -351,7 +299,7 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	if input.Limit != nil {
 		limit = int64(*input.Limit)
 	} else {
-		limit = 4000
+		limit = 10
 	}
 	if input.Filter != nil {
 		filter = *input.Filter
