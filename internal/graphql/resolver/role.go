@@ -15,7 +15,7 @@ import (
 )
 
 func (m *MutationResolver) CreateRole(ctx context.Context, input *models.CreateRoleInput) (*pb.Role, error) {
-	n, err := m.GetRoleClient(registry.ROLE).CreateRole(context.Background(), &pb.CreateRoleRequest{
+	n, err := m.GetRoleClient(registry.ROLE).CreateRole(ctx, &pb.CreateRoleRequest{
 		Data: &pb.CreateRoleRequest_Data{
 			Type: "role",
 			Attributes: &pb.RoleAttributes{
@@ -62,7 +62,7 @@ func (m *MutationResolver) UpdateRole(ctx context.Context, id string, input *mod
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
-	n, err := m.GetRoleClient(registry.ROLE).UpdateRole(context.Background(), &pb.UpdateRoleRequest{
+	n, err := m.GetRoleClient(registry.ROLE).UpdateRole(ctx, &pb.UpdateRoleRequest{
 		Id: i,
 		Data: &pb.UpdateRoleRequest_Data{
 			Id:   i,
@@ -77,7 +77,7 @@ func (m *MutationResolver) UpdateRole(ctx context.Context, id string, input *mod
 	if err != nil {
 		return nil, fmt.Errorf("error updating role %d: %s", n.Data.Id, err)
 	}
-	o, err := m.GetRoleClient(registry.ROLE).GetRole(context.Background(), &jsonapi.GetRequest{Id: i})
+	o, err := m.GetRoleClient(registry.ROLE).GetRole(ctx, &jsonapi.GetRequest{Id: i})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching recently updated role: %s", err)
 	}
@@ -89,7 +89,7 @@ func (m *MutationResolver) DeleteRole(ctx context.Context, id string) (*models.D
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
-	if _, err := m.GetRoleClient(registry.ROLE).DeleteRole(context.Background(), &jsonapi.DeleteRequest{Id: i}); err != nil {
+	if _, err := m.GetRoleClient(registry.ROLE).DeleteRole(ctx, &jsonapi.DeleteRequest{Id: i}); err != nil {
 		return &models.DeleteRole{
 			Success: false,
 		}, fmt.Errorf("error deleting role with ID %s: %s", id, err)

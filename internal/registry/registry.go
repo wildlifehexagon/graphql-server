@@ -1,8 +1,8 @@
 package registry
 
 import (
+	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
-	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/emirpasic/gods/maps/hashmap"
 	"google.golang.org/grpc"
 )
@@ -12,12 +12,14 @@ const (
 	ROLE        = "role"
 	PERMISSION  = "permission"
 	PUBLICATION = "publication"
+	STOCK       = "stock"
 )
 
 var ServiceMap = map[string]string{
 	"user":       USER,
 	"role":       ROLE,
 	"permission": PERMISSION,
+	"stock":      STOCK,
 }
 
 type collection struct {
@@ -29,9 +31,10 @@ type Registry interface {
 	AddAPIConnection(key string, conn *grpc.ClientConn)
 	GetAPIConnection(key string) (conn *grpc.ClientConn)
 	GetAPIEndpoint(key string) string
-	GetUserClient(key string) pb.UserServiceClient
-	GetRoleClient(key string) pb.RoleServiceClient
-	GetPermissionClient(key string) pb.PermissionServiceClient
+	GetUserClient(key string) user.UserServiceClient
+	GetRoleClient(key string) user.RoleServiceClient
+	GetPermissionClient(key string) user.PermissionServiceClient
+	GetStockClient(key string) stock.StockServiceClient
 }
 
 // NewRegistry constructs a hashmap for our grpc clients
@@ -59,16 +62,20 @@ func (c *collection) GetAPIConnection(key string) (conn *grpc.ClientConn) {
 	return conn
 }
 
-func (c *collection) GetUserClient(key string) pb.UserServiceClient {
+func (c *collection) GetUserClient(key string) user.UserServiceClient {
 	return user.NewUserServiceClient(c.GetAPIConnection(key))
 }
 
-func (c *collection) GetRoleClient(key string) pb.RoleServiceClient {
+func (c *collection) GetRoleClient(key string) user.RoleServiceClient {
 	return user.NewRoleServiceClient(c.GetAPIConnection(key))
 }
 
-func (c *collection) GetPermissionClient(key string) pb.PermissionServiceClient {
+func (c *collection) GetPermissionClient(key string) user.PermissionServiceClient {
 	return user.NewPermissionServiceClient(c.GetAPIConnection(key))
+}
+
+func (c *collection) GetStockClient(key string) stock.StockServiceClient {
+	return stock.NewStockServiceClient(c.GetAPIConnection(key))
 }
 
 func (c *collection) GetAPIEndpoint(key string) string {

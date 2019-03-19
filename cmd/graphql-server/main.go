@@ -68,6 +68,16 @@ func main() {
 					Usage:  "publication api endpoint",
 					Value:  "https://betafunc.dictybase.org/publications",
 				},
+				cli.StringFlag{
+					Name:   "stock-grpc-host, sh",
+					EnvVar: "STOCK_API_SERVICE_HOST",
+					Usage:  "stock grpc host",
+				},
+				cli.StringFlag{
+					Name:   "stock-grpc-port, sp",
+					EnvVar: "STOCK_API_SERVICE_PORT",
+					Usage:  "stock grpc port",
+				},
 			},
 		},
 	}
