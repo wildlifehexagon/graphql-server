@@ -9,8 +9,9 @@ import (
 )
 
 func MarshalTimestamp(t time.Time) graphql.Marshaler {
+	time := t.UnixNano() / 1000000
 	return graphql.WriterFunc(func(w io.Writer) {
-		io.WriteString(w, strconv.FormatInt(t.UnixNano(), 10))
+		io.WriteString(w, strconv.FormatInt(time, 10))
 	})
 }
 
