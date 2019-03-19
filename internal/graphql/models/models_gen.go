@@ -105,16 +105,16 @@ type Phenotype struct {
 
 type PlasmidListWithCursor struct {
 	Plasmids       []stock.Stock `json:"plasmids"`
-	NextCursor     string        `json:"nextCursor"`
-	PreviousCursor string        `json:"previousCursor"`
+	NextCursor     int           `json:"nextCursor"`
+	PreviousCursor int           `json:"previousCursor"`
 	Limit          *int          `json:"limit"`
 	TotalCount     int           `json:"totalCount"`
 }
 
 type StrainListWithCursor struct {
 	Strains        []stock.Stock `json:"strains"`
-	NextCursor     string        `json:"nextCursor"`
-	PreviousCursor string        `json:"previousCursor"`
+	NextCursor     int           `json:"nextCursor"`
+	PreviousCursor int           `json:"previousCursor"`
 	Limit          *int          `json:"limit"`
 	TotalCount     int           `json:"totalCount"`
 }

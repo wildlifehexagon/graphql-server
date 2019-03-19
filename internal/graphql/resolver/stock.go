@@ -289,7 +289,7 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 	if input.Limit != nil {
 		limit = int64(*input.Limit)
 	} else {
-		limit = 10
+		limit = 4000
 	}
 	if input.Filter != nil {
 		filter = *input.Filter
@@ -332,11 +332,11 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 	}
 	l := int(limit)
 	return &models.StrainListWithCursor{
-		Strains: strains,
-		// NextCursor: "",
-		// PreviousCursor: "",
-		Limit:      &l,
-		TotalCount: len(strains),
+		Strains:        strains,
+		NextCursor:     int(list.Meta.NextCursor),
+		PreviousCursor: int(cursor),
+		Limit:          &l,
+		TotalCount:     len(strains),
 	}, nil
 }
 
@@ -351,7 +351,7 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	if input.Limit != nil {
 		limit = int64(*input.Limit)
 	} else {
-		limit = 10
+		limit = 4000
 	}
 	if input.Filter != nil {
 		filter = *input.Filter
@@ -390,10 +390,10 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	}
 	l := int(limit)
 	return &models.PlasmidListWithCursor{
-		Plasmids: plasmids,
-		// NextCursor: "",
-		// PreviousCursor: "",
-		Limit:      &l,
-		TotalCount: len(plasmids),
+		Plasmids:       plasmids,
+		NextCursor:     int(list.Meta.NextCursor),
+		PreviousCursor: int(cursor),
+		Limit:          &l,
+		TotalCount:     len(plasmids),
 	}, nil
 }

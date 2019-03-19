@@ -4274,10 +4274,10 @@ func (ec *executionContext) _PlasmidListWithCursor_nextCursor(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -4301,10 +4301,10 @@ func (ec *executionContext) _PlasmidListWithCursor_previousCursor(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -6872,10 +6872,10 @@ func (ec *executionContext) _StrainListWithCursor_nextCursor(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -6899,10 +6899,10 @@ func (ec *executionContext) _StrainListWithCursor_previousCursor(ctx context.Con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -10794,16 +10794,16 @@ type Plasmid {
 
 type StrainListWithCursor {
   strains: [Strain!]!
-  nextCursor: ID!
-  previousCursor: ID!
+  nextCursor: Int!
+  previousCursor: Int!
   limit: Int
   totalCount: Int!
 }
 
 type PlasmidListWithCursor {
   plasmids: [Plasmid!]!
-  nextCursor: ID!
-  previousCursor: ID!
+  nextCursor: Int!
+  previousCursor: Int!
   limit: Int
   totalCount: Int!
 }
