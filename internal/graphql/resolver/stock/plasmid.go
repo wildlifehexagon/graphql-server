@@ -58,8 +58,8 @@ func (r *PlasmidResolver) Summary(ctx context.Context, obj *pb.Stock) (*string, 
 func (r *PlasmidResolver) EditableSummary(ctx context.Context, obj *pb.Stock) (*string, error) {
 	return &obj.Data.Attributes.EditableSummary, nil
 }
-func (r *PlasmidResolver) Depositor(ctx context.Context, obj *pb.Stock) (*string, error) {
-	return &obj.Data.Attributes.Depositor, nil
+func (r *PlasmidResolver) Depositor(ctx context.Context, obj *pb.Stock) (string, error) {
+	return obj.Data.Attributes.Depositor, nil
 }
 func (r *PlasmidResolver) Genes(ctx context.Context, obj *pb.Stock) ([]*string, error) {
 	genes := []*string{}

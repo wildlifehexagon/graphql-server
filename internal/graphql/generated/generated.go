@@ -157,8 +157,8 @@ type ComplexityRoot struct {
 		Publication     func(childComplexity int, id string) int
 		Plasmid         func(childComplexity int, id string) int
 		Strain          func(childComplexity int, id string) int
-		ListStrains     func(childComplexity int, cursor *string, limit *int, filter *string) int
-		ListPlasmids    func(childComplexity int, cursor *string, limit *int, filter *string) int
+		ListStrains     func(childComplexity int, input *models.ListStockInput) int
+		ListPlasmids    func(childComplexity int, input *models.ListStockInput) int
 		User            func(childComplexity int, id string) int
 		UserByEmail     func(childComplexity int, email string) int
 		ListUsers       func(childComplexity int, pagenum string, pagesize string, filter string) int
@@ -276,7 +276,7 @@ type PlasmidResolver interface {
 	UpdatedBy(ctx context.Context, obj *stock.Stock) (user.User, error)
 	Summary(ctx context.Context, obj *stock.Stock) (*string, error)
 	EditableSummary(ctx context.Context, obj *stock.Stock) (*string, error)
-	Depositor(ctx context.Context, obj *stock.Stock) (*string, error)
+	Depositor(ctx context.Context, obj *stock.Stock) (string, error)
 	Genes(ctx context.Context, obj *stock.Stock) ([]*string, error)
 	Dbxrefs(ctx context.Context, obj *stock.Stock) ([]*string, error)
 	Publications(ctx context.Context, obj *stock.Stock) ([]*publication.Publication, error)
@@ -306,8 +306,8 @@ type QueryResolver interface {
 	Publication(ctx context.Context, id string) (*publication.Publication, error)
 	Plasmid(ctx context.Context, id string) (*stock.Stock, error)
 	Strain(ctx context.Context, id string) (*stock.Stock, error)
-	ListStrains(ctx context.Context, cursor *string, limit *int, filter *string) (*models.StrainListWithCursor, error)
-	ListPlasmids(ctx context.Context, cursor *string, limit *int, filter *string) (*models.PlasmidListWithCursor, error)
+	ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error)
+	ListPlasmids(ctx context.Context, input *models.ListStockInput) (*models.PlasmidListWithCursor, error)
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
@@ -332,7 +332,7 @@ type StrainResolver interface {
 	UpdatedBy(ctx context.Context, obj *stock.Stock) (user.User, error)
 	Summary(ctx context.Context, obj *stock.Stock) (*string, error)
 	EditableSummary(ctx context.Context, obj *stock.Stock) (*string, error)
-	Depositor(ctx context.Context, obj *stock.Stock) (*string, error)
+	Depositor(ctx context.Context, obj *stock.Stock) (string, error)
 	Genes(ctx context.Context, obj *stock.Stock) ([]*string, error)
 	Dbxrefs(ctx context.Context, obj *stock.Stock) ([]*string, error)
 	Publications(ctx context.Context, obj *stock.Stock) ([]*publication.Publication, error)
@@ -769,12 +769,12 @@ func field_Query_strain_args(rawArgs map[string]interface{}) (map[string]interfa
 
 func field_Query_listStrains_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["cursor"]; ok {
+	var arg0 *models.ListStockInput
+	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 string
+		var ptr1 models.ListStockInput
 		if tmp != nil {
-			ptr1, err = graphql.UnmarshalID(tmp)
+			ptr1, err = UnmarshalListStockInput(tmp)
 			arg0 = &ptr1
 		}
 
@@ -782,47 +782,19 @@ func field_Query_listStrains_args(rawArgs map[string]interface{}) (map[string]in
 			return nil, err
 		}
 	}
-	args["cursor"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		var err error
-		var ptr1 int
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalInt(tmp)
-			arg1 = &ptr1
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg1
-	var arg2 *string
-	if tmp, ok := rawArgs["filter"]; ok {
-		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg2 = &ptr1
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["filter"] = arg2
+	args["input"] = arg0
 	return args, nil
 
 }
 
 func field_Query_listPlasmids_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["cursor"]; ok {
+	var arg0 *models.ListStockInput
+	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		var ptr1 string
+		var ptr1 models.ListStockInput
 		if tmp != nil {
-			ptr1, err = graphql.UnmarshalID(tmp)
+			ptr1, err = UnmarshalListStockInput(tmp)
 			arg0 = &ptr1
 		}
 
@@ -830,35 +802,7 @@ func field_Query_listPlasmids_args(rawArgs map[string]interface{}) (map[string]i
 			return nil, err
 		}
 	}
-	args["cursor"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		var err error
-		var ptr1 int
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalInt(tmp)
-			arg1 = &ptr1
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg1
-	var arg2 *string
-	if tmp, ok := rawArgs["filter"]; ok {
-		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg2 = &ptr1
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["filter"] = arg2
+	args["input"] = arg0
 	return args, nil
 
 }
@@ -1623,7 +1567,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListStrains(childComplexity, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string)), true
+		return e.complexity.Query.ListStrains(childComplexity, args["input"].(*models.ListStockInput)), true
 
 	case "Query.listPlasmids":
 		if e.complexity.Query.ListPlasmids == nil {
@@ -1635,7 +1579,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListPlasmids(childComplexity, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string)), true
+		return e.complexity.Query.ListPlasmids(childComplexity, args["input"].(*models.ListStockInput)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -3632,6 +3576,9 @@ func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, 
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
 				out.Values[i] = ec._Plasmid_depositor(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
 				wg.Done()
 			}(i, field)
 		case "genes":
@@ -3905,16 +3852,15 @@ func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphq
 		return ec.resolvers.Plasmid().Depositor(rctx, obj)
 	})
 	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-
-	if res == nil {
-		return graphql.Null
-	}
-	return graphql.MarshalString(*res)
+	return graphql.MarshalString(res)
 }
 
 // nolint: vetshadow
@@ -5183,7 +5129,7 @@ func (ec *executionContext) _Query_listStrains(ctx context.Context, field graphq
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListStrains(rctx, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string))
+		return ec.resolvers.Query().ListStrains(rctx, args["input"].(*models.ListStockInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -5218,7 +5164,7 @@ func (ec *executionContext) _Query_listPlasmids(ctx context.Context, field graph
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListPlasmids(rctx, args["cursor"].(*string), args["limit"].(*int), args["filter"].(*string))
+		return ec.resolvers.Query().ListPlasmids(rctx, args["input"].(*models.ListStockInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -5932,6 +5878,9 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
 				out.Values[i] = ec._Strain_depositor(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
 				wg.Done()
 			}(i, field)
 		case "genes":
@@ -6256,16 +6205,15 @@ func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql
 		return ec.resolvers.Strain().Depositor(rctx, obj)
 	})
 	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-
-	if res == nil {
-		return graphql.Null
-	}
-	return graphql.MarshalString(*res)
+	return graphql.MarshalString(res)
 }
 
 // nolint: vetshadow
@@ -9927,6 +9875,51 @@ func UnmarshalCreateUserInput(v interface{}) (models.CreateUserInput, error) {
 	return it, nil
 }
 
+func UnmarshalListStockInput(v interface{}) (models.ListStockInput, error) {
+	var it models.ListStockInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "cursor":
+			var err error
+			var ptr1 int
+			if v != nil {
+				ptr1, err = graphql.UnmarshalInt(v)
+				it.Cursor = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "limit":
+			var err error
+			var ptr1 int
+			if v != nil {
+				ptr1, err = graphql.UnmarshalInt(v)
+				it.Limit = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		case "filter":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Filter = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func UnmarshalUpdatePermissionInput(v interface{}) (models.UpdatePermissionInput, error) {
 	var it models.UpdatePermissionInput
 	var asMap = v.(map[string]interface{})
@@ -10723,14 +10716,14 @@ type Author {
 	&ast.Source{Name: "api/query.graphql", Input: `type Query {
   # Order queries
   # order(id: ID!): Order
-  # listOrders(cursor: ID, limit: Int, filter: String): OrderListWithCursor
+  # listOrders(input: ListOrderInput): OrderListWithCursor
   # Publication queries
   publication(id: ID!): Publication
   # Stock queries
   plasmid(id: ID!): Plasmid
   strain(id: ID!): Strain
-  listStrains(cursor: ID, limit: Int, filter: String): StrainListWithCursor
-  listPlasmids(cursor: ID, limit: Int, filter: String): PlasmidListWithCursor
+  listStrains(input: ListStockInput): StrainListWithCursor
+  listPlasmids(input: ListStockInput): PlasmidListWithCursor
   # User queries
   user(id: ID!): User
   userByEmail(email: String!): User
@@ -10751,7 +10744,7 @@ type Author {
   updated_by: User!
   summary: String
   editable_summary: String
-  depositor: String
+  depositor: String!
   genes: [String]
   dbxrefs: [String]
   publications: [Publication]
@@ -10786,7 +10779,7 @@ type Plasmid {
   updated_by: User!
   summary: String # same as description field?
   editable_summary: String
-  depositor: String
+  depositor: String!
   genes: [String]
   dbxrefs: [String]
   publications: [Publication]
@@ -10901,6 +10894,12 @@ input UpdatePlasmidInput {
   in_stock: Boolean
   keywords: [String]
   genbank_accession: String
+}
+
+input ListStockInput {
+  cursor: Int
+  limit: Int
+  filter: String
 }
 `},
 	&ast.Source{Name: "api/user.graphql", Input: `type Permission {

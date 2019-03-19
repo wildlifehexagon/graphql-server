@@ -3,7 +3,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/fatih/structs"
@@ -279,12 +278,25 @@ func (q *QueryResolver) Strain(ctx context.Context, id string) (*pb.Stock, error
 	return strain, nil
 }
 
-func (q *QueryResolver) ListStrains(ctx context.Context, cursor *string, limit *int, filter *string) (*models.StrainListWithCursor, error) {
-	var c int64
-	if len(*cursor) > 0 {
-		c, _ = strconv.ParseInt(*cursor, 10, 64)
+func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error) {
+	var cursor, limit int64
+	var filter string
+	if input.Cursor != nil {
+		cursor = int64(*input.Cursor)
+	} else {
+		cursor = 0
 	}
-	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: c, Limit: int64(*limit), Filter: *filter})
+	if input.Limit != nil {
+		limit = int64(*input.Limit)
+	} else {
+		limit = 10
+	}
+	if input.Filter != nil {
+		filter = *input.Filter
+	} else {
+		filter = ""
+	}
+	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting list of strains %s", err)
 	}
@@ -318,22 +330,35 @@ func (q *QueryResolver) ListStrains(ctx context.Context, cursor *string, limit *
 		}
 		strains = append(strains, item)
 	}
+	l := int(limit)
 	return &models.StrainListWithCursor{
 		Strains: strains,
 		// NextCursor: "",
 		// PreviousCursor: "",
-		Limit:      limit,
+		Limit:      &l,
 		TotalCount: len(strains),
 	}, nil
 }
 
-func (q *QueryResolver) ListPlasmids(ctx context.Context, cursor *string, limit *int, filter *string) (*models.PlasmidListWithCursor, error) {
-	var c int64
-	if len(*cursor) > 0 {
-		c, _ = strconv.ParseInt(*cursor, 10, 64)
-		fmt.Println(c)
+func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStockInput) (*models.PlasmidListWithCursor, error) {
+	var cursor, limit int64
+	var filter string
+	if input.Cursor != nil {
+		cursor = int64(*input.Cursor)
+	} else {
+		cursor = 0
 	}
-	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: c, Limit: int64(*limit), Filter: *filter})
+	if input.Limit != nil {
+		limit = int64(*input.Limit)
+	} else {
+		limit = 10
+	}
+	if input.Filter != nil {
+		filter = *input.Filter
+	} else {
+		filter = ""
+	}
+	list, err := q.GetStockClient(registry.STOCK).ListPlasmids(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting list of strains %s", err)
 	}
@@ -363,11 +388,12 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, cursor *string, limit 
 		}
 		plasmids = append(plasmids, item)
 	}
+	l := int(limit)
 	return &models.PlasmidListWithCursor{
 		Plasmids: plasmids,
 		// NextCursor: "",
 		// PreviousCursor: "",
-		Limit:      limit,
+		Limit:      &l,
 		TotalCount: len(plasmids),
 	}, nil
 }

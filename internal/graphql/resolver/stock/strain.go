@@ -59,8 +59,8 @@ func (r *StrainResolver) Summary(ctx context.Context, obj *pb.Stock) (*string, e
 func (r *StrainResolver) EditableSummary(ctx context.Context, obj *pb.Stock) (*string, error) {
 	return &obj.Data.Attributes.EditableSummary, nil
 }
-func (r *StrainResolver) Depositor(ctx context.Context, obj *pb.Stock) (*string, error) {
-	return &obj.Data.Attributes.Depositor, nil
+func (r *StrainResolver) Depositor(ctx context.Context, obj *pb.Stock) (string, error) {
+	return obj.Data.Attributes.Depositor, nil
 }
 func (r *StrainResolver) Genes(ctx context.Context, obj *pb.Stock) ([]*string, error) {
 	genes := []*string{}

@@ -90,6 +90,12 @@ type DeleteUser struct {
 	Success bool `json:"success"`
 }
 
+type ListStockInput struct {
+	Cursor *int    `json:"cursor"`
+	Limit  *int    `json:"limit"`
+	Filter *string `json:"filter"`
+}
+
 type Phenotype struct {
 	Phenotype    *string                    `json:"phenotype"`
 	Notes        *string                    `json:"notes"`
