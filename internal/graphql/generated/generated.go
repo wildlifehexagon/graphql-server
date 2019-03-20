@@ -103,7 +103,7 @@ type ComplexityRoot struct {
 		CreatedAt        func(childComplexity int) int
 		UpdatedAt        func(childComplexity int) int
 		Courier          func(childComplexity int) int
-		CourerAccount    func(childComplexity int) int
+		CourierAccount   func(childComplexity int) int
 		Comments         func(childComplexity int) int
 		Payment          func(childComplexity int) int
 		PurchaseOrderNum func(childComplexity int) int
@@ -298,7 +298,7 @@ type OrderResolver interface {
 	CreatedAt(ctx context.Context, obj *order.Order) (time.Time, error)
 	UpdatedAt(ctx context.Context, obj *order.Order) (time.Time, error)
 	Courier(ctx context.Context, obj *order.Order) (*string, error)
-	CourerAccount(ctx context.Context, obj *order.Order) (*string, error)
+	CourierAccount(ctx context.Context, obj *order.Order) (*string, error)
 	Comments(ctx context.Context, obj *order.Order) (*string, error)
 	Payment(ctx context.Context, obj *order.Order) (*string, error)
 	PurchaseOrderNum(ctx context.Context, obj *order.Order) (*string, error)
@@ -1392,12 +1392,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Order.Courier(childComplexity), true
 
-	case "Order.courer_account":
-		if e.complexity.Order.CourerAccount == nil {
+	case "Order.courier_account":
+		if e.complexity.Order.CourierAccount == nil {
 			break
 		}
 
-		return e.complexity.Order.CourerAccount(childComplexity), true
+		return e.complexity.Order.CourierAccount(childComplexity), true
 
 	case "Order.comments":
 		if e.complexity.Order.Comments == nil {
@@ -3503,10 +3503,10 @@ func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, ob
 				out.Values[i] = ec._Order_courier(ctx, field, obj)
 				wg.Done()
 			}(i, field)
-		case "courer_account":
+		case "courier_account":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Order_courer_account(ctx, field, obj)
+				out.Values[i] = ec._Order_courier_account(ctx, field, obj)
 				wg.Done()
 			}(i, field)
 		case "comments":
@@ -3678,7 +3678,7 @@ func (ec *executionContext) _Order_courier(ctx context.Context, field graphql.Co
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Order_courer_account(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
+func (ec *executionContext) _Order_courier_account(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -3690,7 +3690,7 @@ func (ec *executionContext) _Order_courer_account(ctx context.Context, field gra
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Order().CourerAccount(rctx, obj)
+		return ec.resolvers.Order().CourierAccount(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -10449,9 +10449,9 @@ func UnmarshalCreateOrderInput(v interface{}) (models.CreateOrderInput, error) {
 			if err != nil {
 				return it, err
 			}
-		case "courer_account":
+		case "courier_account":
 			var err error
-			it.CourerAccount, err = graphql.UnmarshalString(v)
+			it.CourierAccount, err = graphql.UnmarshalString(v)
 			if err != nil {
 				return it, err
 			}
@@ -11277,12 +11277,12 @@ func UnmarshalUpdateOrderInput(v interface{}) (models.UpdateOrderInput, error) {
 			if err != nil {
 				return it, err
 			}
-		case "courer_account":
+		case "courier_account":
 			var err error
 			var ptr1 string
 			if v != nil {
 				ptr1, err = graphql.UnmarshalString(v)
-				it.CourerAccount = &ptr1
+				it.CourierAccount = &ptr1
 			}
 
 			if err != nil {
@@ -12083,7 +12083,7 @@ type Order {
   created_at: Timestamp!
   updated_at: Timestamp!
   courier: String
-  courer_account: String
+  courier_account: String
   comments: String
   payment: String
   purchase_order_num: String
@@ -12104,7 +12104,7 @@ type OrderListWithCursor {
 
 input CreateOrderInput {
   courier: String!
-  courer_account: String!
+  courier_account: String!
   comments: String
   payment: String!
   purchase_order_num: String!
@@ -12117,7 +12117,7 @@ input CreateOrderInput {
 
 input UpdateOrderInput {
   courier: String
-  courer_account: String
+  courier_account: String
   comments: String
   payment: String
   purchase_order_num: String

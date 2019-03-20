@@ -83,7 +83,7 @@ func (c *collection) GetStockClient(key string) stock.StockServiceClient {
 }
 
 func (c *collection) GetOrderClient(key string) order.OrderServiceClient {
-	return stock.NewOrderServiceClient(c.GetAPIConnection(key))
+	return order.NewOrderServiceClient(c.GetAPIConnection(key))
 }
 
 func (c *collection) GetAPIEndpoint(key string) string {

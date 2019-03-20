@@ -11,7 +11,7 @@ import (
 
 type CreateOrderInput struct {
 	Courier          string    `json:"courier"`
-	CourerAccount    string    `json:"courer_account"`
+	CourierAccount   string    `json:"courier_account"`
 	Comments         *string   `json:"comments"`
 	Payment          string    `json:"payment"`
 	PurchaseOrderNum string    `json:"purchase_order_num"`
@@ -153,7 +153,7 @@ type StrainListWithCursor struct {
 
 type UpdateOrderInput struct {
 	Courier          *string   `json:"courier"`
-	CourerAccount    *string   `json:"courer_account"`
+	CourierAccount   *string   `json:"courier_account"`
 	Comments         *string   `json:"comments"`
 	Payment          *string   `json:"payment"`
 	PurchaseOrderNum *string   `json:"purchase_order_num"`
