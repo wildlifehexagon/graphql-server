@@ -9,6 +9,10 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
 
+type Stock interface {
+	IsStock()
+}
+
 type CreateOrderInput struct {
 	Courier          string    `json:"courier"`
 	CourierAccount   string    `json:"courier_account"`
@@ -132,23 +136,19 @@ type Phenotype struct {
 }
 
 type PlasmidListWithCursor struct {
-	Plasmids       []stock.Stock `json:"plasmids"`
-	NextCursor     int           `json:"nextCursor"`
-	PreviousCursor int           `json:"previousCursor"`
-	Limit          *int          `json:"limit"`
-	TotalCount     int           `json:"totalCount"`
-}
-
-type Stock interface {
-	IsStock()
+	Plasmids       []stock.Plasmid `json:"plasmids"`
+	NextCursor     int             `json:"nextCursor"`
+	PreviousCursor int             `json:"previousCursor"`
+	Limit          *int            `json:"limit"`
+	TotalCount     int             `json:"totalCount"`
 }
 
 type StrainListWithCursor struct {
-	Strains        []stock.Stock `json:"strains"`
-	NextCursor     int           `json:"nextCursor"`
-	PreviousCursor int           `json:"previousCursor"`
-	Limit          *int          `json:"limit"`
-	TotalCount     int           `json:"totalCount"`
+	Strains        []stock.Strain `json:"strains"`
+	NextCursor     int            `json:"nextCursor"`
+	PreviousCursor int            `json:"previousCursor"`
+	Limit          *int           `json:"limit"`
+	TotalCount     int            `json:"totalCount"`
 }
 
 type UpdateOrderInput struct {
