@@ -26,11 +26,13 @@ func (r *RoleResolver) Role(ctx context.Context, obj *pb.Role) (string, error) {
 func (r *RoleResolver) Description(ctx context.Context, obj *pb.Role) (string, error) {
 	return obj.Data.Attributes.Description, nil
 }
-func (r *RoleResolver) CreatedAt(ctx context.Context, obj *pb.Role) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
+func (r *RoleResolver) CreatedAt(ctx context.Context, obj *pb.Role) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt)
+	return &time, nil
 }
-func (r *RoleResolver) UpdatedAt(ctx context.Context, obj *pb.Role) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
+func (r *RoleResolver) UpdatedAt(ctx context.Context, obj *pb.Role) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt)
+	return &time, nil
 }
 func (r *RoleResolver) Permissions(ctx context.Context, obj *pb.Role) ([]pb.Permission, error) {
 	permissions := []pb.Permission{}

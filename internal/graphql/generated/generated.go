@@ -15,7 +15,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
-	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/vektah/gqlparser"
@@ -278,10 +277,10 @@ type AuthorResolver interface {
 type MutationResolver interface {
 	CreateOrder(ctx context.Context, input *models.CreateOrderInput) (*order.Order, error)
 	UpdateOrder(ctx context.Context, id string, input *models.UpdateOrderInput) (*order.Order, error)
-	CreateStrain(ctx context.Context, input *models.CreateStrainInput) (*stock.Strain, error)
-	CreatePlasmid(ctx context.Context, input *models.CreatePlasmidInput) (*stock.Plasmid, error)
-	UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*stock.Strain, error)
-	UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*stock.Plasmid, error)
+	CreateStrain(ctx context.Context, input *models.CreateStrainInput) (*models.Strain, error)
+	CreatePlasmid(ctx context.Context, input *models.CreatePlasmidInput) (*models.Plasmid, error)
+	UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*models.Strain, error)
+	UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*models.Plasmid, error)
 	DeleteStock(ctx context.Context, id string) (*models.DeleteStock, error)
 	CreateUser(ctx context.Context, input *models.CreateUserInput) (*user.User, error)
 	CreateUserRoleRelationship(ctx context.Context, userID string, roleID string) (*user.User, error)
@@ -319,22 +318,22 @@ type PermissionResolver interface {
 	Resource(ctx context.Context, obj *user.Permission) (*string, error)
 }
 type PlasmidResolver interface {
-	ID(ctx context.Context, obj *stock.Plasmid) (string, error)
-	CreatedAt(ctx context.Context, obj *stock.Plasmid) (*time.Time, error)
-	UpdatedAt(ctx context.Context, obj *stock.Plasmid) (*time.Time, error)
-	CreatedBy(ctx context.Context, obj *stock.Plasmid) (*user.User, error)
-	UpdatedBy(ctx context.Context, obj *stock.Plasmid) (*user.User, error)
-	Summary(ctx context.Context, obj *stock.Plasmid) (*string, error)
-	EditableSummary(ctx context.Context, obj *stock.Plasmid) (*string, error)
-	Depositor(ctx context.Context, obj *stock.Plasmid) (string, error)
-	Genes(ctx context.Context, obj *stock.Plasmid) ([]*string, error)
-	Dbxrefs(ctx context.Context, obj *stock.Plasmid) ([]*string, error)
-	Publications(ctx context.Context, obj *stock.Plasmid) ([]*publication.Publication, error)
-	ImageMap(ctx context.Context, obj *stock.Plasmid) (*string, error)
-	Sequence(ctx context.Context, obj *stock.Plasmid) (*string, error)
-	InStock(ctx context.Context, obj *stock.Plasmid) (bool, error)
-	Keywords(ctx context.Context, obj *stock.Plasmid) ([]*string, error)
-	GenbankAccession(ctx context.Context, obj *stock.Plasmid) (*string, error)
+	ID(ctx context.Context, obj *models.Plasmid) (string, error)
+	CreatedAt(ctx context.Context, obj *models.Plasmid) (*time.Time, error)
+	UpdatedAt(ctx context.Context, obj *models.Plasmid) (*time.Time, error)
+	CreatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
+	UpdatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
+	Summary(ctx context.Context, obj *models.Plasmid) (*string, error)
+	EditableSummary(ctx context.Context, obj *models.Plasmid) (*string, error)
+	Depositor(ctx context.Context, obj *models.Plasmid) (string, error)
+	Genes(ctx context.Context, obj *models.Plasmid) ([]*string, error)
+	Dbxrefs(ctx context.Context, obj *models.Plasmid) ([]*string, error)
+	Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error)
+	ImageMap(ctx context.Context, obj *models.Plasmid) (*string, error)
+	Sequence(ctx context.Context, obj *models.Plasmid) (*string, error)
+	InStock(ctx context.Context, obj *models.Plasmid) (bool, error)
+	Keywords(ctx context.Context, obj *models.Plasmid) ([]*string, error)
+	GenbankAccession(ctx context.Context, obj *models.Plasmid) (*string, error)
 }
 type PublicationResolver interface {
 	ID(ctx context.Context, obj *publication.Publication) (string, error)
@@ -356,8 +355,8 @@ type QueryResolver interface {
 	Order(ctx context.Context, id string) (*order.Order, error)
 	ListOrders(ctx context.Context, input *models.ListOrderInput) (*models.OrderListWithCursor, error)
 	Publication(ctx context.Context, id string) (*publication.Publication, error)
-	Plasmid(ctx context.Context, id string) (*stock.Plasmid, error)
-	Strain(ctx context.Context, id string) (*stock.Strain, error)
+	Plasmid(ctx context.Context, id string) (*models.Plasmid, error)
+	Strain(ctx context.Context, id string) (*models.Strain, error)
 	ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error)
 	ListPlasmids(ctx context.Context, input *models.ListStockInput) (*models.PlasmidListWithCursor, error)
 	User(ctx context.Context, id string) (*user.User, error)
@@ -377,29 +376,29 @@ type RoleResolver interface {
 	Permissions(ctx context.Context, obj *user.Role) ([]user.Permission, error)
 }
 type StrainResolver interface {
-	ID(ctx context.Context, obj *stock.Strain) (string, error)
-	CreatedAt(ctx context.Context, obj *stock.Strain) (*time.Time, error)
-	UpdatedAt(ctx context.Context, obj *stock.Strain) (*time.Time, error)
-	CreatedBy(ctx context.Context, obj *stock.Strain) (*user.User, error)
-	UpdatedBy(ctx context.Context, obj *stock.Strain) (*user.User, error)
-	Summary(ctx context.Context, obj *stock.Strain) (*string, error)
-	EditableSummary(ctx context.Context, obj *stock.Strain) (*string, error)
-	Depositor(ctx context.Context, obj *stock.Strain) (string, error)
-	Genes(ctx context.Context, obj *stock.Strain) ([]*string, error)
-	Dbxrefs(ctx context.Context, obj *stock.Strain) ([]*string, error)
-	Publications(ctx context.Context, obj *stock.Strain) ([]*publication.Publication, error)
-	SystematicName(ctx context.Context, obj *stock.Strain) (string, error)
-	Descriptor(ctx context.Context, obj *stock.Strain) (string, error)
-	Species(ctx context.Context, obj *stock.Strain) (string, error)
-	Plasmid(ctx context.Context, obj *stock.Strain) (*string, error)
-	Parent(ctx context.Context, obj *stock.Strain) (*stock.Strain, error)
-	Names(ctx context.Context, obj *stock.Strain) ([]*string, error)
-	InStock(ctx context.Context, obj *stock.Strain) (bool, error)
-	Phenotypes(ctx context.Context, obj *stock.Strain) ([]*models.Phenotype, error)
-	GeneticModification(ctx context.Context, obj *stock.Strain) (*string, error)
-	MutagenesisMethod(ctx context.Context, obj *stock.Strain) (*string, error)
-	Characteristics(ctx context.Context, obj *stock.Strain) ([]*string, error)
-	Genotypes(ctx context.Context, obj *stock.Strain) ([]*string, error)
+	ID(ctx context.Context, obj *models.Strain) (string, error)
+	CreatedAt(ctx context.Context, obj *models.Strain) (*time.Time, error)
+	UpdatedAt(ctx context.Context, obj *models.Strain) (*time.Time, error)
+	CreatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
+	UpdatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
+	Summary(ctx context.Context, obj *models.Strain) (*string, error)
+	EditableSummary(ctx context.Context, obj *models.Strain) (*string, error)
+	Depositor(ctx context.Context, obj *models.Strain) (string, error)
+	Genes(ctx context.Context, obj *models.Strain) ([]*string, error)
+	Dbxrefs(ctx context.Context, obj *models.Strain) ([]*string, error)
+	Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error)
+	SystematicName(ctx context.Context, obj *models.Strain) (string, error)
+	Descriptor(ctx context.Context, obj *models.Strain) (string, error)
+	Species(ctx context.Context, obj *models.Strain) (string, error)
+	Plasmid(ctx context.Context, obj *models.Strain) (*string, error)
+	Parent(ctx context.Context, obj *models.Strain) (*models.Strain, error)
+	Names(ctx context.Context, obj *models.Strain) ([]*string, error)
+	InStock(ctx context.Context, obj *models.Strain) (bool, error)
+	Phenotypes(ctx context.Context, obj *models.Strain) ([]*models.Phenotype, error)
+	GeneticModification(ctx context.Context, obj *models.Strain) (*string, error)
+	MutagenesisMethod(ctx context.Context, obj *models.Strain) (*string, error)
+	Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error)
+	Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error)
 }
 type UserResolver interface {
 	ID(ctx context.Context, obj *user.User) (string, error)
@@ -1793,9 +1792,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
   deletePermission(id: ID!): DeletePermission
 }
 `},
-	&ast.Source{Name: "api/order.graphql", Input: `union Stock = Strain | Plasmid
-
-type Order {
+	&ast.Source{Name: "api/order.graphql", Input: `type Order {
   id: ID!
   created_at: Timestamp!
   updated_at: Timestamp!
@@ -1947,7 +1944,22 @@ type Author {
 `},
 	&ast.Source{Name: "api/scalar.graphql", Input: `scalar Timestamp
 `},
-	&ast.Source{Name: "api/stock.graphql", Input: `type Strain {
+	&ast.Source{Name: "api/stock.graphql", Input: `interface Stock {
+  id: ID!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  created_by: User!
+  updated_by: User!
+  summary: String
+  editable_summary: String
+  depositor: String!
+  genes: [String]
+  dbxrefs: [String]
+  publications: [Publication]
+  in_stock: Boolean!
+}
+
+type Strain implements Stock {
   id: ID!
   created_at: Timestamp!
   updated_at: Timestamp!
@@ -1975,14 +1987,7 @@ type Author {
   genotypes: [String]
 }
 
-type Phenotype {
-  phenotype: String
-  notes: String
-  dbxrefs: [String]
-  publications: [Publication]
-}
-
-type Plasmid {
+type Plasmid implements Stock {
   id: ID!
   created_at: Timestamp!
   updated_at: Timestamp!
@@ -2001,6 +2006,13 @@ type Plasmid {
   in_stock: Boolean!
   keywords: [String]
   genbank_accession: String
+}
+
+type Phenotype {
+  phenotype: String
+  notes: String
+  dbxrefs: [String]
+  publications: [Publication]
 }
 
 type StrainListWithCursor {
@@ -3066,10 +3078,10 @@ func (ec *executionContext) _Mutation_createStrain(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*stock.Strain)
+	res := resTmp.(*models.Strain)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx, field.Selections, res)
+	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createPlasmid(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -3097,10 +3109,10 @@ func (ec *executionContext) _Mutation_createPlasmid(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*stock.Plasmid)
+	res := resTmp.(*models.Plasmid)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx, field.Selections, res)
+	return ec.marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateStrain(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -3128,10 +3140,10 @@ func (ec *executionContext) _Mutation_updateStrain(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*stock.Strain)
+	res := resTmp.(*models.Strain)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx, field.Selections, res)
+	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updatePlasmid(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -3159,10 +3171,10 @@ func (ec *executionContext) _Mutation_updatePlasmid(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*stock.Plasmid)
+	res := resTmp.(*models.Plasmid)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx, field.Selections, res)
+	return ec.marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteStock(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -4245,7 +4257,7 @@ func (ec *executionContext) _Phenotype_publications(ctx context.Context, field g
 	return ec.marshalOPublication2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_id(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_id(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4272,7 +4284,7 @@ func (ec *executionContext) _Plasmid_id(ctx context.Context, field graphql.Colle
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_created_at(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_created_at(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4299,7 +4311,7 @@ func (ec *executionContext) _Plasmid_created_at(ctx context.Context, field graph
 	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_updated_at(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4326,7 +4338,7 @@ func (ec *executionContext) _Plasmid_updated_at(ctx context.Context, field graph
 	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_created_by(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_created_by(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4353,7 +4365,7 @@ func (ec *executionContext) _Plasmid_created_by(ctx context.Context, field graph
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_updated_by(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_updated_by(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4380,7 +4392,7 @@ func (ec *executionContext) _Plasmid_updated_by(ctx context.Context, field graph
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_summary(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4404,7 +4416,7 @@ func (ec *executionContext) _Plasmid_summary(ctx context.Context, field graphql.
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_editable_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_editable_summary(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4428,7 +4440,7 @@ func (ec *executionContext) _Plasmid_editable_summary(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4455,7 +4467,7 @@ func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4479,7 +4491,7 @@ func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.Co
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4503,7 +4515,7 @@ func (ec *executionContext) _Plasmid_dbxrefs(ctx context.Context, field graphql.
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_publications(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_publications(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4527,7 +4539,7 @@ func (ec *executionContext) _Plasmid_publications(ctx context.Context, field gra
 	return ec.marshalOPublication2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_image_map(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_image_map(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4551,7 +4563,7 @@ func (ec *executionContext) _Plasmid_image_map(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_sequence(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_sequence(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4575,7 +4587,7 @@ func (ec *executionContext) _Plasmid_sequence(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_in_stock(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_in_stock(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4602,7 +4614,7 @@ func (ec *executionContext) _Plasmid_in_stock(ctx context.Context, field graphql
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_keywords(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_keywords(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4626,7 +4638,7 @@ func (ec *executionContext) _Plasmid_keywords(ctx context.Context, field graphql
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Plasmid_genbank_accession(ctx context.Context, field graphql.CollectedField, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid_genbank_accession(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4671,10 +4683,10 @@ func (ec *executionContext) _PlasmidListWithCursor_plasmids(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]stock.Plasmid)
+	res := resTmp.([]models.Plasmid)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNPlasmid2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx, field.Selections, res)
+	return ec.marshalNPlasmid2ᚕgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PlasmidListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *models.PlasmidListWithCursor) graphql.Marshaler {
@@ -5239,10 +5251,10 @@ func (ec *executionContext) _Query_plasmid(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*stock.Plasmid)
+	res := resTmp.(*models.Plasmid)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx, field.Selections, res)
+	return ec.marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_strain(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -5270,10 +5282,10 @@ func (ec *executionContext) _Query_strain(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*stock.Strain)
+	res := resTmp.(*models.Strain)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx, field.Selections, res)
+	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_listStrains(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -5755,7 +5767,7 @@ func (ec *executionContext) _Role_permissions(ctx context.Context, field graphql
 	return ec.marshalOPermission2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐPermission(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_id(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_id(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5782,7 +5794,7 @@ func (ec *executionContext) _Strain_id(ctx context.Context, field graphql.Collec
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_created_at(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_created_at(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5809,7 +5821,7 @@ func (ec *executionContext) _Strain_created_at(ctx context.Context, field graphq
 	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_updated_at(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5836,7 +5848,7 @@ func (ec *executionContext) _Strain_updated_at(ctx context.Context, field graphq
 	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_created_by(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_created_by(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5863,7 +5875,7 @@ func (ec *executionContext) _Strain_created_by(ctx context.Context, field graphq
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_updated_by(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_updated_by(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5890,7 +5902,7 @@ func (ec *executionContext) _Strain_updated_by(ctx context.Context, field graphq
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_summary(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5914,7 +5926,7 @@ func (ec *executionContext) _Strain_summary(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_editable_summary(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_editable_summary(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5938,7 +5950,7 @@ func (ec *executionContext) _Strain_editable_summary(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5965,7 +5977,7 @@ func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -5989,7 +6001,7 @@ func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.Col
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6013,7 +6025,7 @@ func (ec *executionContext) _Strain_dbxrefs(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_publications(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_publications(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6037,7 +6049,7 @@ func (ec *executionContext) _Strain_publications(ctx context.Context, field grap
 	return ec.marshalOPublication2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_systematic_name(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_systematic_name(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6064,7 +6076,7 @@ func (ec *executionContext) _Strain_systematic_name(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_descriptor(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_descriptor(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6091,7 +6103,7 @@ func (ec *executionContext) _Strain_descriptor(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_species(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_species(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6118,7 +6130,7 @@ func (ec *executionContext) _Strain_species(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_plasmid(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_plasmid(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6142,7 +6154,7 @@ func (ec *executionContext) _Strain_plasmid(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_parent(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_parent(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6160,13 +6172,13 @@ func (ec *executionContext) _Strain_parent(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*stock.Strain)
+	res := resTmp.(*models.Strain)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx, field.Selections, res)
+	return ec.marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_names(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_names(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6190,7 +6202,7 @@ func (ec *executionContext) _Strain_names(ctx context.Context, field graphql.Col
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_in_stock(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_in_stock(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6217,7 +6229,7 @@ func (ec *executionContext) _Strain_in_stock(ctx context.Context, field graphql.
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_phenotypes(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_phenotypes(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6241,7 +6253,7 @@ func (ec *executionContext) _Strain_phenotypes(ctx context.Context, field graphq
 	return ec.marshalOPhenotype2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPhenotype(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_genetic_modification(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_genetic_modification(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6265,7 +6277,7 @@ func (ec *executionContext) _Strain_genetic_modification(ctx context.Context, fi
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_mutagenesis_method(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_mutagenesis_method(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6289,7 +6301,7 @@ func (ec *executionContext) _Strain_mutagenesis_method(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_characteristics(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_characteristics(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6313,7 +6325,7 @@ func (ec *executionContext) _Strain_characteristics(ctx context.Context, field g
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_genotypes(ctx context.Context, field graphql.CollectedField, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_genotypes(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6358,10 +6370,10 @@ func (ec *executionContext) _StrainListWithCursor_strains(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]stock.Strain)
+	res := resTmp.([]models.Strain)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNStrain2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx, field.Selections, res)
+	return ec.marshalNStrain2ᚕgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _StrainListWithCursor_nextCursor(ctx context.Context, field graphql.CollectedField, obj *models.StrainListWithCursor) graphql.Marshaler {
@@ -8739,9 +8751,13 @@ func (ec *executionContext) _Stock(ctx context.Context, sel ast.SelectionSet, ob
 	switch obj := (*obj).(type) {
 	case nil:
 		return graphql.Null
-	case *stock.Strain:
+	case models.Strain:
+		return ec._Strain(ctx, sel, &obj)
+	case *models.Strain:
 		return ec._Strain(ctx, sel, obj)
-	case *stock.Plasmid:
+	case models.Plasmid:
+		return ec._Plasmid(ctx, sel, &obj)
+	case *models.Plasmid:
 		return ec._Plasmid(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
@@ -9314,7 +9330,7 @@ func (ec *executionContext) _Phenotype(ctx context.Context, sel ast.SelectionSet
 
 var plasmidImplementors = []string{"Plasmid", "Stock"}
 
-func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, obj *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, obj *models.Plasmid) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, plasmidImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -10043,7 +10059,7 @@ func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj
 
 var strainImplementors = []string{"Strain", "Stock"}
 
-func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, obj *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, obj *models.Strain) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, strainImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -10970,11 +10986,11 @@ func (ec *executionContext) marshalNPermission2githubᚗcomᚋdictyBaseᚋgoᚑg
 	return ec._Permission(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPlasmid2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) marshalNPlasmid2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v models.Plasmid) graphql.Marshaler {
 	return ec._Plasmid(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPlasmid2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v []stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) marshalNPlasmid2ᚕgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v []models.Plasmid) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10998,7 +11014,7 @@ func (ec *executionContext) marshalNPlasmid2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑg
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPlasmid2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx, sel, v[i])
+			ret[i] = ec.marshalNPlasmid2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11015,11 +11031,11 @@ func (ec *executionContext) marshalNRole2githubᚗcomᚋdictyBaseᚋgoᚑgenprot
 	return ec._Role(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNStrain2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx context.Context, sel ast.SelectionSet, v stock.Strain) graphql.Marshaler {
+func (ec *executionContext) marshalNStrain2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v models.Strain) graphql.Marshaler {
 	return ec._Strain(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNStrain2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx context.Context, sel ast.SelectionSet, v []stock.Strain) graphql.Marshaler {
+func (ec *executionContext) marshalNStrain2ᚕgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v []models.Strain) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11043,7 +11059,7 @@ func (ec *executionContext) marshalNStrain2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑge
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNStrain2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx, sel, v[i])
+			ret[i] = ec.marshalNStrain2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11751,11 +11767,11 @@ func (ec *executionContext) marshalOPhenotype2ᚖgithubᚗcomᚋdictyBaseᚋgrap
 	return ec._Phenotype(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOPlasmid2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) marshalOPlasmid2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v models.Plasmid) graphql.Marshaler {
 	return ec._Plasmid(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v *stock.Plasmid) graphql.Marshaler {
+func (ec *executionContext) marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v *models.Plasmid) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -11919,11 +11935,11 @@ func (ec *executionContext) marshalOStock2ᚕgithubᚗcomᚋdictyBaseᚋgraphql�
 	return ret
 }
 
-func (ec *executionContext) marshalOStrain2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx context.Context, sel ast.SelectionSet, v stock.Strain) graphql.Marshaler {
+func (ec *executionContext) marshalOStrain2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v models.Strain) graphql.Marshaler {
 	return ec._Strain(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋstockᚐStrain(ctx context.Context, sel ast.SelectionSet, v *stock.Strain) graphql.Marshaler {
+func (ec *executionContext) marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v *models.Strain) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

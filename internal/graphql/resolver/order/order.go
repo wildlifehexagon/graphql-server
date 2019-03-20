@@ -24,11 +24,13 @@ type OrderResolver struct {
 func (r *OrderResolver) ID(ctx context.Context, obj *pb.Order) (string, error) {
 	return obj.Data.Id, nil
 }
-func (r *OrderResolver) CreatedAt(ctx context.Context, obj *pb.Order) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
+func (r *OrderResolver) CreatedAt(ctx context.Context, obj *pb.Order) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt)
+	return &time, nil
 }
-func (r *OrderResolver) UpdatedAt(ctx context.Context, obj *pb.Order) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
+func (r *OrderResolver) UpdatedAt(ctx context.Context, obj *pb.Order) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt)
+	return &time, nil
 }
 func (r *OrderResolver) Courier(ctx context.Context, obj *pb.Order) (*string, error) {
 	return &obj.Data.Attributes.Courier, nil
@@ -78,6 +80,6 @@ func (r *OrderResolver) Purchaser(ctx context.Context, obj *pb.Order) (*user.Use
 	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
 }
-func (r *OrderResolver) Items(ctx context.Context, obj *pb.Order) ([]*models.Stock, error) {
+func (r *OrderResolver) Items(ctx context.Context, obj *pb.Order) ([]models.Stock, error) {
 	panic("not implemented")
 }

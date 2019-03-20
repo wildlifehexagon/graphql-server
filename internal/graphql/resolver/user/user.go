@@ -59,11 +59,13 @@ func (r *UserResolver) Phone(ctx context.Context, obj *pb.User) (*string, error)
 func (r *UserResolver) IsActive(ctx context.Context, obj *pb.User) (bool, error) {
 	return obj.Data.Attributes.IsActive, nil
 }
-func (r *UserResolver) CreatedAt(ctx context.Context, obj *pb.User) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
+func (r *UserResolver) CreatedAt(ctx context.Context, obj *pb.User) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt)
+	return &time, nil
 }
-func (r *UserResolver) UpdatedAt(ctx context.Context, obj *pb.User) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt), nil
+func (r *UserResolver) UpdatedAt(ctx context.Context, obj *pb.User) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt)
+	return &time, nil
 }
 func (r *UserResolver) Roles(ctx context.Context, obj *pb.User) ([]pb.Role, error) {
 	roles := []pb.Role{}

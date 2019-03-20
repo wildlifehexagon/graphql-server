@@ -5,7 +5,6 @@ package models
 import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
-	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
 
@@ -136,19 +135,19 @@ type Phenotype struct {
 }
 
 type PlasmidListWithCursor struct {
-	Plasmids       []stock.Plasmid `json:"plasmids"`
-	NextCursor     int             `json:"nextCursor"`
-	PreviousCursor int             `json:"previousCursor"`
-	Limit          *int            `json:"limit"`
-	TotalCount     int             `json:"totalCount"`
+	Plasmids       []Plasmid `json:"plasmids"`
+	NextCursor     int       `json:"nextCursor"`
+	PreviousCursor int       `json:"previousCursor"`
+	Limit          *int      `json:"limit"`
+	TotalCount     int       `json:"totalCount"`
 }
 
 type StrainListWithCursor struct {
-	Strains        []stock.Strain `json:"strains"`
-	NextCursor     int            `json:"nextCursor"`
-	PreviousCursor int            `json:"previousCursor"`
-	Limit          *int           `json:"limit"`
-	TotalCount     int            `json:"totalCount"`
+	Strains        []Strain `json:"strains"`
+	NextCursor     int      `json:"nextCursor"`
+	PreviousCursor int      `json:"previousCursor"`
+	Limit          *int     `json:"limit"`
+	TotalCount     int      `json:"totalCount"`
 }
 
 type UpdateOrderInput struct {

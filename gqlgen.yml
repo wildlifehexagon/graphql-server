@@ -25,8 +25,8 @@ models:
   Author:
     model: github.com/dictyBase/go-genproto/dictybaseapis/publication.Author
   Strain:
-    model: github.com/dictyBase/go-genproto/dictybaseapis/stock.Strain
+    model: github.com/dictyBase/graphql-server/internal/graphql/models.Strain
   Plasmid:
-    model: github.com/dictyBase/go-genproto/dictybaseapis/stock.Plasmid
+    model: github.com/dictyBase/graphql-server/internal/graphql/models.Plasmid
   Order:
     model: github.com/dictyBase/go-genproto/dictybaseapis/order.Order
