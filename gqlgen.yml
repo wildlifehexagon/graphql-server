@@ -1,10 +1,5 @@
 schema:
-  - "api/query.graphql"
-  - "api/mutation.graphql"
-  - "api/scalar.graphql"
-  - "api/user.graphql"
-  - "api/publication.graphql"
-  - "api/stock.graphql"
+  - "api/*.graphql"
 exec:
   filename: internal/graphql/generated/generated.go
   package: generated
@@ -33,3 +28,5 @@ models:
     model: github.com/dictyBase/go-genproto/dictybaseapis/stock.Stock
   Plasmid:
     model: github.com/dictyBase/go-genproto/dictybaseapis/stock.Stock
+  Order:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/order.Order

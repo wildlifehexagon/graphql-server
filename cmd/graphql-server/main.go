@@ -78,6 +78,16 @@ func main() {
 					EnvVar: "STOCK_API_SERVICE_PORT",
 					Usage:  "stock grpc port",
 				},
+				cli.StringFlag{
+					Name:   "order-grpc-host, sh",
+					EnvVar: "ORDER_API_SERVICE_HOST",
+					Usage:  "order grpc host",
+				},
+				cli.StringFlag{
+					Name:   "order-grpc-port, sp",
+					EnvVar: "ORDER_API_SERVICE_PORT",
+					Usage:  "order grpc port",
+				},
 			},
 		},
 	}

@@ -85,3 +85,12 @@ func (r *Resolver) Plasmid() generated.PlasmidResolver {
 		Logger:     r.Logger,
 	}
 }
+
+func (r *Resolver) Order() generated.OrderResolver {
+	return &orderResolver{
+		Client:      r.GetOrderClient(registry.ORDER),
+		StockClient: r.GetStockClient(registry.STOCK),
+		UserClient:  r.GetUserClient(registry.USER),
+		Logger:      r.Logger,
+	}
+}

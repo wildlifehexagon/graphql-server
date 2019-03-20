@@ -3,10 +3,24 @@
 package models
 
 import (
+	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
+
+type CreateOrderInput struct {
+	Courier          string    `json:"courier"`
+	CourerAccount    string    `json:"courer_account"`
+	Comments         *string   `json:"comments"`
+	Payment          string    `json:"payment"`
+	PurchaseOrderNum string    `json:"purchase_order_num"`
+	Status           string    `json:"status"`
+	Consumer         string    `json:"consumer"`
+	Payer            string    `json:"payer"`
+	Purchaser        string    `json:"purchaser"`
+	Items            []*string `json:"items"`
+}
 
 type CreatePermissionInput struct {
 	Permission  string `json:"permission"`
@@ -90,10 +104,24 @@ type DeleteUser struct {
 	Success bool `json:"success"`
 }
 
+type ListOrderInput struct {
+	Cursor *int    `json:"cursor"`
+	Limit  *int    `json:"limit"`
+	Filter *string `json:"filter"`
+}
+
 type ListStockInput struct {
 	Cursor *int    `json:"cursor"`
 	Limit  *int    `json:"limit"`
 	Filter *string `json:"filter"`
+}
+
+type OrderListWithCursor struct {
+	Orders         []order.Order `json:"orders"`
+	NextCursor     int           `json:"nextCursor"`
+	PreviousCursor int           `json:"previousCursor"`
+	Limit          *int          `json:"limit"`
+	TotalCount     int           `json:"totalCount"`
 }
 
 type Phenotype struct {
@@ -111,12 +139,26 @@ type PlasmidListWithCursor struct {
 	TotalCount     int           `json:"totalCount"`
 }
 
+type Stock interface {
+	IsStock()
+}
+
 type StrainListWithCursor struct {
 	Strains        []stock.Stock `json:"strains"`
 	NextCursor     int           `json:"nextCursor"`
 	PreviousCursor int           `json:"previousCursor"`
 	Limit          *int          `json:"limit"`
 	TotalCount     int           `json:"totalCount"`
+}
+
+type UpdateOrderInput struct {
+	Courier          *string   `json:"courier"`
+	CourerAccount    *string   `json:"courer_account"`
+	Comments         *string   `json:"comments"`
+	Payment          *string   `json:"payment"`
+	PurchaseOrderNum *string   `json:"purchase_order_num"`
+	Status           *string   `json:"status"`
+	Items            []*string `json:"items"`
 }
 
 type UpdatePermissionInput struct {
