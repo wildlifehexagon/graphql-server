@@ -12,12 +12,68 @@ import (
 
 // CreateOrder creates a new stock order.
 func (m *MutationResolver) CreateOrder(ctx context.Context, input *models.CreateOrderInput) (*pb.Order, error) {
-	panic("not implemented")
+	attr := &pb.NewOrderAttributes{}
+	if input.Comments != nil {
+		attr.Comments = input.Comments
+	}
+	attr.Consumer = input.Consumer
+	attr.Courier = input.Courier
+	attr.CourierAccount = input.CourierAccount
+	attr.Items = input.Items
+	attr.Payer = input.Payer
+	attr.Payment = input.Payment
+	attr.PurchaseOrderNum = input.PurchaseOrderNum
+	attr.Purchaser = input.Purchaser
+	attr.Status = input.Status
+	o, err := m.GetOrderClient(registry.ORDER).CreateOrder(ctx, &pb.NewOrder{
+		Data: &pb.NewOrder_Data{
+			Type:       "order",
+			Attributes: attr,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error creating new order %s", err)
+	}
+	m.Logger.Debugf("successfully created new order with ID %s", o.Data.Id)
+	return o, nil
 }
 
 // UpdateOrder updates an existing stock order.
 func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *models.UpdateOrderInput) (*pb.Order, error) {
-	panic("not implemented")
+	_, err := q.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
+	if err != nil {
+		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
+	}
+	attr := &pb.OrderUpdateAttributes{}
+	norm := normalizeUpdateOrderAttr(input)
+	mapstructure.Decode(norm, attr)
+	o, err := m.GetOrderClient(registry.ORDER).UpdateOrder(ctx, &pb.OrderUpdate{
+		Data: &pb.OrderUpdate_Data{
+			Type:       "order",
+			Id:         id,
+			Attributes: attr,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error updating order %s: %s", o.Data.Id, err)
+	}
+	u, err := q.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
+	if err != nil {
+		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
+	}
+	m.Logger.Debugf("successfully updated order with ID %s", u.Data.Id)
+	return u, nil
+}
+
+func normalizeUpdateOrderAttr(attr *models.UpdateOrderInput) map[string]interface{} {
+	fields := structs.Fields(attr)
+	newAttr := make(map[string]interface{})
+	for _, k := range fields {
+		if !k.IsZero() {
+				newAttr[k.Name()] = k.Value()
+		}
+	}
+	return newAttr
 }
 
 // Order retrieves an individual order by ID.
