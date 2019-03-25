@@ -65,18 +65,22 @@ func (r *StrainResolver) Depositor(ctx context.Context, obj *models.Strain) (str
 	return obj.Data.Attributes.Depositor, nil
 }
 func (r *StrainResolver) Genes(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	genes := []*string{}
-	for _, n := range obj.Data.Attributes.Genes {
-		genes = append(genes, &n)
+	g := obj.Data.Attributes.Genes
+	pg := []*string{}
+	// need to use for loop here, not range
+	// https://github.com/golang/go/issues/22791#issuecomment-345391395
+	for i := 0; i < len(g); i++ {
+		pg = append(pg, &g[i])
 	}
-	return genes, nil
+	return pg, nil
 }
 func (r *StrainResolver) Dbxrefs(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	dbxrefs := []*string{}
-	for _, n := range obj.Data.Attributes.Dbxrefs {
-		dbxrefs = append(dbxrefs, &n)
+	d := obj.Data.Attributes.Dbxrefs
+	pd := []*string{}
+	for i := 0; i < len(d); i++ {
+		pd = append(pd, &d[i])
 	}
-	return dbxrefs, nil
+	return pd, nil
 }
 func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error) {
 	pubs := []*publication.Publication{}
@@ -161,11 +165,12 @@ func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*model
 	}, nil
 }
 func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	names := []*string{}
-	for _, n := range obj.Data.Attributes.StrainProperties.Names {
-		names = append(names, &n)
+	n := obj.Data.Attributes.StrainProperties.Names
+	pn := []*string{}
+	for i := 0; i < len(n); i++ {
+		pn = append(pn, &n[i])
 	}
-	return names, nil
+	return pn, nil
 }
 
 /*

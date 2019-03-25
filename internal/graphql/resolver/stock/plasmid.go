@@ -65,18 +65,20 @@ func (r *PlasmidResolver) Depositor(ctx context.Context, obj *models.Plasmid) (s
 	return obj.Data.Attributes.Depositor, nil
 }
 func (r *PlasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*string, error) {
-	genes := []*string{}
-	for _, n := range obj.Data.Attributes.Genes {
-		genes = append(genes, &n)
+	g := obj.Data.Attributes.Genes
+	pg := []*string{}
+	for i := 0; i < len(g); i++ {
+		pg = append(pg, &g[i])
 	}
-	return genes, nil
+	return pg, nil
 }
 func (r *PlasmidResolver) Dbxrefs(ctx context.Context, obj *models.Plasmid) ([]*string, error) {
-	dbxrefs := []*string{}
-	for _, n := range obj.Data.Attributes.Dbxrefs {
-		dbxrefs = append(dbxrefs, &n)
+	d := obj.Data.Attributes.Dbxrefs
+	pd := []*string{}
+	for i := 0; i < len(d); i++ {
+		pd = append(pd, &d[i])
 	}
-	return dbxrefs, nil
+	return pd, nil
 }
 func (r *PlasmidResolver) Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error) {
 	pubs := []*publication.Publication{}
