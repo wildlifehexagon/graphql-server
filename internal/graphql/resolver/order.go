@@ -5,26 +5,27 @@ import (
 	"fmt"
 
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/order"
-
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
+	"github.com/fatih/structs"
+	"github.com/mitchellh/mapstructure"
 )
 
 // CreateOrder creates a new stock order.
 func (m *MutationResolver) CreateOrder(ctx context.Context, input *models.CreateOrderInput) (*pb.Order, error) {
 	attr := &pb.NewOrderAttributes{}
 	if input.Comments != nil {
-		attr.Comments = input.Comments
+		attr.Comments = *input.Comments
 	}
 	attr.Consumer = input.Consumer
 	attr.Courier = input.Courier
 	attr.CourierAccount = input.CourierAccount
-	attr.Items = input.Items
+	attr.Items = convertPtrToStr(input.Items)
 	attr.Payer = input.Payer
 	attr.Payment = input.Payment
 	attr.PurchaseOrderNum = input.PurchaseOrderNum
 	attr.Purchaser = input.Purchaser
-	attr.Status = input.Status
+	// attr.Status = input.Status
 	o, err := m.GetOrderClient(registry.ORDER).CreateOrder(ctx, &pb.NewOrder{
 		Data: &pb.NewOrder_Data{
 			Type:       "order",
@@ -38,9 +39,17 @@ func (m *MutationResolver) CreateOrder(ctx context.Context, input *models.Create
 	return o, nil
 }
 
+func convertPtrToStr(items []*string) []string {
+	var sl []string
+	for _, n := range items {
+		sl = append(sl, *n)
+	}
+	return sl
+}
+
 // UpdateOrder updates an existing stock order.
 func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *models.UpdateOrderInput) (*pb.Order, error) {
-	_, err := q.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
+	_, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
 	}
@@ -57,7 +66,7 @@ func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *mo
 	if err != nil {
 		return nil, fmt.Errorf("error updating order %s: %s", o.Data.Id, err)
 	}
-	u, err := q.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
+	u, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
 	}
@@ -70,7 +79,7 @@ func normalizeUpdateOrderAttr(attr *models.UpdateOrderInput) map[string]interfac
 	newAttr := make(map[string]interface{})
 	for _, k := range fields {
 		if !k.IsZero() {
-				newAttr[k.Name()] = k.Value()
+			newAttr[k.Name()] = k.Value()
 		}
 	}
 	return newAttr
