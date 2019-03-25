@@ -151,12 +151,14 @@ func (r *StrainResolver) Plasmid(ctx context.Context, obj *models.Strain) (*stri
 }
 func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*models.Strain, error) {
 	parent := obj.Data.Attributes.StrainProperties.Parent
-	strain, err := r.Client.GetStock(ctx, &pb.StockId{Id: parent})
+	strain, err := r.Client.GetStrain(ctx, &pb.StockId{Id: parent})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting parent strain with ID %s: %s", parent, err)
 	}
 	r.Logger.Debugf("successfully found parent strain with ID %s", parent)
-	return strain, nil
+	return &models.Strain{
+		Data: strain.Data,
+	}, nil
 }
 func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	names := []*string{}
