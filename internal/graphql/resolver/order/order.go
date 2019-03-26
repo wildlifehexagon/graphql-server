@@ -97,5 +97,28 @@ func (r *OrderResolver) Purchaser(ctx context.Context, obj *pb.Order) (*user.Use
 	return g, nil
 }
 func (r *OrderResolver) Items(ctx context.Context, obj *pb.Order) ([]models.Stock, error) {
-	panic("not implemented")
+	stocks := []models.Stock{}
+	for _, id := range obj.Data.Attributes.Items {
+		if id[:3] == "DBS" {
+			gs, err := r.StockClient.GetStrain(ctx, &stock.StockId{Id: id})
+			if err != nil {
+				return stocks, fmt.Errorf("error in getting strain by ID %s", err)
+			}
+			st := &models.Strain{
+				Data: gs.Data,
+			}
+			stocks = append(stocks, st)
+		}
+		if id[:3] == "DBP" {
+			gp, err := r.StockClient.GetPlasmid(ctx, &stock.StockId{Id: id})
+			if err != nil {
+				return stocks, fmt.Errorf("error in getting plasmid by ID %s", err)
+			}
+			st := &models.Plasmid{
+				Data: gp.Data,
+			}
+			stocks = append(stocks, st)
+		}
+	}
+	return stocks, nil
 }
