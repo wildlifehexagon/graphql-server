@@ -47,7 +47,7 @@ func (r *OrderResolver) Payment(ctx context.Context, obj *pb.Order) (*string, er
 func (r *OrderResolver) PurchaseOrderNum(ctx context.Context, obj *pb.Order) (*string, error) {
 	return &obj.Data.Attributes.PurchaseOrderNum, nil
 }
-func (r *OrderResolver) Status(ctx context.Context, obj *pb.Order) (*string, error) {
+func (r *OrderResolver) Status(ctx context.Context, obj *pb.Order) (*models.StatusEnum, error) {
 	panic("not implemented")
 }
 func (r *OrderResolver) Consumer(ctx context.Context, obj *pb.Order) (*user.User, error) {

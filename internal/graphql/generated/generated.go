@@ -303,7 +303,7 @@ type OrderResolver interface {
 	Comments(ctx context.Context, obj *order.Order) (*string, error)
 	Payment(ctx context.Context, obj *order.Order) (*string, error)
 	PurchaseOrderNum(ctx context.Context, obj *order.Order) (*string, error)
-	Status(ctx context.Context, obj *order.Order) (*string, error)
+	Status(ctx context.Context, obj *order.Order) (*models.StatusEnum, error)
 	Consumer(ctx context.Context, obj *order.Order) (*user.User, error)
 	Payer(ctx context.Context, obj *order.Order) (*user.User, error)
 	Purchaser(ctx context.Context, obj *order.Order) (*user.User, error)
@@ -1801,7 +1801,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
   comments: String
   payment: String
   purchase_order_num: String
-  status: String
+  status: StatusEnum
   consumer: User
   payer: User
   purchaser: User
@@ -1816,13 +1816,20 @@ type OrderListWithCursor {
   totalCount: Int!
 }
 
+enum StatusEnum {
+  IN_PREPARATION
+  GROWING
+  CANCELLED
+  SHIPPED
+}
+
 input CreateOrderInput {
   courier: String!
   courier_account: String!
   comments: String
   payment: String!
   purchase_order_num: String!
-  status: String!
+  status: StatusEnum!
   consumer: String!
   payer: String!
   purchaser: String!
@@ -1835,7 +1842,7 @@ input UpdateOrderInput {
   comments: String
   payment: String
   purchase_order_num: String
-  status: String
+  status: StatusEnum
   items: [String]
 }
 
@@ -3768,10 +3775,10 @@ func (ec *executionContext) _Order_status(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*models.StatusEnum)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOStatusEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Order_consumer(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
@@ -7881,7 +7888,7 @@ func (ec *executionContext) unmarshalInputCreateOrderInput(ctx context.Context, 
 			}
 		case "status":
 			var err error
-			it.Status, err = ec.unmarshalNString2string(ctx, v)
+			it.Status, err = ec.unmarshalNStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8379,7 +8386,7 @@ func (ec *executionContext) unmarshalInputUpdateOrderInput(ctx context.Context, 
 			}
 		case "status":
 			var err error
-			it.Status, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Status, err = ec.unmarshalOStatusEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11031,6 +11038,15 @@ func (ec *executionContext) marshalNRole2githubᚗcomᚋdictyBaseᚋgoᚑgenprot
 	return ec._Role(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, v interface{}) (models.StatusEnum, error) {
+	var res models.StatusEnum
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalNStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, sel ast.SelectionSet, v models.StatusEnum) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNStrain2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v models.Strain) graphql.Marshaler {
 	return ec._Strain(ctx, sel, &v)
 }
@@ -11889,6 +11905,30 @@ func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenp
 		return graphql.Null
 	}
 	return ec._Role(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, v interface{}) (models.StatusEnum, error) {
+	var res models.StatusEnum
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalOStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, sel ast.SelectionSet, v models.StatusEnum) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOStatusEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, v interface{}) (*models.StatusEnum, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOStatusEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, sel ast.SelectionSet, v *models.StatusEnum) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOStock2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStock(ctx context.Context, sel ast.SelectionSet, v models.Stock) graphql.Marshaler {
