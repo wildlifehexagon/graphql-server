@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"io"
 	"strconv"
 	"time"
@@ -15,5 +16,9 @@ func MarshalTimestamp(t time.Time) graphql.Marshaler {
 	})
 }
 
-// Note: UnmarshalTimestamp is only required if the scalar appears as an input.
-// That is not the case here.
+func UnmarshalTimestamp(v interface{}) (time.Time, error) {
+	if s, ok := v.(int); ok {
+		return time.Unix(int64(s), 0), nil
+	}
+	return time.Time{}, errors.New("time should be a unix timestamp")
+}

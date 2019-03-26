@@ -24,11 +24,13 @@ func (r *PermissionResolver) Permission(ctx context.Context, obj *pb.Permission)
 func (r *PermissionResolver) Description(ctx context.Context, obj *pb.Permission) (string, error) {
 	return obj.Data.Attributes.Description, nil
 }
-func (r *PermissionResolver) CreatedAt(ctx context.Context, obj *pb.Permission) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
+func (r *PermissionResolver) CreatedAt(ctx context.Context, obj *pb.Permission) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt)
+	return &time, nil
 }
-func (r *PermissionResolver) UpdatedAt(ctx context.Context, obj *pb.Permission) (time.Time, error) {
-	return aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt), nil
+func (r *PermissionResolver) UpdatedAt(ctx context.Context, obj *pb.Permission) (*time.Time, error) {
+	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt)
+	return &time, nil
 }
 func (r *PermissionResolver) Resource(ctx context.Context, obj *pb.Permission) (*string, error) {
 	return &obj.Data.Attributes.Resource, nil

@@ -3,6 +3,7 @@ package resolver
 
 import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/order"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/publication"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/stock"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/user"
@@ -83,5 +84,14 @@ func (r *Resolver) Plasmid() generated.PlasmidResolver {
 		UserClient: r.GetUserClient(registry.USER),
 		Registry:   r.Registry,
 		Logger:     r.Logger,
+	}
+}
+
+func (r *Resolver) Order() generated.OrderResolver {
+	return &order.OrderResolver{
+		Client:      r.GetOrderClient(registry.ORDER),
+		StockClient: r.GetStockClient(registry.STOCK),
+		UserClient:  r.GetUserClient(registry.USER),
+		Logger:      r.Logger,
 	}
 }

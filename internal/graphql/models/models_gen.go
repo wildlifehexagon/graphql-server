@@ -3,10 +3,31 @@
 package models
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
+	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
-	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 )
+
+type Stock interface {
+	IsStock()
+}
+
+type CreateOrderInput struct {
+	Courier          string     `json:"courier"`
+	CourierAccount   string     `json:"courier_account"`
+	Comments         *string    `json:"comments"`
+	Payment          string     `json:"payment"`
+	PurchaseOrderNum string     `json:"purchase_order_num"`
+	Status           StatusEnum `json:"status"`
+	Consumer         string     `json:"consumer"`
+	Payer            string     `json:"payer"`
+	Purchaser        string     `json:"purchaser"`
+	Items            []*string  `json:"items"`
+}
 
 type CreatePermissionInput struct {
 	Permission  string `json:"permission"`
@@ -90,10 +111,24 @@ type DeleteUser struct {
 	Success bool `json:"success"`
 }
 
+type ListOrderInput struct {
+	Cursor *int    `json:"cursor"`
+	Limit  *int    `json:"limit"`
+	Filter *string `json:"filter"`
+}
+
 type ListStockInput struct {
 	Cursor *int    `json:"cursor"`
 	Limit  *int    `json:"limit"`
 	Filter *string `json:"filter"`
+}
+
+type OrderListWithCursor struct {
+	Orders         []order.Order `json:"orders"`
+	NextCursor     int           `json:"nextCursor"`
+	PreviousCursor int           `json:"previousCursor"`
+	Limit          *int          `json:"limit"`
+	TotalCount     int           `json:"totalCount"`
 }
 
 type Phenotype struct {
@@ -104,19 +139,29 @@ type Phenotype struct {
 }
 
 type PlasmidListWithCursor struct {
-	Plasmids       []stock.Stock `json:"plasmids"`
-	NextCursor     int           `json:"nextCursor"`
-	PreviousCursor int           `json:"previousCursor"`
-	Limit          *int          `json:"limit"`
-	TotalCount     int           `json:"totalCount"`
+	Plasmids       []Plasmid `json:"plasmids"`
+	NextCursor     int       `json:"nextCursor"`
+	PreviousCursor int       `json:"previousCursor"`
+	Limit          *int      `json:"limit"`
+	TotalCount     int       `json:"totalCount"`
 }
 
 type StrainListWithCursor struct {
-	Strains        []stock.Stock `json:"strains"`
-	NextCursor     int           `json:"nextCursor"`
-	PreviousCursor int           `json:"previousCursor"`
-	Limit          *int          `json:"limit"`
-	TotalCount     int           `json:"totalCount"`
+	Strains        []Strain `json:"strains"`
+	NextCursor     int      `json:"nextCursor"`
+	PreviousCursor int      `json:"previousCursor"`
+	Limit          *int     `json:"limit"`
+	TotalCount     int      `json:"totalCount"`
+}
+
+type UpdateOrderInput struct {
+	Courier          *string     `json:"courier"`
+	CourierAccount   *string     `json:"courier_account"`
+	Comments         *string     `json:"comments"`
+	Payment          *string     `json:"payment"`
+	PurchaseOrderNum *string     `json:"purchase_order_num"`
+	Status           *StatusEnum `json:"status"`
+	Items            []*string   `json:"items"`
 }
 
 type UpdatePermissionInput struct {
@@ -187,4 +232,49 @@ type UserList struct {
 	PageNum    *string     `json:"pageNum"`
 	PageSize   *string     `json:"pageSize"`
 	TotalCount int         `json:"totalCount"`
+}
+
+type StatusEnum string
+
+const (
+	StatusEnumInPreparation StatusEnum = "IN_PREPARATION"
+	StatusEnumGrowing       StatusEnum = "GROWING"
+	StatusEnumCancelled     StatusEnum = "CANCELLED"
+	StatusEnumShipped       StatusEnum = "SHIPPED"
+)
+
+var AllStatusEnum = []StatusEnum{
+	StatusEnumInPreparation,
+	StatusEnumGrowing,
+	StatusEnumCancelled,
+	StatusEnumShipped,
+}
+
+func (e StatusEnum) IsValid() bool {
+	switch e {
+	case StatusEnumInPreparation, StatusEnumGrowing, StatusEnumCancelled, StatusEnumShipped:
+		return true
+	}
+	return false
+}
+
+func (e StatusEnum) String() string {
+	return string(e)
+}
+
+func (e *StatusEnum) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StatusEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StatusEnum", str)
+	}
+	return nil
+}
+
+func (e StatusEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

@@ -12,15 +12,15 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 )
 
-func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.CreateStrainInput) (*pb.Stock, error) {
-	attr := &pb.NewStockAttributes{}
+func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.CreateStrainInput) (*models.Strain, error) {
+	attr := &pb.NewStrainAttributes{}
 	norm := normalizeCreateStrainAttr(input)
 	mapstructure.Decode(norm, attr)
 	prop := &pb.StrainProperties{}
 	mapstructure.Decode(norm, prop)
 	attr.StrainProperties = prop
-	n, err := m.GetStockClient(registry.STOCK).CreateStock(ctx, &pb.NewStock{
-		Data: &pb.NewStock_Data{
+	n, err := m.GetStockClient(registry.STOCK).CreateStrain(ctx, &pb.NewStrain{
+		Data: &pb.NewStrain_Data{
 			Type:       "strain",
 			Attributes: attr,
 		},
@@ -30,7 +30,9 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 	}
 	// Note: InStock, Phenotypes, GeneticModification, MutagenesisMethod, Characteristics and Genotypes will need to be implemented later.
 	m.Logger.Debugf("successfully created new strain with ID %s", n.Data.Id)
-	return n, nil
+	return &models.Strain{
+		Data: n.Data,
+	}, nil
 }
 
 func normalizeCreateStrainAttr(attr *models.CreateStrainInput) map[string]interface{} {
@@ -67,15 +69,15 @@ func normalizeCreateStrainAttr(attr *models.CreateStrainInput) map[string]interf
 	return newAttr
 }
 
-func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.CreatePlasmidInput) (*pb.Stock, error) {
-	attr := &pb.NewStockAttributes{}
+func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.CreatePlasmidInput) (*models.Plasmid, error) {
+	attr := &pb.NewPlasmidAttributes{}
 	norm := normalizeCreatePlasmidAttr(input)
 	mapstructure.Decode(norm, attr)
 	prop := &pb.PlasmidProperties{}
 	mapstructure.Decode(norm, prop)
 	attr.PlasmidProperties = prop
-	n, err := m.GetStockClient(registry.STOCK).CreateStock(ctx, &pb.NewStock{
-		Data: &pb.NewStock_Data{
+	n, err := m.GetStockClient(registry.STOCK).CreatePlasmid(ctx, &pb.NewPlasmid{
+		Data: &pb.NewPlasmid_Data{
 			Type:       "plasmid",
 			Attributes: attr,
 		},
@@ -85,7 +87,9 @@ func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.Crea
 	}
 	// Note: InStock, Keywords and GenbankAccession will need to be implemented later.
 	m.Logger.Debugf("successfully created new plasmid with ID %s", n.Data.Id)
-	return n, nil
+	return &models.Plasmid{
+		Data: n.Data,
+	}, nil
 }
 
 func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]interface{} {
@@ -112,19 +116,19 @@ func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]inte
 	return newAttr
 }
 
-func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*pb.Stock, error) {
-	_, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*models.Strain, error) {
+	_, err := m.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching strain with ID %s %s", id, err)
 	}
-	attr := &pb.StockUpdateAttributes{}
+	attr := &pb.StrainUpdateAttributes{}
 	norm := normalizeUpdateStrainAttr(input)
 	mapstructure.Decode(norm, attr)
 	prop := &pb.StrainUpdateProperties{}
 	mapstructure.Decode(norm, prop)
 	attr.StrainProperties = prop
-	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
-		Data: &pb.StockUpdate_Data{
+	n, err := m.GetStockClient(registry.STOCK).UpdateStrain(ctx, &pb.StrainUpdate{
+		Data: &pb.StrainUpdate_Data{
 			Type:       "strain",
 			Id:         id,
 			Attributes: attr,
@@ -133,12 +137,14 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 	if err != nil {
 		return nil, fmt.Errorf("error updating strain %s: %s", n.Data.Id, err)
 	}
-	u, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	u, err := m.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching strain with ID %s %s", id, err)
 	}
-	m.Logger.Debugf("successfully updated strain with ID %s", n.Data.Id)
-	return u, nil
+	m.Logger.Debugf("successfully updated strain with ID %s", u.Data.Id)
+	return &models.Strain{
+		Data: u.Data,
+	}, nil
 }
 
 func normalizeUpdateStrainAttr(attr *models.UpdateStrainInput) map[string]interface{} {
@@ -156,19 +162,19 @@ func normalizeUpdateStrainAttr(attr *models.UpdateStrainInput) map[string]interf
 	return newAttr
 }
 
-func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*pb.Stock, error) {
-	_, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*models.Plasmid, error) {
+	_, err := m.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching plasmid with ID %s %s", id, err)
 	}
-	attr := &pb.StockUpdateAttributes{}
+	attr := &pb.PlasmidUpdateAttributes{}
 	norm := normalizeUpdatePlasmidAttr(input)
 	mapstructure.Decode(norm, attr)
 	prop := &pb.PlasmidProperties{}
 	mapstructure.Decode(norm, prop)
 	attr.PlasmidProperties = prop
-	n, err := m.GetStockClient(registry.STOCK).UpdateStock(ctx, &pb.StockUpdate{
-		Data: &pb.StockUpdate_Data{
+	n, err := m.GetStockClient(registry.STOCK).UpdatePlasmid(ctx, &pb.PlasmidUpdate{
+		Data: &pb.PlasmidUpdate_Data{
 			Type:       "plasmid",
 			Id:         id,
 			Attributes: attr,
@@ -177,12 +183,14 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	if err != nil {
 		return nil, fmt.Errorf("error updating plasmid %s: %s", n.Data.Id, err)
 	}
-	u, err := m.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+	u, err := m.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error fetching plasmid with ID %s %s", id, err)
 	}
-	m.Logger.Debugf("successfully updated plasmid with ID %s", n.Data.Id)
-	return u, nil
+	m.Logger.Debugf("successfully updated plasmid with ID %s", u.Data.Id)
+	return &models.Plasmid{
+		Data: u.Data,
+	}, nil
 }
 
 func normalizeUpdatePlasmidAttr(attr *models.UpdatePlasmidInput) map[string]interface{} {
@@ -208,22 +216,26 @@ func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.
 	}, nil
 }
 
-func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*pb.Stock, error) {
-	plasmid, err := q.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*models.Plasmid, error) {
+	plasmid, err := q.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting plasmid with ID %s: %s", id, err)
 	}
 	q.Logger.Debugf("successfully found plasmid with ID %s", id)
-	return plasmid, nil
+	return &models.Plasmid{
+		Data: plasmid.Data,
+	}, nil
 }
 
-func (q *QueryResolver) Strain(ctx context.Context, id string) (*pb.Stock, error) {
-	strain, err := q.GetStockClient(registry.STOCK).GetStock(ctx, &pb.StockId{Id: id})
+func (q *QueryResolver) Strain(ctx context.Context, id string) (*models.Strain, error) {
+	strain, err := q.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting strain with ID %s: %s", id, err)
 	}
 	q.Logger.Debugf("successfully found strain with ID %s", id)
-	return strain, nil
+	return &models.Strain{
+		Data: strain.Data,
+	}, nil
 }
 
 func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error) {
@@ -248,13 +260,13 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 	if err != nil {
 		return nil, fmt.Errorf("error in getting list of strains %s", err)
 	}
-	strains := []pb.Stock{}
+	strains := []models.Strain{}
 	for _, n := range list.Data {
-		item := pb.Stock{
-			Data: &pb.Stock_Data{
+		item := models.Strain{
+			Data: &pb.Strain_Data{
 				Type: n.Type,
 				Id:   n.Id,
-				Attributes: &pb.StockAttributes{
+				Attributes: &pb.StrainAttributes{
 					CreatedAt:       n.Attributes.CreatedAt,
 					UpdatedAt:       n.Attributes.UpdatedAt,
 					CreatedBy:       n.Attributes.CreatedBy,
@@ -310,13 +322,13 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	if err != nil {
 		return nil, fmt.Errorf("error in getting list of strains %s", err)
 	}
-	plasmids := []pb.Stock{}
+	plasmids := []models.Plasmid{}
 	for _, n := range list.Data {
-		item := pb.Stock{
-			Data: &pb.Stock_Data{
+		item := models.Plasmid{
+			Data: &pb.Plasmid_Data{
 				Type: n.Type,
 				Id:   n.Id,
-				Attributes: &pb.StockAttributes{
+				Attributes: &pb.PlasmidAttributes{
 					CreatedAt:       n.Attributes.CreatedAt,
 					UpdatedAt:       n.Attributes.UpdatedAt,
 					CreatedBy:       n.Attributes.CreatedBy,
