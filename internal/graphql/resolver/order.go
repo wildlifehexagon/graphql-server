@@ -66,13 +66,18 @@ func convertPtrToStr(items []*string) []string {
 
 // UpdateOrder updates an existing stock order.
 func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *models.UpdateOrderInput) (*pb.Order, error) {
-	_, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
+	g, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
 	if err != nil {
 		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
 	}
 	attr := &pb.OrderUpdateAttributes{}
 	norm := normalizeUpdateOrderAttr(input)
 	mapstructure.Decode(norm, attr)
+	if input.Status != nil {
+		attr.Status = statusConverter(*input.Status)
+	} else {
+		attr.Status = g.Data.Attributes.Status
+	}
 	o, err := m.GetOrderClient(registry.ORDER).UpdateOrder(ctx, &pb.OrderUpdate{
 		Data: &pb.OrderUpdate_Data{
 			Type:       "order",
