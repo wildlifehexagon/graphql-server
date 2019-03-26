@@ -25,7 +25,7 @@ func (m *MutationResolver) CreateOrder(ctx context.Context, input *models.Create
 	attr.Payment = input.Payment
 	attr.PurchaseOrderNum = input.PurchaseOrderNum
 	attr.Purchaser = input.Purchaser
-	// attr.Status = input.Status
+	attr.Status = statusConverter(input.Status)
 	o, err := m.GetOrderClient(registry.ORDER).CreateOrder(ctx, &pb.NewOrder{
 		Data: &pb.NewOrder_Data{
 			Type:       "order",
@@ -39,6 +39,23 @@ func (m *MutationResolver) CreateOrder(ctx context.Context, input *models.Create
 	return o, nil
 }
 
+// statusConverter converts the enum status string to protocol buffer int32 value
+func statusConverter(e models.StatusEnum) pb.OrderStatus {
+	var status pb.OrderStatus
+	switch e {
+	case "IN_PREPARATION":
+		status = pb.OrderStatus_In_preparation
+	case "GROWING":
+		status = pb.OrderStatus_Growing
+	case "CANCELLED":
+		status = pb.OrderStatus_Cancelled
+	case "SHIPPED":
+		status = pb.OrderStatus_Shipped
+	}
+	return status
+}
+
+// convertPtrToStr converts a slice of string pointers to a slice of strings
 func convertPtrToStr(items []*string) []string {
 	var sl []string
 	for _, n := range items {

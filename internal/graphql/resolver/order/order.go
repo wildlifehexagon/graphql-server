@@ -48,7 +48,23 @@ func (r *OrderResolver) PurchaseOrderNum(ctx context.Context, obj *pb.Order) (*s
 	return &obj.Data.Attributes.PurchaseOrderNum, nil
 }
 func (r *OrderResolver) Status(ctx context.Context, obj *pb.Order) (*models.StatusEnum, error) {
-	panic("not implemented")
+	status := obj.Data.Attributes.Status
+	switch status {
+	case pb.OrderStatus_In_preparation:
+		s := models.StatusEnumInPreparation
+		return &s, nil
+	case pb.OrderStatus_Growing:
+		s := models.StatusEnumGrowing
+		return &s, nil
+	case pb.OrderStatus_Cancelled:
+		s := models.StatusEnumCancelled
+		return &s, nil
+	case pb.OrderStatus_Shipped:
+		s := models.StatusEnumShipped
+		return &s, nil
+	default:
+		return nil, fmt.Errorf("incompatible order status")
+	}
 }
 func (r *OrderResolver) Consumer(ctx context.Context, obj *pb.Order) (*user.User, error) {
 	user := user.User{}
