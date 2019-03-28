@@ -42,6 +42,10 @@ OPTIONS:
    --permission-grpc-host value, --ph value  permission grpc host [$PERMISSION_API_SERVICE_HOST]
    --permission-grpc-port value, --pp value  permission grpc port [$PERMISSION_API_SERVICE_PORT]
    --publication-api value, --pub value      publication api endpoint (default: "https://betafunc.dictybase.org/publications") [$PUBLICATION_API_ENDPOINT]
+   --stock-grpc-host value, --sh value       stock grpc host [$STOCK_API_SERVICE_HOST]
+   --stock-grpc-port value, --sp value       stock grpc port [$STOCK_API_SERVICE_PORT]
+   --order-grpc-host value, --oh value       order grpc host [$ORDER_API_SERVICE_HOST]
+   --order-grpc-port value, --op value       order grpc port [$ORDER_API_SERVICE_PORT]
 ```
 
 ## Development
