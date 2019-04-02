@@ -132,8 +132,10 @@ type OrderListWithCursor struct {
 }
 
 type Phenotype struct {
-	Phenotype    *string                    `json:"phenotype"`
+	Phenotype    string                     `json:"phenotype"`
 	Notes        *string                    `json:"notes"`
+	Assay        *string                    `json:"assay"`
+	Environment  *string                    `json:"environment"`
 	Dbxrefs      []*string                  `json:"dbxrefs"`
 	Publications []*publication.Publication `json:"publications"`
 }

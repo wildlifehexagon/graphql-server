@@ -133,7 +133,9 @@ type ComplexityRoot struct {
 	}
 
 	Phenotype struct {
+		Assay        func(childComplexity int) int
 		Dbxrefs      func(childComplexity int) int
+		Environment  func(childComplexity int) int
 		Notes        func(childComplexity int) int
 		Phenotype    func(childComplexity int) int
 		Publications func(childComplexity int) int
@@ -875,12 +877,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Permission.UpdatedAt(childComplexity), true
 
+	case "Phenotype.Assay":
+		if e.complexity.Phenotype.Assay == nil {
+			break
+		}
+
+		return e.complexity.Phenotype.Assay(childComplexity), true
+
 	case "Phenotype.Dbxrefs":
 		if e.complexity.Phenotype.Dbxrefs == nil {
 			break
 		}
 
 		return e.complexity.Phenotype.Dbxrefs(childComplexity), true
+
+	case "Phenotype.Environment":
+		if e.complexity.Phenotype.Environment == nil {
+			break
+		}
+
+		return e.complexity.Phenotype.Environment(childComplexity), true
 
 	case "Phenotype.Notes":
 		if e.complexity.Phenotype.Notes == nil {
@@ -2016,8 +2032,10 @@ type Plasmid implements Stock {
 }
 
 type Phenotype {
-  phenotype: String
+  phenotype: String!
   notes: String
+  assay: String
+  environment: String
   dbxrefs: [String]
   publications: [Publication]
 }
@@ -4184,12 +4202,15 @@ func (ec *executionContext) _Phenotype_phenotype(ctx context.Context, field grap
 		return obj.Phenotype, nil
 	})
 	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Phenotype_notes(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
@@ -4206,6 +4227,54 @@ func (ec *executionContext) _Phenotype_notes(ctx context.Context, field graphql.
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Notes, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Phenotype_assay(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Phenotype",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Assay, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Phenotype_environment(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Phenotype",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Environment, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -9318,8 +9387,15 @@ func (ec *executionContext) _Phenotype(ctx context.Context, sel ast.SelectionSet
 			out.Values[i] = graphql.MarshalString("Phenotype")
 		case "phenotype":
 			out.Values[i] = ec._Phenotype_phenotype(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
 		case "notes":
 			out.Values[i] = ec._Phenotype_notes(ctx, field, obj)
+		case "assay":
+			out.Values[i] = ec._Phenotype_assay(ctx, field, obj)
+		case "environment":
+			out.Values[i] = ec._Phenotype_environment(ctx, field, obj)
 		case "dbxrefs":
 			out.Values[i] = ec._Phenotype_dbxrefs(ctx, field, obj)
 		case "publications":
