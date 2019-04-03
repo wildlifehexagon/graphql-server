@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
-	"google.golang.org/grpc"
-
 	"github.com/dictyBase/graphql-server/internal/registry"
+	"github.com/go-chi/cors"
+	"google.golang.org/grpc"
 
 	"github.com/99designs/gqlgen/handler"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
@@ -54,8 +54,14 @@ func RunGraphQLServer(c *cli.Context) error {
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
 	s := resolver.NewResolver(nr, log)
 
-	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
-	http.Handle("/graphql", handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))
+	crs := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,
+	})
+
+	http.Handle("/", crs.Handler(http.HandlerFunc(handler.Playground("GraphQL playground", "/graphql"))))
+	http.Handle("/graphql", crs.Handler(http.HandlerFunc(handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))))
 	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
