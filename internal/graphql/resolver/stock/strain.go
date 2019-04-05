@@ -157,7 +157,8 @@ func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*model
 	parent := obj.Data.Attributes.StrainProperties.Parent
 	strain, err := r.Client.GetStrain(ctx, &pb.StockId{Id: parent})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting parent strain with ID %s: %s", parent, err)
+		r.Logger.Debugf("could not find parent strain with ID %s", parent)
+		return nil, nil
 	}
 	r.Logger.Debugf("successfully found parent strain with ID %s", parent)
 	return &models.Strain{
