@@ -1,6 +1,7 @@
 # graphql-server
 
 dictyBase GraphQL server. This uses [glqgen](https://github.com/99designs/gqlgen) to generate code to match our gRPC models.
+errorhandling
 
 ## Usage
 
@@ -91,6 +92,10 @@ After adding your new schema and running the generator script, you will need to 
 5. Now add any _unshared_ resolvers into a separate folder inside `resolver`. These resolvers are generally tied to the individual fields for that model, and they are unique to that particular client. You can look at the [user](./internal/graphql/resolver/user) folder for examples. Also update the package name if necessary.
 6. Add any necessary command line flags in [main.go](./cmd/graphql-server/main.go) and [validation](./internal/app/validate/validate.go).
 7. Fill out your resolver stubs and then test it out in the playground!
+
+### Error Handling
+
+To improve error handling in our front end web applications, we are adding custom error messages when applicable on the server side. The `errorutils` function in the package of the same name is used to add new errors with custom extensions. See any of the shared resolvers for an example in how to use this.
 
 ### Folder Structure
 
