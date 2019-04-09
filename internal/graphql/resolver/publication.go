@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/dictyBase/graphql-server/internal/registry"
+	"github.com/vektah/gqlparser/gqlerror"
 )
 
 type PubJsonAPI struct {
@@ -62,7 +64,15 @@ func (q *QueryResolver) Publication(ctx context.Context, id string) (*pb.Publica
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("error fetching publication with ID %s", id)
+		graphql.AddError(ctx, &gqlerror.Error{
+			Message: "error fetching publication with this ID",
+			Extensions: map[string]interface{}{
+				"code":      "NotFound",
+				"timestamp": time.Now(),
+			},
+		})
+		q.Logger.Error("error fetching publication with this ID")
+		return nil, err
 	}
 	decoder := json.NewDecoder(res.Body)
 	var pub PubJsonAPI

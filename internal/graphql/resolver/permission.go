@@ -10,6 +10,7 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 )
@@ -26,7 +27,9 @@ func (m *MutationResolver) CreatePermission(ctx context.Context, input *models.C
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error creating new permission %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully created new permission with ID %d", n.Data.Id)
 	return n, nil
@@ -50,13 +53,17 @@ func (m *MutationResolver) UpdatePermission(ctx context.Context, id string, inpu
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error updating permission %d: %s", n.Data.Id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
-	o, err := m.GetPermissionClient(registry.PERMISSION).GetPermission(ctx, &jsonapi.GetRequestWithFields{Id: i})
+	o, err := m.GetPermissionClient(registry.PERMISSION).GetPermission(ctx, &jsonapi.GetRequestWithFields{Id: n.Data.Id})
 	if err != nil {
-		return nil, fmt.Errorf("error fetching recently updated permission: %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
-	m.Logger.Debugf("successfully updated permission with ID %d", n.Data.Id)
+	m.Logger.Debugf("successfully updated permission with ID %d", o.Data.Id)
 	return o, nil
 }
 func (m *MutationResolver) DeletePermission(ctx context.Context, id string) (*models.DeletePermission, error) {
@@ -65,9 +72,10 @@ func (m *MutationResolver) DeletePermission(ctx context.Context, id string) (*mo
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
 	if _, err := m.GetPermissionClient(registry.PERMISSION).DeletePermission(ctx, &jsonapi.DeleteRequest{Id: i}); err != nil {
+		m.Logger.Error(err)
 		return &models.DeletePermission{
 			Success: false,
-		}, fmt.Errorf("error deleting permission with ID %s: %s", id, err)
+		}, err
 	}
 	m.Logger.Debugf("successfully deleted permission with ID %s", id)
 	return &models.DeletePermission{
@@ -82,7 +90,9 @@ func (q *QueryResolver) Permission(ctx context.Context, id string) (*pb.Permissi
 	}
 	g, err := q.GetPermissionClient(registry.PERMISSION).GetPermission(ctx, &jsonapi.GetRequestWithFields{Id: i})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting permission by ID %d: %s", i, err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("successfully found permission with ID %s", id)
 	return g, nil
@@ -91,7 +101,9 @@ func (q *QueryResolver) ListPermissions(ctx context.Context) ([]pb.Permission, e
 	permissions := []pb.Permission{}
 	l, err := q.GetPermissionClient(registry.PERMISSION).ListPermissions(ctx, &jsonapi.SimpleListRequest{})
 	if err != nil {
-		return nil, fmt.Errorf("error in listing permissions %s", err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	for _, n := range l.Data {
 		item := pb.Permission{

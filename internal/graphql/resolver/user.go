@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/fatih/structs"
@@ -41,7 +42,9 @@ func (m *MutationResolver) CreateUser(ctx context.Context, input *models.CreateU
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error creating new user %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully created new user with ID %d", n.Data.Id)
 	return n, nil
@@ -78,12 +81,16 @@ func (m *MutationResolver) CreateUserRoleRelationship(ctx context.Context, userI
 			},
 		}})
 	if err != nil {
-		return nil, fmt.Errorf("error in creating role relationship with user %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully created user ID %d relationship role with ID %d %s", uid, rid, rr)
 	g, err := m.GetUserClient(registry.USER).GetUser(ctx, &jsonapi.GetRequest{Id: uid})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting user by ID %d: %s", uid, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	return g, nil
 }
@@ -95,7 +102,9 @@ func (m *MutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	}
 	f, err := m.GetUserClient(registry.USER).GetUser(ctx, &jsonapi.GetRequest{Id: i})
 	if err != nil {
-		return nil, fmt.Errorf("error fetching user with ID %s %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	attr := getUpdateUserAttributes(input, f)
 	attr.Email = f.Data.Attributes.Email
@@ -109,11 +118,15 @@ func (m *MutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error updating user %d: %s", n.Data.Id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
-	o, err := m.GetUserClient(registry.USER).GetUser(ctx, &jsonapi.GetRequest{Id: i})
+	o, err := m.GetUserClient(registry.USER).GetUser(ctx, &jsonapi.GetRequest{Id: n.Data.Id})
 	if err != nil {
-		return nil, fmt.Errorf("error fetching recently updated user: %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully updated user with ID %d", n.Data.Id)
 	return o, nil
@@ -190,9 +203,10 @@ func (m *MutationResolver) DeleteUser(ctx context.Context, id string) (*models.D
 		return nil, fmt.Errorf("error in parsing string %s to int %s", id, err)
 	}
 	if _, err := m.GetUserClient(registry.USER).DeleteUser(ctx, &jsonapi.DeleteRequest{Id: i}); err != nil {
+		m.Logger.Error(err)
 		return &models.DeleteUser{
 			Success: false,
-		}, fmt.Errorf("error deleting user with ID %s: %s", id, err)
+		}, err
 	}
 	m.Logger.Debugf("successfully deleted user with ID %s", id)
 	return &models.DeleteUser{
@@ -207,7 +221,9 @@ func (q *QueryResolver) User(ctx context.Context, id string) (*pb.User, error) {
 	}
 	g, err := q.GetUserClient(registry.USER).GetUser(ctx, &jsonapi.GetRequest{Id: i})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting user by ID %d: %s", i, err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("successfully found user with ID %s", id)
 	return g, nil
@@ -216,7 +232,9 @@ func (q *QueryResolver) User(ctx context.Context, id string) (*pb.User, error) {
 func (q *QueryResolver) UserByEmail(ctx context.Context, email string) (*pb.User, error) {
 	g, err := q.GetUserClient(registry.USER).GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting user by email %s: %s", email, err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
@@ -238,7 +256,9 @@ func (q *QueryResolver) ListUsers(ctx context.Context, pagenum string, pagesize 
 		Filter:   filter,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting list of users %s", err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	for _, n := range g.Data {
 		item := pb.User{

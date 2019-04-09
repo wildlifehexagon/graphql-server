@@ -2,14 +2,13 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
+	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
+	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
-
-	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
-	"github.com/dictyBase/graphql-server/internal/graphql/models"
 )
 
 func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.CreateStrainInput) (*models.Strain, error) {
@@ -26,7 +25,9 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error creating new strain %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	// Note: InStock, Phenotypes, GeneticModification, MutagenesisMethod, Characteristics and Genotypes will need to be implemented later.
 	m.Logger.Debugf("successfully created new strain with ID %s", n.Data.Id)
@@ -83,7 +84,9 @@ func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.Crea
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error creating new plasmid %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	// Note: InStock, Keywords and GenbankAccession will need to be implemented later.
 	m.Logger.Debugf("successfully created new plasmid with ID %s", n.Data.Id)
@@ -119,7 +122,9 @@ func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]inte
 func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *models.UpdateStrainInput) (*models.Strain, error) {
 	_, err := m.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error fetching strain with ID %s %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	attr := &pb.StrainUpdateAttributes{}
 	norm := normalizeUpdateStrainAttr(input)
@@ -135,11 +140,15 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error updating strain %s: %s", n.Data.Id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
-	u, err := m.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
+	u, err := m.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: n.Data.Id})
 	if err != nil {
-		return nil, fmt.Errorf("error fetching strain with ID %s %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully updated strain with ID %s", u.Data.Id)
 	return &models.Strain{
@@ -165,7 +174,9 @@ func normalizeUpdateStrainAttr(attr *models.UpdateStrainInput) map[string]interf
 func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *models.UpdatePlasmidInput) (*models.Plasmid, error) {
 	_, err := m.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error fetching plasmid with ID %s %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	attr := &pb.PlasmidUpdateAttributes{}
 	norm := normalizeUpdatePlasmidAttr(input)
@@ -181,11 +192,15 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error updating plasmid %s: %s", n.Data.Id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
-	u, err := m.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
+	u, err := m.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: n.Data.Id})
 	if err != nil {
-		return nil, fmt.Errorf("error fetching plasmid with ID %s %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully updated plasmid with ID %s", u.Data.Id)
 	return &models.Plasmid{
@@ -208,7 +223,7 @@ func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.
 	if _, err := m.GetStockClient(registry.STOCK).RemoveStock(ctx, &pb.StockId{Id: id}); err != nil {
 		return &models.DeleteStock{
 			Success: false,
-		}, fmt.Errorf("error deleting stock with ID %s: %s", id, err)
+		}, err
 	}
 	m.Logger.Debugf("successfully deleted stock with ID %s", id)
 	return &models.DeleteStock{
@@ -219,7 +234,9 @@ func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.
 func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*models.Plasmid, error) {
 	plasmid, err := q.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting plasmid with ID %s: %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("successfully found plasmid with ID %s", id)
 	return &models.Plasmid{
@@ -230,7 +247,9 @@ func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*models.Plasmid
 func (q *QueryResolver) Strain(ctx context.Context, id string) (*models.Strain, error) {
 	strain, err := q.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting strain with ID %s: %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("successfully found strain with ID %s", id)
 	return &models.Strain{
@@ -258,7 +277,9 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 	}
 	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting list of strains %s", err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	strains := []models.Strain{}
 	for _, n := range list.Data {
@@ -320,7 +341,9 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	}
 	list, err := q.GetStockClient(registry.STOCK).ListPlasmids(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting list of strains %s", err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	plasmids := []models.Plasmid{}
 	for _, n := range list.Data {

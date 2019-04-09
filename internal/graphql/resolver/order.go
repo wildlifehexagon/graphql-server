@@ -2,9 +2,9 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/order"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/fatih/structs"
@@ -33,7 +33,9 @@ func (m *MutationResolver) CreateOrder(ctx context.Context, input *models.Create
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error creating new order %s", err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully created new order with ID %s", o.Data.Id)
 	return o, nil
@@ -68,7 +70,9 @@ func convertPtrToStr(items []*string) []string {
 func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *models.UpdateOrderInput) (*pb.Order, error) {
 	g, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	attr := &pb.OrderUpdateAttributes{}
 	norm := normalizeUpdateOrderAttr(input)
@@ -86,11 +90,15 @@ func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *mo
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error updating order %s: %s", o.Data.Id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
-	u, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
+	u, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: o.Data.Id})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		m.Logger.Error(err)
+		return nil, err
 	}
 	m.Logger.Debugf("successfully updated order with ID %s", u.Data.Id)
 	return u, nil
@@ -111,7 +119,9 @@ func normalizeUpdateOrderAttr(attr *models.UpdateOrderInput) map[string]interfac
 func (q *QueryResolver) Order(ctx context.Context, id string) (*pb.Order, error) {
 	g, err := q.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: id})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting order with id %s: %s", id, err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("successfully found order with id %s", id)
 	return g, nil
@@ -138,7 +148,9 @@ func (q *QueryResolver) ListOrders(ctx context.Context, input *models.ListOrderI
 	}
 	list, err := q.GetOrderClient(registry.ORDER).ListOrders(ctx, &pb.ListParameters{Cursor: cursor, Limit: limit, Filter: filter})
 	if err != nil {
-		return nil, fmt.Errorf("error in getting list of orders %s", err)
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	orders := []pb.Order{}
 	for _, n := range list.Data {
