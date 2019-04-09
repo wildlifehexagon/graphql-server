@@ -2,13 +2,13 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,7 +38,9 @@ func (r *RoleResolver) Permissions(ctx context.Context, obj *pb.Role) ([]pb.Perm
 	permissions := []pb.Permission{}
 	rp, err := r.Client.GetRelatedPermissions(ctx, &jsonapi.RelationshipRequest{Id: obj.Data.Id})
 	if err != nil {
-		return permissions, fmt.Errorf("error getting list of related permissions for role ID %d: %s", obj.Data.Id, err)
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return permissions, err
 	}
 	for _, n := range rp.Data {
 		item := pb.Permission{

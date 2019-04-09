@@ -2,13 +2,13 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -71,7 +71,9 @@ func (r *UserResolver) Roles(ctx context.Context, obj *pb.User) ([]pb.Role, erro
 	roles := []pb.Role{}
 	rr, err := r.Client.GetRelatedRoles(ctx, &jsonapi.RelationshipRequest{Id: obj.Data.Id})
 	if err != nil {
-		return roles, fmt.Errorf("error getting list of related roles for user ID %d: %s", obj.Data.Id, err)
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return roles, err
 	}
 	for _, n := range rr.Data {
 		item := pb.Role{

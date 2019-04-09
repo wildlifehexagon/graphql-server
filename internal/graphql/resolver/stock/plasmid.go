@@ -7,14 +7,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
+	"github.com/vektah/gqlparser/gqlerror"
 )
 
 type PlasmidResolver struct {
@@ -40,7 +43,9 @@ func (r *PlasmidResolver) CreatedBy(ctx context.Context, obj *models.Plasmid) (*
 	email := obj.Data.Attributes.CreatedBy
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return &user, fmt.Errorf("error in getting user by email %s: %s", email, err)
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
 	}
 	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
@@ -50,7 +55,9 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 	email := obj.Data.Attributes.UpdatedBy
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return &user, fmt.Errorf("error in getting user by email %s: %s", email, err)
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
 	}
 	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
@@ -91,7 +98,15 @@ func (r *PlasmidResolver) Publications(ctx context.Context, obj *models.Plasmid)
 		}
 		defer res.Body.Close()
 		if res.StatusCode != 200 {
-			return nil, fmt.Errorf("error fetching publication with ID %s", id)
+			graphql.AddError(ctx, &gqlerror.Error{
+				Message: "error fetching publication with this ID",
+				Extensions: map[string]interface{}{
+					"code":      "NotFound",
+					"timestamp": time.Now(),
+				},
+			})
+			r.Logger.Error(err)
+			return nil, err
 		}
 		decoder := json.NewDecoder(res.Body)
 		var pub PubJsonAPI

@@ -10,6 +10,7 @@ import (
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/sirupsen/logrus"
 )
@@ -71,7 +72,9 @@ func (r *OrderResolver) Consumer(ctx context.Context, obj *pb.Order) (*user.User
 	email := obj.Data.Attributes.Consumer
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return &user, fmt.Errorf("error in getting user by email %s: %s", email, err)
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
 	}
 	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
@@ -81,7 +84,9 @@ func (r *OrderResolver) Payer(ctx context.Context, obj *pb.Order) (*user.User, e
 	email := obj.Data.Attributes.Payer
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return &user, fmt.Errorf("error in getting user by email %s: %s", email, err)
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
 	}
 	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
@@ -91,7 +96,9 @@ func (r *OrderResolver) Purchaser(ctx context.Context, obj *pb.Order) (*user.Use
 	email := obj.Data.Attributes.Purchaser
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		return &user, fmt.Errorf("error in getting user by email %s: %s", email, err)
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
 	}
 	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
@@ -102,7 +109,9 @@ func (r *OrderResolver) Items(ctx context.Context, obj *pb.Order) ([]models.Stoc
 		if id[:3] == "DBS" {
 			gs, err := r.StockClient.GetStrain(ctx, &stock.StockId{Id: id})
 			if err != nil {
-				return stocks, fmt.Errorf("error in getting strain by ID %s", err)
+				errorutils.AddGQLError(ctx, err)
+				r.Logger.Error(err)
+				return stocks, err
 			}
 			st := &models.Strain{
 				Data: gs.Data,
@@ -112,7 +121,9 @@ func (r *OrderResolver) Items(ctx context.Context, obj *pb.Order) ([]models.Stoc
 		if id[:3] == "DBP" {
 			gp, err := r.StockClient.GetPlasmid(ctx, &stock.StockId{Id: id})
 			if err != nil {
-				return stocks, fmt.Errorf("error in getting plasmid by ID %s", err)
+				errorutils.AddGQLError(ctx, err)
+				r.Logger.Error(err)
+				return stocks, err
 			}
 			st := &models.Plasmid{
 				Data: gp.Data,
