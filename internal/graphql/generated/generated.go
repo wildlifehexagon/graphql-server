@@ -133,12 +133,11 @@ type ComplexityRoot struct {
 	}
 
 	Phenotype struct {
-		Assay        func(childComplexity int) int
-		Dbxrefs      func(childComplexity int) int
-		Environment  func(childComplexity int) int
-		Notes        func(childComplexity int) int
-		Phenotype    func(childComplexity int) int
-		Publications func(childComplexity int) int
+		Assay       func(childComplexity int) int
+		Environment func(childComplexity int) int
+		Note        func(childComplexity int) int
+		Phenotype   func(childComplexity int) int
+		Publication func(childComplexity int) int
 	}
 
 	Plasmid struct {
@@ -884,13 +883,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Phenotype.Assay(childComplexity), true
 
-	case "Phenotype.Dbxrefs":
-		if e.complexity.Phenotype.Dbxrefs == nil {
-			break
-		}
-
-		return e.complexity.Phenotype.Dbxrefs(childComplexity), true
-
 	case "Phenotype.Environment":
 		if e.complexity.Phenotype.Environment == nil {
 			break
@@ -898,12 +890,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Phenotype.Environment(childComplexity), true
 
-	case "Phenotype.Notes":
-		if e.complexity.Phenotype.Notes == nil {
+	case "Phenotype.Note":
+		if e.complexity.Phenotype.Note == nil {
 			break
 		}
 
-		return e.complexity.Phenotype.Notes(childComplexity), true
+		return e.complexity.Phenotype.Note(childComplexity), true
 
 	case "Phenotype.Phenotype":
 		if e.complexity.Phenotype.Phenotype == nil {
@@ -912,12 +904,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Phenotype.Phenotype(childComplexity), true
 
-	case "Phenotype.Publications":
-		if e.complexity.Phenotype.Publications == nil {
+	case "Phenotype.Publication":
+		if e.complexity.Phenotype.Publication == nil {
 			break
 		}
 
-		return e.complexity.Phenotype.Publications(childComplexity), true
+		return e.complexity.Phenotype.Publication(childComplexity), true
 
 	case "Plasmid.CreatedAt":
 		if e.complexity.Plasmid.CreatedAt == nil {
@@ -2033,11 +2025,10 @@ type Plasmid implements Stock {
 
 type Phenotype {
   phenotype: String!
-  notes: String
+  note: String
   assay: String
   environment: String
-  dbxrefs: [String]
-  publications: [Publication]
+  publication: Publication
 }
 
 type StrainListWithCursor {
@@ -4213,7 +4204,7 @@ func (ec *executionContext) _Phenotype_phenotype(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Phenotype_notes(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+func (ec *executionContext) _Phenotype_note(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4226,7 +4217,7 @@ func (ec *executionContext) _Phenotype_notes(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Notes, nil
+		return obj.Note, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -4285,7 +4276,7 @@ func (ec *executionContext) _Phenotype_environment(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Phenotype_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
+func (ec *executionContext) _Phenotype_publication(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -4298,39 +4289,15 @@ func (ec *executionContext) _Phenotype_dbxrefs(ctx context.Context, field graphq
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Dbxrefs, nil
+		return obj.Publication, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*string)
+	res := resTmp.(*publication.Publication)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Phenotype_publications(ctx context.Context, field graphql.CollectedField, obj *models.Phenotype) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
-	rctx := &graphql.ResolverContext{
-		Object:   "Phenotype",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Publications, nil
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*publication.Publication)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOPublication2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx, field.Selections, res)
+	return ec.marshalOPublication2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Plasmid_id(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
@@ -9390,16 +9357,14 @@ func (ec *executionContext) _Phenotype(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
-		case "notes":
-			out.Values[i] = ec._Phenotype_notes(ctx, field, obj)
+		case "note":
+			out.Values[i] = ec._Phenotype_note(ctx, field, obj)
 		case "assay":
 			out.Values[i] = ec._Phenotype_assay(ctx, field, obj)
 		case "environment":
 			out.Values[i] = ec._Phenotype_environment(ctx, field, obj)
-		case "dbxrefs":
-			out.Values[i] = ec._Phenotype_dbxrefs(ctx, field, obj)
-		case "publications":
-			out.Values[i] = ec._Phenotype_publications(ctx, field, obj)
+		case "publication":
+			out.Values[i] = ec._Phenotype_publication(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
