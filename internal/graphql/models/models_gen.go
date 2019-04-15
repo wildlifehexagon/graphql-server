@@ -66,7 +66,7 @@ type CreateStrainInput struct {
 	Dbxrefs             []*string `json:"dbxrefs"`
 	Publications        []*string `json:"publications"`
 	SystematicName      string    `json:"systematic_name"`
-	Descriptor          string    `json:"descriptor"`
+	Label               string    `json:"label"`
 	Species             string    `json:"species"`
 	Plasmid             *string   `json:"plasmid"`
 	Parent              *string   `json:"parent"`
@@ -200,7 +200,7 @@ type UpdateStrainInput struct {
 	Dbxrefs             []*string `json:"dbxrefs"`
 	Publications        []*string `json:"publications"`
 	SystematicName      *string   `json:"systematic_name"`
-	Descriptor          *string   `json:"descriptor"`
+	Label               *string   `json:"label"`
 	Species             *string   `json:"species"`
 	Plasmid             *string   `json:"plasmid"`
 	Parent              *string   `json:"parent"`

@@ -159,7 +159,7 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
 	return obj.Data.Attributes.StrainProperties.SystematicName, nil
 }
-func (r *StrainResolver) Descriptor(ctx context.Context, obj *models.Strain) (string, error) {
+func (r *StrainResolver) Label(ctx context.Context, obj *models.Strain) (string, error) {
 	return obj.Data.Attributes.StrainProperties.Label, nil
 }
 func (r *StrainResolver) Species(ctx context.Context, obj *models.Strain) (string, error) {

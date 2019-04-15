@@ -216,13 +216,13 @@ type ComplexityRoot struct {
 		CreatedBy           func(childComplexity int) int
 		Dbxrefs             func(childComplexity int) int
 		Depositor           func(childComplexity int) int
-		Descriptor          func(childComplexity int) int
 		EditableSummary     func(childComplexity int) int
 		Genes               func(childComplexity int) int
 		GeneticModification func(childComplexity int) int
 		Genotypes           func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		InStock             func(childComplexity int) int
+		Label               func(childComplexity int) int
 		MutagenesisMethod   func(childComplexity int) int
 		Names               func(childComplexity int) int
 		Parent              func(childComplexity int) int
@@ -389,7 +389,7 @@ type StrainResolver interface {
 	Dbxrefs(ctx context.Context, obj *models.Strain) ([]*string, error)
 	Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error)
 	SystematicName(ctx context.Context, obj *models.Strain) (string, error)
-	Descriptor(ctx context.Context, obj *models.Strain) (string, error)
+	Label(ctx context.Context, obj *models.Strain) (string, error)
 	Species(ctx context.Context, obj *models.Strain) (string, error)
 	Plasmid(ctx context.Context, obj *models.Strain) (*string, error)
 	Parent(ctx context.Context, obj *models.Strain) (*models.Strain, error)
@@ -1391,13 +1391,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Strain.Depositor(childComplexity), true
 
-	case "Strain.Descriptor":
-		if e.complexity.Strain.Descriptor == nil {
-			break
-		}
-
-		return e.complexity.Strain.Descriptor(childComplexity), true
-
 	case "Strain.EditableSummary":
 		if e.complexity.Strain.EditableSummary == nil {
 			break
@@ -1439,6 +1432,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Strain.InStock(childComplexity), true
+
+	case "Strain.Label":
+		if e.complexity.Strain.Label == nil {
+			break
+		}
+
+		return e.complexity.Strain.Label(childComplexity), true
 
 	case "Strain.MutagenesisMethod":
 		if e.complexity.Strain.MutagenesisMethod == nil {
@@ -1988,7 +1988,7 @@ type Strain implements Stock {
   publications: [Publication]
   # from strain_properties
   systematic_name: String!
-  descriptor: String!
+  label: String!
   species: String!
   plasmid: String # update to Plasmid later?
   parent: Strain
@@ -2062,7 +2062,7 @@ input CreateStrainInput {
   publications: [String]
   # from strain_properties
   systematic_name: String!
-  descriptor: String!
+  label: String!
   species: String!
   plasmid: String
   parent: String
@@ -2104,7 +2104,7 @@ input UpdateStrainInput {
   publications: [String]
   # from strain_properties
   systematic_name: String
-  descriptor: String
+  label: String
   species: String
   plasmid: String
   parent: String
@@ -6119,7 +6119,7 @@ func (ec *executionContext) _Strain_systematic_name(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Strain_descriptor(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
+func (ec *executionContext) _Strain_label(ctx context.Context, field graphql.CollectedField, obj *models.Strain) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -6132,7 +6132,7 @@ func (ec *executionContext) _Strain_descriptor(ctx context.Context, field graphq
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Descriptor(rctx, obj)
+		return ec.resolvers.Strain().Label(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -8162,9 +8162,9 @@ func (ec *executionContext) unmarshalInputCreateStrainInput(ctx context.Context,
 			if err != nil {
 				return it, err
 			}
-		case "descriptor":
+		case "label":
 			var err error
-			it.Descriptor, err = ec.unmarshalNString2string(ctx, v)
+			it.Label, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8630,9 +8630,9 @@ func (ec *executionContext) unmarshalInputUpdateStrainInput(ctx context.Context,
 			if err != nil {
 				return it, err
 			}
-		case "descriptor":
+		case "label":
 			var err error
-			it.Descriptor, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Label, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10269,7 +10269,7 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 				}
 				return res
 			})
-		case "descriptor":
+		case "label":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -10277,7 +10277,7 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Strain_descriptor(ctx, field, obj)
+				res = ec._Strain_label(ctx, field, obj)
 				if res == graphql.Null {
 					invalid = true
 				}

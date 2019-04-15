@@ -372,7 +372,7 @@ func (r *strainResolver) Publications(ctx context.Context, obj *models.Strain) (
 func (r *strainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
 	panic("not implemented")
 }
-func (r *strainResolver) Descriptor(ctx context.Context, obj *models.Strain) (string, error) {
+func (r *strainResolver) Label(ctx context.Context, obj *models.Strain) (string, error) {
 	panic("not implemented")
 }
 func (r *strainResolver) Species(ctx context.Context, obj *models.Strain) (string, error) {

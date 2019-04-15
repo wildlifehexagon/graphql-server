@@ -41,11 +41,7 @@ func normalizeCreateStrainAttr(attr *models.CreateStrainInput) map[string]interf
 	newAttr := make(map[string]interface{})
 	for _, k := range fields {
 		if !k.IsZero() {
-			if k.Name() == "Descriptor" {
-				newAttr["label"] = k.Value()
-			} else {
-				newAttr[k.Name()] = k.Value()
-			}
+			newAttr[k.Name()] = k.Value()
 		} else {
 			switch k.Name() {
 			case "Genes":
@@ -161,11 +157,7 @@ func normalizeUpdateStrainAttr(attr *models.UpdateStrainInput) map[string]interf
 	newAttr := make(map[string]interface{})
 	for _, k := range fields {
 		if !k.IsZero() {
-			if k.Name() == "Descriptor" {
-				newAttr["label"] = k.Value()
-			} else {
-				newAttr[k.Name()] = k.Value()
-			}
+			newAttr[k.Name()] = k.Value()
 		}
 	}
 	return newAttr
@@ -282,36 +274,22 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 		return nil, err
 	}
 	strains := []models.Strain{}
+
 	for _, n := range list.Data {
+		attr := n.Attributes
+		attr.StrainProperties = n.Attributes.StrainProperties
+
 		item := models.Strain{
 			Data: &pb.Strain_Data{
-				Type: n.Type,
-				Id:   n.Id,
-				Attributes: &pb.StrainAttributes{
-					CreatedAt:       n.Attributes.CreatedAt,
-					UpdatedAt:       n.Attributes.UpdatedAt,
-					CreatedBy:       n.Attributes.CreatedBy,
-					UpdatedBy:       n.Attributes.UpdatedBy,
-					Summary:         n.Attributes.Summary,
-					EditableSummary: n.Attributes.EditableSummary,
-					Depositor:       n.Attributes.Depositor,
-					Genes:           n.Attributes.Genes,
-					Dbxrefs:         n.Attributes.Dbxrefs,
-					Publications:    n.Attributes.Publications,
-					StrainProperties: &pb.StrainProperties{
-						SystematicName: n.Attributes.StrainProperties.SystematicName,
-						Label:          n.Attributes.StrainProperties.Label,
-						Species:        n.Attributes.StrainProperties.Species,
-						Plasmid:        n.Attributes.StrainProperties.Plasmid,
-						Parent:         n.Attributes.StrainProperties.Parent,
-						Names:          n.Attributes.StrainProperties.Names,
-					},
-				},
+				Type:       n.Type,
+				Id:         n.Id,
+				Attributes: attr,
 			},
 		}
 		strains = append(strains, item)
 	}
 	l := int(limit)
+	q.Logger.Debugf("successfully retrieved list of %v strains", l)
 	return &models.StrainListWithCursor{
 		Strains:        strains,
 		NextCursor:     int(list.Meta.NextCursor),
@@ -372,6 +350,7 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 		plasmids = append(plasmids, item)
 	}
 	l := int(limit)
+	q.Logger.Debugf("successfully retrieved list of %v plasmids", l)
 	return &models.PlasmidListWithCursor{
 		Plasmids:       plasmids,
 		NextCursor:     int(list.Meta.NextCursor),
