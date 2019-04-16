@@ -288,14 +288,14 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 		}
 		strains = append(strains, item)
 	}
-	l := int(limit)
-	q.Logger.Debugf("successfully retrieved list of %v strains", l)
+	l := int(list.Meta.Limit)
+	q.Logger.Debugf("successfully retrieved list of %v strains", list.Meta.Total)
 	return &models.StrainListWithCursor{
 		Strains:        strains,
 		NextCursor:     int(list.Meta.NextCursor),
 		PreviousCursor: int(cursor),
 		Limit:          &l,
-		TotalCount:     len(strains),
+		TotalCount:     int(list.Meta.Total),
 	}, nil
 }
 
@@ -349,13 +349,13 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 		}
 		plasmids = append(plasmids, item)
 	}
-	l := int(limit)
-	q.Logger.Debugf("successfully retrieved list of %v plasmids", l)
+	l := int(list.Meta.Limit)
+	q.Logger.Debugf("successfully retrieved list of %v plasmids", list.Meta.Total)
 	return &models.PlasmidListWithCursor{
 		Plasmids:       plasmids,
 		NextCursor:     int(list.Meta.NextCursor),
 		PreviousCursor: int(cursor),
 		Limit:          &l,
-		TotalCount:     len(plasmids),
+		TotalCount:     int(list.Meta.Total),
 	}, nil
 }
