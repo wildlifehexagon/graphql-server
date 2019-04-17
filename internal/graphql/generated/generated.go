@@ -152,6 +152,7 @@ type ComplexityRoot struct {
 		ImageMap         func(childComplexity int) int
 		InStock          func(childComplexity int) int
 		Keywords         func(childComplexity int) int
+		Name             func(childComplexity int) int
 		Publications     func(childComplexity int) int
 		Sequence         func(childComplexity int) int
 		Summary          func(childComplexity int) int
@@ -330,6 +331,7 @@ type PlasmidResolver interface {
 	Genes(ctx context.Context, obj *models.Plasmid) ([]*string, error)
 	Dbxrefs(ctx context.Context, obj *models.Plasmid) ([]*string, error)
 	Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error)
+	Name(ctx context.Context, obj *models.Plasmid) (string, error)
 	ImageMap(ctx context.Context, obj *models.Plasmid) (*string, error)
 	Sequence(ctx context.Context, obj *models.Plasmid) (*string, error)
 	InStock(ctx context.Context, obj *models.Plasmid) (bool, error)
@@ -987,6 +989,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Plasmid.Keywords(childComplexity), true
+
+	case "Plasmid.Name":
+		if e.complexity.Plasmid.Name == nil {
+			break
+		}
+
+		return e.complexity.Plasmid.Name(childComplexity), true
 
 	case "Plasmid.Publications":
 		if e.complexity.Plasmid.Publications == nil {
@@ -2014,6 +2023,7 @@ type Plasmid implements Stock {
   genes: [String]
   dbxrefs: [String]
   publications: [Publication]
+  name: String!
   # from plasmid_properties
   image_map: String
   sequence: String
@@ -2085,6 +2095,7 @@ input CreatePlasmidInput {
   genes: [String]
   dbxrefs: [String]
   publications: [String]
+  name: String!
   # from plasmid_properties
   image_map: String
   sequence: String
@@ -2126,6 +2137,7 @@ input UpdatePlasmidInput {
   genes: [String]
   dbxrefs: [String]
   publications: [String]
+  name: String
   # from plasmid_properties
   image_map: String
   sequence: String
@@ -4580,6 +4592,33 @@ func (ec *executionContext) _Plasmid_publications(ctx context.Context, field gra
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOPublication2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Plasmid_name(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Plasmid",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Plasmid().Name(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Plasmid_image_map(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) graphql.Marshaler {
@@ -8042,6 +8081,12 @@ func (ec *executionContext) unmarshalInputCreatePlasmidInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "image_map":
 			var err error
 			it.ImageMap, err = ec.unmarshalOString2ᚖstring(ctx, v)
@@ -8513,6 +8558,12 @@ func (ec *executionContext) unmarshalInputUpdatePlasmidInput(ctx context.Context
 		case "publications":
 			var err error
 			it.Publications, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9524,6 +9575,20 @@ func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Plasmid_publications(ctx, field, obj)
+				return res
+			})
+		case "name":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Plasmid_name(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
 				return res
 			})
 		case "image_map":

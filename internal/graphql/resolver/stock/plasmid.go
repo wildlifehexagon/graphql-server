@@ -155,17 +155,20 @@ func (r *PlasmidResolver) Publications(ctx context.Context, obj *models.Plasmid)
 	return pubs, nil
 }
 func (r *PlasmidResolver) ImageMap(ctx context.Context, obj *models.Plasmid) (*string, error) {
-	return &obj.Data.Attributes.PlasmidProperties.ImageMap, nil
+	return &obj.Data.Attributes.ImageMap, nil
 }
 func (r *PlasmidResolver) Sequence(ctx context.Context, obj *models.Plasmid) (*string, error) {
-	return &obj.Data.Attributes.PlasmidProperties.Sequence, nil
+	return &obj.Data.Attributes.Sequence, nil
+}
+func (r *PlasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string, error) {
+	return obj.Data.Attributes.Name, nil
 }
 
 /*
 * Note: none of the below have been implemented yet.
  */
 func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (bool, error) {
-	panic("not implemented")
+	return true, nil
 }
 func (r *PlasmidResolver) Keywords(ctx context.Context, obj *models.Plasmid) ([]*string, error) {
 	s := ""

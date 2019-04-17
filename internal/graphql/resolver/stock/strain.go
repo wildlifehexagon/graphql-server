@@ -157,19 +157,19 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 	return pubs, nil
 }
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
-	return obj.Data.Attributes.StrainProperties.SystematicName, nil
+	return obj.Data.Attributes.SystematicName, nil
 }
 func (r *StrainResolver) Label(ctx context.Context, obj *models.Strain) (string, error) {
-	return obj.Data.Attributes.StrainProperties.Label, nil
+	return obj.Data.Attributes.Label, nil
 }
 func (r *StrainResolver) Species(ctx context.Context, obj *models.Strain) (string, error) {
-	return obj.Data.Attributes.StrainProperties.Species, nil
+	return obj.Data.Attributes.Species, nil
 }
 func (r *StrainResolver) Plasmid(ctx context.Context, obj *models.Strain) (*string, error) {
-	return &obj.Data.Attributes.StrainProperties.Plasmid, nil
+	return &obj.Data.Attributes.Plasmid, nil
 }
 func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*models.Strain, error) {
-	parent := obj.Data.Attributes.StrainProperties.Parent
+	parent := obj.Data.Attributes.Parent
 	strain, err := r.Client.GetStrain(ctx, &pb.StockId{Id: parent})
 	if err != nil {
 		r.Logger.Debugf("could not find parent strain with ID %s", parent)
@@ -181,7 +181,7 @@ func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*model
 	}, nil
 }
 func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	n := obj.Data.Attributes.StrainProperties.Names
+	n := obj.Data.Attributes.Names
 	pn := []*string{}
 	for i := 0; i < len(n); i++ {
 		pn = append(pn, &n[i])
@@ -193,7 +193,7 @@ func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*stri
 * Note: none of the below have been implemented yet.
  */
 func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
-	panic("not implemented")
+	return true, nil
 }
 func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]*models.Phenotype, error) {
 	return []*models.Phenotype{}, nil

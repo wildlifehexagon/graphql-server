@@ -44,6 +44,7 @@ type CreatePlasmidInput struct {
 	Genes            []*string `json:"genes"`
 	Dbxrefs          []*string `json:"dbxrefs"`
 	Publications     []*string `json:"publications"`
+	Name             string    `json:"name"`
 	ImageMap         *string   `json:"image_map"`
 	Sequence         *string   `json:"sequence"`
 	InStock          bool      `json:"in_stock"`
@@ -179,6 +180,7 @@ type UpdatePlasmidInput struct {
 	Genes            []*string `json:"genes"`
 	Dbxrefs          []*string `json:"dbxrefs"`
 	Publications     []*string `json:"publications"`
+	Name             *string   `json:"name"`
 	ImageMap         *string   `json:"image_map"`
 	Sequence         *string   `json:"sequence"`
 	InStock          *bool     `json:"in_stock"`

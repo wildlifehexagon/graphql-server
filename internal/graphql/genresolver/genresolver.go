@@ -207,6 +207,9 @@ func (r *plasmidResolver) Dbxrefs(ctx context.Context, obj *models.Plasmid) ([]*
 func (r *plasmidResolver) Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error) {
 	panic("not implemented")
 }
+func (r *plasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string, error) {
+	panic("not implemented")
+}
 func (r *plasmidResolver) ImageMap(ctx context.Context, obj *models.Plasmid) (*string, error) {
 	panic("not implemented")
 }

@@ -15,9 +15,6 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 	attr := &pb.NewStrainAttributes{}
 	norm := normalizeCreateStrainAttr(input)
 	mapstructure.Decode(norm, attr)
-	prop := &pb.StrainProperties{}
-	mapstructure.Decode(norm, prop)
-	attr.StrainProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).CreateStrain(ctx, &pb.NewStrain{
 		Data: &pb.NewStrain_Data{
 			Type:       "strain",
@@ -70,9 +67,6 @@ func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.Crea
 	attr := &pb.NewPlasmidAttributes{}
 	norm := normalizeCreatePlasmidAttr(input)
 	mapstructure.Decode(norm, attr)
-	prop := &pb.PlasmidProperties{}
-	mapstructure.Decode(norm, prop)
-	attr.PlasmidProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).CreatePlasmid(ctx, &pb.NewPlasmid{
 		Data: &pb.NewPlasmid_Data{
 			Type:       "plasmid",
@@ -125,9 +119,6 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 	attr := &pb.StrainUpdateAttributes{}
 	norm := normalizeUpdateStrainAttr(input)
 	mapstructure.Decode(norm, attr)
-	prop := &pb.StrainUpdateProperties{}
-	mapstructure.Decode(norm, prop)
-	attr.StrainProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).UpdateStrain(ctx, &pb.StrainUpdate{
 		Data: &pb.StrainUpdate_Data{
 			Type:       "strain",
@@ -173,9 +164,6 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	attr := &pb.PlasmidUpdateAttributes{}
 	norm := normalizeUpdatePlasmidAttr(input)
 	mapstructure.Decode(norm, attr)
-	prop := &pb.PlasmidProperties{}
-	mapstructure.Decode(norm, prop)
-	attr.PlasmidProperties = prop
 	n, err := m.GetStockClient(registry.STOCK).UpdatePlasmid(ctx, &pb.PlasmidUpdate{
 		Data: &pb.PlasmidUpdate_Data{
 			Type:       "plasmid",
@@ -277,8 +265,6 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 
 	for _, n := range list.Data {
 		attr := n.Attributes
-		attr.StrainProperties = n.Attributes.StrainProperties
-
 		item := models.Strain{
 			Data: &pb.Strain_Data{
 				Type:       n.Type,
@@ -340,10 +326,9 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 					Genes:           n.Attributes.Genes,
 					Dbxrefs:         n.Attributes.Dbxrefs,
 					Publications:    n.Attributes.Publications,
-					PlasmidProperties: &pb.PlasmidProperties{
-						ImageMap: n.Attributes.PlasmidProperties.ImageMap,
-						Sequence: n.Attributes.PlasmidProperties.Sequence,
-					},
+					ImageMap:        n.Attributes.ImageMap,
+					Sequence:        n.Attributes.Sequence,
+					Name:            n.Attributes.Name,
 				},
 			},
 		}
