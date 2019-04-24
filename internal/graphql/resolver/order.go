@@ -23,7 +23,7 @@ func (m *MutationResolver) CreateOrder(ctx context.Context, input *models.Create
 	attr.Items = convertPtrToStr(input.Items)
 	attr.Payer = input.Payer
 	attr.Payment = input.Payment
-	attr.PurchaseOrderNum = input.PurchaseOrderNum
+	attr.PurchaseOrderNum = *input.PurchaseOrderNum
 	attr.Purchaser = input.Purchaser
 	attr.Status = statusConverter(input.Status)
 	o, err := m.GetOrderClient(registry.ORDER).CreateOrder(ctx, &pb.NewOrder{
