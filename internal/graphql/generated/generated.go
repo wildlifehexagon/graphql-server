@@ -1845,7 +1845,7 @@ input CreateOrderInput {
   courier_account: String!
   comments: String
   payment: String!
-  purchase_order_num: String!
+  purchase_order_num: String
   status: StatusEnum!
   consumer: String!
   payer: String!
@@ -7957,7 +7957,7 @@ func (ec *executionContext) unmarshalInputCreateOrderInput(ctx context.Context, 
 			}
 		case "purchase_order_num":
 			var err error
-			it.PurchaseOrderNum, err = ec.unmarshalNString2string(ctx, v)
+			it.PurchaseOrderNum, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

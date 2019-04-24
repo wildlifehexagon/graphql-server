@@ -21,7 +21,7 @@ type CreateOrderInput struct {
 	CourierAccount   string     `json:"courier_account"`
 	Comments         *string    `json:"comments"`
 	Payment          string     `json:"payment"`
-	PurchaseOrderNum string     `json:"purchase_order_num"`
+	PurchaseOrderNum *string    `json:"purchase_order_num"`
 	Status           StatusEnum `json:"status"`
 	Consumer         string     `json:"consumer"`
 	Payer            string     `json:"payer"`
