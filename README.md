@@ -1,5 +1,8 @@
 # graphql-server
 
+[![GoDoc](https://godoc.org/github.com/dictybase/graphql-server?status.svg)](https://godoc.org/github.com/dictybase/graphql-server)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dictybase/graphql-server)](https://goreportcard.com/report/github.com/dictybase/graphql-server)
+
 dictyBase GraphQL server. This uses [glqgen](https://github.com/99designs/gqlgen) to generate code to match our gRPC models.
 errorhandling
 
