@@ -212,8 +212,7 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 	return []*string{&s}, nil
 }
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
-	s := ""
-	return &s, nil
+	return "", nil
 }
 
 type PubJsonAPI struct {
