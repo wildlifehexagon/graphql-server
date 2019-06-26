@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"github.com/dictyBase/go-genproto/dictybaseapis/content"
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
@@ -15,6 +16,7 @@ const (
 	PUBLICATION = "publication"
 	STOCK       = "stock"
 	ORDER       = "order"
+	CONTENT     = "content"
 )
 
 var ServiceMap = map[string]string{
@@ -23,6 +25,7 @@ var ServiceMap = map[string]string{
 	"permission": PERMISSION,
 	"stock":      STOCK,
 	"order":      ORDER,
+	"content":    CONTENT,
 }
 
 type collection struct {
@@ -39,6 +42,7 @@ type Registry interface {
 	GetPermissionClient(key string) user.PermissionServiceClient
 	GetStockClient(key string) stock.StockServiceClient
 	GetOrderClient(key string) order.OrderServiceClient
+	GetContentClient(key string) content.ContentServiceClient
 }
 
 // NewRegistry constructs a hashmap for our grpc clients
@@ -84,6 +88,10 @@ func (c *collection) GetStockClient(key string) stock.StockServiceClient {
 
 func (c *collection) GetOrderClient(key string) order.OrderServiceClient {
 	return order.NewOrderServiceClient(c.GetAPIConnection(key))
+}
+
+func (c *collection) GetContentClient(key string) content.ContentServiceClient {
+	return content.NewContentServiceClient(c.GetAPIConnection(key))
 }
 
 func (c *collection) GetAPIEndpoint(key string) string {
