@@ -26,7 +26,7 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 		m.Logger.Error(err)
 		return nil, err
 	}
-	// Note: InStock, Phenotypes, GeneticModification, MutagenesisMethod, Characteristics and Genotypes will need to be implemented later.
+	// Note: InStock, Phenotypes, GeneticModification, MutagenesisMethod, Characteristics, SystematicName and Genotypes will need to be implemented later.
 	m.Logger.Debugf("successfully created new strain with ID %s", n.Data.Id)
 	return &models.Strain{
 		Data: n.Data,

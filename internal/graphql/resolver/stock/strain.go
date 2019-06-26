@@ -156,9 +156,6 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 	}
 	return pubs, nil
 }
-func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
-	return obj.Data.Attributes.SystematicName, nil
-}
 func (r *StrainResolver) Label(ctx context.Context, obj *models.Strain) (string, error) {
 	return obj.Data.Attributes.Label, nil
 }
@@ -213,6 +210,10 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	s := ""
 	return []*string{&s}, nil
+}
+func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
+	s := ""
+	return &s, nil
 }
 
 type PubJsonAPI struct {
