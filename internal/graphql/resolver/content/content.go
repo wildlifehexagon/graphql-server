@@ -37,7 +37,7 @@ func (r *ContentResolver) CreatedBy(ctx context.Context, obj *pb.Content) (*user
 		r.Logger.Error(err)
 		return &user, err
 	}
-	r.Logger.Debugf("successfully found user with id %s", id)
+	r.Logger.Debugf("successfully found user with id %d", id)
 	return g, nil
 }
 func (r *ContentResolver) UpdatedBy(ctx context.Context, obj *pb.Content) (*user.User, error) {
@@ -49,7 +49,7 @@ func (r *ContentResolver) UpdatedBy(ctx context.Context, obj *pb.Content) (*user
 		r.Logger.Error(err)
 		return &user, err
 	}
-	r.Logger.Debugf("successfully found user with id %s", id)
+	r.Logger.Debugf("successfully found user with id %d", id)
 	return g, nil
 }
 func (r *ContentResolver) CreatedAt(ctx context.Context, obj *pb.Content) (*time.Time, error) {
