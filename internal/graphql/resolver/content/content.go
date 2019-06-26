@@ -6,13 +6,17 @@ import (
 	"time"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
+	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/content"
+	"github.com/dictyBase/go-genproto/dictybaseapis/user"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/sirupsen/logrus"
 )
 
 type ContentResolver struct {
-	Client pb.ContentServiceClient
-	Logger *logrus.Entry
+	Client     pb.ContentServiceClient
+	UserClient user.UserServiceClient
+	Logger     *logrus.Entry
 }
 
 func (r *ContentResolver) ID(ctx context.Context, obj *pb.Content) (string, error) {
@@ -24,11 +28,29 @@ func (r *ContentResolver) Name(ctx context.Context, obj *pb.Content) (string, er
 func (r *ContentResolver) Slug(ctx context.Context, obj *pb.Content) (string, error) {
 	return obj.Data.Attributes.Slug, nil
 }
-func (r *ContentResolver) CreatedBy(ctx context.Context, obj *pb.Content) (string, error) {
-	panic("not implemented")
+func (r *ContentResolver) CreatedBy(ctx context.Context, obj *pb.Content) (*user.User, error) {
+	user := user.User{}
+	id := obj.Data.Attributes.CreatedBy
+	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: id})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
+	}
+	r.Logger.Debugf("successfully found user with id %s", id)
+	return g, nil
 }
-func (r *ContentResolver) UpdatedBy(ctx context.Context, obj *pb.Content) (string, error) {
-	panic("not implemented")
+func (r *ContentResolver) UpdatedBy(ctx context.Context, obj *pb.Content) (*user.User, error) {
+	user := user.User{}
+	id := obj.Data.Attributes.UpdatedBy
+	g, err := r.UserClient.GetUser(ctx, &jsonapi.GetRequest{Id: id})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
+	}
+	r.Logger.Debugf("successfully found user with id %s", id)
+	return g, nil
 }
 func (r *ContentResolver) CreatedAt(ctx context.Context, obj *pb.Content) (*time.Time, error) {
 	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.CreatedAt)

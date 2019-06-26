@@ -67,10 +67,10 @@ func (r *contentResolver) Name(ctx context.Context, obj *content.Content) (strin
 func (r *contentResolver) Slug(ctx context.Context, obj *content.Content) (string, error) {
 	panic("not implemented")
 }
-func (r *contentResolver) CreatedBy(ctx context.Context, obj *content.Content) (string, error) {
+func (r *contentResolver) CreatedBy(ctx context.Context, obj *content.Content) (*user.User, error) {
 	panic("not implemented")
 }
-func (r *contentResolver) UpdatedBy(ctx context.Context, obj *content.Content) (string, error) {
+func (r *contentResolver) UpdatedBy(ctx context.Context, obj *content.Content) (*user.User, error) {
 	panic("not implemented")
 }
 func (r *contentResolver) CreatedAt(ctx context.Context, obj *content.Content) (*time.Time, error) {

@@ -303,8 +303,8 @@ type ContentResolver interface {
 	ID(ctx context.Context, obj *content.Content) (string, error)
 	Name(ctx context.Context, obj *content.Content) (string, error)
 	Slug(ctx context.Context, obj *content.Content) (string, error)
-	CreatedBy(ctx context.Context, obj *content.Content) (string, error)
-	UpdatedBy(ctx context.Context, obj *content.Content) (string, error)
+	CreatedBy(ctx context.Context, obj *content.Content) (*user.User, error)
+	UpdatedBy(ctx context.Context, obj *content.Content) (*user.User, error)
 	CreatedAt(ctx context.Context, obj *content.Content) (*time.Time, error)
 	UpdatedAt(ctx context.Context, obj *content.Content) (*time.Time, error)
 	Content(ctx context.Context, obj *content.Content) (string, error)
@@ -1958,8 +1958,8 @@ var parsedSchema = gqlparser.MustLoadSchema(
   id: ID!
   name: String!
   slug: String!
-  created_by: String!
-  updated_by: String!
+  created_by: User!
+  updated_by: User!
   created_at: Timestamp!
   updated_at: Timestamp!
   content: String!
@@ -3287,10 +3287,10 @@ func (ec *executionContext) _Content_created_by(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*user.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Content_updated_by(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
@@ -3314,10 +3314,10 @@ func (ec *executionContext) _Content_updated_by(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*user.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Content_created_at(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {

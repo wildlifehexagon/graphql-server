@@ -99,7 +99,8 @@ func (r *Resolver) Order() generated.OrderResolver {
 
 func (r *Resolver) Content() generated.ContentResolver {
 	return &content.ContentResolver{
-		Client: r.GetContentClient(registry.CONTENT),
-		Logger: r.Logger,
+		Client:     r.GetContentClient(registry.CONTENT),
+		UserClient: r.GetUserClient(registry.USER),
+		Logger:     r.Logger,
 	}
 }
