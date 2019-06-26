@@ -3,23 +3,23 @@ package resolver
 import (
 	"context"
 
+	pb "github.com/dictyBase/go-genproto/dictybaseapis/content"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/dictyBase/graphql-server/internal/graphql/resolver/content"
 )
 
-func (m *mutationResolver) CreateContent(ctx context.Context, input *models.CreateContentInput) (*content.Content, error) {
+func (m *MutationResolver) CreateContent(ctx context.Context, input *models.CreateContentInput) (*pb.Content, error) {
 	panic("not implemented")
 }
-func (m *mutationResolver) UpdateContent(ctx context.Context, input *models.UpdateContentInput) (*content.Content, error) {
+func (m *MutationResolver) UpdateContent(ctx context.Context, input *models.UpdateContentInput) (*pb.Content, error) {
 	panic("not implemented")
 }
-func (m *mutationResolver) DeleteContent(ctx context.Context, id string) (*models.DeleteContent, error) {
+func (m *MutationResolver) DeleteContent(ctx context.Context, id string) (*models.DeleteContent, error) {
 	panic("not implemented")
 }
 
-func (q *queryResolver) Content(ctx context.Context, id string) (*content.Content, error) {
+func (q *QueryResolver) Content(ctx context.Context, id string) (*pb.Content, error) {
 	panic("not implemented")
 }
-func (q *queryResolver) ContentBySlug(ctx context.Context, slug string) (*content.Content, error) {
+func (q *QueryResolver) ContentBySlug(ctx context.Context, slug string) (*pb.Content, error) {
 	panic("not implemented")
 }
