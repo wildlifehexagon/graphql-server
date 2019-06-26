@@ -3,6 +3,7 @@ package resolver
 
 import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/content"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/order"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/publication"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/stock"
@@ -93,5 +94,12 @@ func (r *Resolver) Order() generated.OrderResolver {
 		StockClient: r.GetStockClient(registry.STOCK),
 		UserClient:  r.GetUserClient(registry.USER),
 		Logger:      r.Logger,
+	}
+}
+
+func (r *Resolver) Content() generated.ContentResolver {
+	return &content.contentResolver{
+		Client: r.GetContentClient(registry.CONTENT),
+		Logger: r.Logger,
 	}
 }

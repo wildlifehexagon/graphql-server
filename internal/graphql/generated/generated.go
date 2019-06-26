@@ -13,6 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/dictyBase/go-genproto/dictybaseapis/content"
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
@@ -40,6 +41,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Author() AuthorResolver
+	Content() ContentResolver
 	Mutation() MutationResolver
 	Order() OrderResolver
 	Permission() PermissionResolver
@@ -62,6 +64,22 @@ type ComplexityRoot struct {
 		Rank      func(childComplexity int) int
 	}
 
+	Content struct {
+		Content   func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		CreatedBy func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Namespace func(childComplexity int) int
+		Slug      func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		UpdatedBy func(childComplexity int) int
+	}
+
+	DeleteContent struct {
+		Success func(childComplexity int) int
+	}
+
 	DeletePermission struct {
 		Success func(childComplexity int) int
 	}
@@ -79,6 +97,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateContent                    func(childComplexity int, input *models.CreateContentInput) int
 		CreateOrder                      func(childComplexity int, input *models.CreateOrderInput) int
 		CreatePermission                 func(childComplexity int, input *models.CreatePermissionInput) int
 		CreatePlasmid                    func(childComplexity int, input *models.CreatePlasmidInput) int
@@ -87,10 +106,12 @@ type ComplexityRoot struct {
 		CreateStrain                     func(childComplexity int, input *models.CreateStrainInput) int
 		CreateUser                       func(childComplexity int, input *models.CreateUserInput) int
 		CreateUserRoleRelationship       func(childComplexity int, userID string, roleID string) int
+		DeleteContent                    func(childComplexity int, id string) int
 		DeletePermission                 func(childComplexity int, id string) int
 		DeleteRole                       func(childComplexity int, id string) int
 		DeleteStock                      func(childComplexity int, id string) int
 		DeleteUser                       func(childComplexity int, id string) int
+		UpdateContent                    func(childComplexity int, input *models.UpdateContentInput) int
 		UpdateOrder                      func(childComplexity int, id string, input *models.UpdateOrderInput) int
 		UpdatePermission                 func(childComplexity int, id string, input *models.UpdatePermissionInput) int
 		UpdatePlasmid                    func(childComplexity int, id string, input *models.UpdatePlasmidInput) int
@@ -186,6 +207,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Content         func(childComplexity int, id string) int
+		ContentBySlug   func(childComplexity int, slug string) int
 		ListOrders      func(childComplexity int, input *models.ListOrderInput) int
 		ListPermissions func(childComplexity int) int
 		ListPlasmids    func(childComplexity int, input *models.ListStockInput) int
@@ -276,6 +299,17 @@ type ComplexityRoot struct {
 type AuthorResolver interface {
 	Rank(ctx context.Context, obj *publication.Author) (*string, error)
 }
+type ContentResolver interface {
+	ID(ctx context.Context, obj *content.Content) (string, error)
+	Name(ctx context.Context, obj *content.Content) (string, error)
+	Slug(ctx context.Context, obj *content.Content) (string, error)
+	CreatedBy(ctx context.Context, obj *content.Content) (string, error)
+	UpdatedBy(ctx context.Context, obj *content.Content) (string, error)
+	CreatedAt(ctx context.Context, obj *content.Content) (*time.Time, error)
+	UpdatedAt(ctx context.Context, obj *content.Content) (*time.Time, error)
+	Content(ctx context.Context, obj *content.Content) (string, error)
+	Namespace(ctx context.Context, obj *content.Content) (string, error)
+}
 type MutationResolver interface {
 	CreateOrder(ctx context.Context, input *models.CreateOrderInput) (*order.Order, error)
 	UpdateOrder(ctx context.Context, id string, input *models.UpdateOrderInput) (*order.Order, error)
@@ -295,6 +329,9 @@ type MutationResolver interface {
 	CreatePermission(ctx context.Context, input *models.CreatePermissionInput) (*user.Permission, error)
 	UpdatePermission(ctx context.Context, id string, input *models.UpdatePermissionInput) (*user.Permission, error)
 	DeletePermission(ctx context.Context, id string) (*models.DeletePermission, error)
+	CreateContent(ctx context.Context, input *models.CreateContentInput) (*content.Content, error)
+	UpdateContent(ctx context.Context, input *models.UpdateContentInput) (*content.Content, error)
+	DeleteContent(ctx context.Context, id string) (*models.DeleteContent, error)
 }
 type OrderResolver interface {
 	ID(ctx context.Context, obj *order.Order) (string, error)
@@ -369,6 +406,8 @@ type QueryResolver interface {
 	ListRoles(ctx context.Context) ([]user.Role, error)
 	Permission(ctx context.Context, id string) (*user.Permission, error)
 	ListPermissions(ctx context.Context) ([]user.Permission, error)
+	Content(ctx context.Context, id string) (*content.Content, error)
+	ContentBySlug(ctx context.Context, slug string) (*content.Content, error)
 }
 type RoleResolver interface {
 	ID(ctx context.Context, obj *user.Role) (string, error)
@@ -466,6 +505,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Author.Rank(childComplexity), true
 
+	case "Content.Content":
+		if e.complexity.Content.Content == nil {
+			break
+		}
+
+		return e.complexity.Content.Content(childComplexity), true
+
+	case "Content.CreatedAt":
+		if e.complexity.Content.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Content.CreatedAt(childComplexity), true
+
+	case "Content.CreatedBy":
+		if e.complexity.Content.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Content.CreatedBy(childComplexity), true
+
+	case "Content.ID":
+		if e.complexity.Content.ID == nil {
+			break
+		}
+
+		return e.complexity.Content.ID(childComplexity), true
+
+	case "Content.Name":
+		if e.complexity.Content.Name == nil {
+			break
+		}
+
+		return e.complexity.Content.Name(childComplexity), true
+
+	case "Content.Namespace":
+		if e.complexity.Content.Namespace == nil {
+			break
+		}
+
+		return e.complexity.Content.Namespace(childComplexity), true
+
+	case "Content.Slug":
+		if e.complexity.Content.Slug == nil {
+			break
+		}
+
+		return e.complexity.Content.Slug(childComplexity), true
+
+	case "Content.UpdatedAt":
+		if e.complexity.Content.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Content.UpdatedAt(childComplexity), true
+
+	case "Content.UpdatedBy":
+		if e.complexity.Content.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Content.UpdatedBy(childComplexity), true
+
+	case "DeleteContent.Success":
+		if e.complexity.DeleteContent.Success == nil {
+			break
+		}
+
+		return e.complexity.DeleteContent.Success(childComplexity), true
+
 	case "DeletePermission.Success":
 		if e.complexity.DeletePermission.Success == nil {
 			break
@@ -493,6 +602,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteUser.Success(childComplexity), true
+
+	case "Mutation.CreateContent":
+		if e.complexity.Mutation.CreateContent == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createContent_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateContent(childComplexity, args["input"].(*models.CreateContentInput)), true
 
 	case "Mutation.CreateOrder":
 		if e.complexity.Mutation.CreateOrder == nil {
@@ -590,6 +711,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUserRoleRelationship(childComplexity, args["userId"].(string), args["roleId"].(string)), true
 
+	case "Mutation.DeleteContent":
+		if e.complexity.Mutation.DeleteContent == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteContent_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteContent(childComplexity, args["id"].(string)), true
+
 	case "Mutation.DeletePermission":
 		if e.complexity.Mutation.DeletePermission == nil {
 			break
@@ -637,6 +770,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteUser(childComplexity, args["id"].(string)), true
+
+	case "Mutation.UpdateContent":
+		if e.complexity.Mutation.UpdateContent == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateContent_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateContent(childComplexity, args["input"].(*models.UpdateContentInput)), true
 
 	case "Mutation.UpdateOrder":
 		if e.complexity.Mutation.UpdateOrder == nil {
@@ -1164,6 +1309,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Publication.Volume(childComplexity), true
+
+	case "Query.Content":
+		if e.complexity.Query.Content == nil {
+			break
+		}
+
+		args, err := ec.field_Query_content_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Content(childComplexity, args["id"].(string)), true
+
+	case "Query.ContentBySlug":
+		if e.complexity.Query.ContentBySlug == nil {
+			break
+		}
+
+		args, err := ec.field_Query_contentBySlug_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ContentBySlug(childComplexity, args["slug"].(string)), true
 
 	case "Query.ListOrders":
 		if e.complexity.Query.ListOrders == nil {
@@ -1785,6 +1954,34 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var parsedSchema = gqlparser.MustLoadSchema(
+	&ast.Source{Name: "api/content.graphql", Input: `type Content {
+  id: ID!
+  name: String!
+  slug: String!
+  created_by: String!
+  updated_by: String!
+  created_at: Timestamp!
+  updated_at: Timestamp!
+  content: String!
+  namespace: String!
+}
+
+input CreateContentInput {
+  name: String!
+  created_by: String!
+  content: String!
+  namespace: String!
+}
+
+input UpdateContentInput {
+  id: ID!
+  updated_by: String!
+  content: String!
+}
+
+type DeleteContent {
+  success: Boolean!
+}`},
 	&ast.Source{Name: "api/mutation.graphql", Input: `type Mutation {
   # Order mutations
   createOrder(input: CreateOrderInput): Order
@@ -1807,6 +2004,10 @@ var parsedSchema = gqlparser.MustLoadSchema(
   createPermission(input: CreatePermissionInput): Permission
   updatePermission(id: ID!, input: UpdatePermissionInput): Permission
   deletePermission(id: ID!): DeletePermission
+  # Content mutations
+  createContent(input: CreateContentInput): Content
+  updateContent(input: UpdateContentInput): Content
+  deleteContent(id: ID!): DeleteContent
 }
 `},
 	&ast.Source{Name: "api/order.graphql", Input: `type Order {
@@ -1964,6 +2165,9 @@ type Author {
   listRoles: [Role!]
   permission(id: ID!): Permission
   listPermissions: [Permission!]
+  # Content queries
+  content(id: ID!): Content
+  contentBySlug(slug: String!): Content
 }
 `},
 	&ast.Source{Name: "api/scalar.graphql", Input: `scalar Timestamp
@@ -2269,6 +2473,20 @@ type DeletePermission {
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_createContent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.CreateContentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalOCreateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2397,6 +2615,20 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteContent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deletePermission_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2450,6 +2682,20 @@ func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateContent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.UpdateContentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalOUpdateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2596,6 +2842,34 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_contentBySlug_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["slug"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["slug"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_content_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -2909,6 +3183,276 @@ func (ec *executionContext) _Author_rank(ctx context.Context, field graphql.Coll
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_id(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().ID(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_name(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().Name(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_slug(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().Slug(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_created_by(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().CreatedBy(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_updated_by(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().UpdatedBy(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_created_at(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().CreatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_updated_at(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().UpdatedAt(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_content(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().Content(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Content_namespace(ctx context.Context, field graphql.CollectedField, obj *content.Content) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Content",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Content().Namespace(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _DeleteContent_success(ctx context.Context, field graphql.CollectedField, obj *models.DeleteContent) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "DeleteContent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _DeletePermission_success(ctx context.Context, field graphql.CollectedField, obj *models.DeletePermission) graphql.Marshaler {
@@ -3575,6 +4119,99 @@ func (ec *executionContext) _Mutation_deletePermission(ctx context.Context, fiel
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalODeletePermission2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeletePermission(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createContent(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createContent_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateContent(rctx, args["input"].(*models.CreateContentInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*content.Content)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateContent(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateContent_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateContent(rctx, args["input"].(*models.UpdateContentInput))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*content.Content)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteContent(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteContent_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteContent(rctx, args["id"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.DeleteContent)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalODeleteContent2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteContent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Order_id(ctx context.Context, field graphql.CollectedField, obj *order.Order) graphql.Marshaler {
@@ -5633,6 +6270,68 @@ func (ec *executionContext) _Query_listPermissions(ctx context.Context, field gr
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOPermission2ᚕgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐPermission(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_content(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_content_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Content(rctx, args["id"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*content.Content)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_contentBySlug(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_contentBySlug_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ContentBySlug(rctx, args["slug"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*content.Content)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -7925,6 +8624,42 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateContentInput(ctx context.Context, v interface{}) (models.CreateContentInput, error) {
+	var it models.CreateContentInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "created_by":
+			var err error
+			it.CreatedBy, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "content":
+			var err error
+			it.Content, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "namespace":
+			var err error
+			it.Namespace, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateOrderInput(ctx context.Context, v interface{}) (models.CreateOrderInput, error) {
 	var it models.CreateOrderInput
 	var asMap = v.(map[string]interface{})
@@ -8429,6 +9164,36 @@ func (ec *executionContext) unmarshalInputListStockInput(ctx context.Context, v 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateContentInput(ctx context.Context, v interface{}) (models.UpdateContentInput, error) {
+	var it models.UpdateContentInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updated_by":
+			var err error
+			it.UpdatedBy, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "content":
+			var err error
+			it.Content, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateOrderInput(ctx context.Context, v interface{}) (models.UpdateOrderInput, error) {
 	var it models.UpdateOrderInput
 	var asMap = v.(map[string]interface{})
@@ -8901,6 +9666,181 @@ func (ec *executionContext) _Author(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var contentImplementors = []string{"Content"}
+
+func (ec *executionContext) _Content(ctx context.Context, sel ast.SelectionSet, obj *content.Content) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, contentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	invalid := false
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Content")
+		case "id":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_id(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "name":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_name(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "slug":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_slug(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "created_by":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_created_by(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "updated_by":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_updated_by(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "created_at":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_created_at(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "updated_at":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_updated_at(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "content":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_content(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		case "namespace":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Content_namespace(ctx, field, obj)
+				if res == graphql.Null {
+					invalid = true
+				}
+				return res
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+var deleteContentImplementors = []string{"DeleteContent"}
+
+func (ec *executionContext) _DeleteContent(ctx context.Context, sel ast.SelectionSet, obj *models.DeleteContent) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, deleteContentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	invalid := false
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteContent")
+		case "success":
+			out.Values[i] = ec._DeleteContent_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
 var deletePermissionImplementors = []string{"DeletePermission"}
 
 func (ec *executionContext) _DeletePermission(ctx context.Context, sel ast.SelectionSet, obj *models.DeletePermission) graphql.Marshaler {
@@ -9060,6 +10000,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec._Mutation_updatePermission(ctx, field)
 		case "deletePermission":
 			out.Values[i] = ec._Mutation_deletePermission(ctx, field)
+		case "createContent":
+			out.Values[i] = ec._Mutation_createContent(ctx, field)
+		case "updateContent":
+			out.Values[i] = ec._Mutation_updateContent(ctx, field)
+		case "deleteContent":
+			out.Values[i] = ec._Mutation_deleteContent(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10050,6 +10996,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_listPermissions(ctx, field)
+				return res
+			})
+		case "content":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_content(ctx, field)
+				return res
+			})
+		case "contentBySlug":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_contentBySlug(ctx, field)
 				return res
 			})
 		case "__type":
@@ -11602,6 +12570,29 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
+func (ec *executionContext) marshalOContent2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx context.Context, sel ast.SelectionSet, v content.Content) graphql.Marshaler {
+	return ec._Content(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx context.Context, sel ast.SelectionSet, v *content.Content) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Content(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCreateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx context.Context, v interface{}) (models.CreateContentInput, error) {
+	return ec.unmarshalInputCreateContentInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOCreateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx context.Context, v interface{}) (*models.CreateContentInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOCreateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx, v)
+	return &res, err
+}
+
 func (ec *executionContext) unmarshalOCreateOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateOrderInput(ctx context.Context, v interface{}) (models.CreateOrderInput, error) {
 	return ec.unmarshalInputCreateOrderInput(ctx, v)
 }
@@ -11672,6 +12663,17 @@ func (ec *executionContext) unmarshalOCreateUserInput2ᚖgithubᚗcomᚋdictyBas
 	}
 	res, err := ec.unmarshalOCreateUserInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateUserInput(ctx, v)
 	return &res, err
+}
+
+func (ec *executionContext) marshalODeleteContent2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteContent(ctx context.Context, sel ast.SelectionSet, v models.DeleteContent) graphql.Marshaler {
+	return ec._DeleteContent(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalODeleteContent2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteContent(ctx context.Context, sel ast.SelectionSet, v *models.DeleteContent) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteContent(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeletePermission2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeletePermission(ctx context.Context, sel ast.SelectionSet, v models.DeletePermission) graphql.Marshaler {
@@ -12182,6 +13184,18 @@ func (ec *executionContext) marshalOTimestamp2ᚖtimeᚐTime(ctx context.Context
 		return graphql.Null
 	}
 	return ec.marshalOTimestamp2timeᚐTime(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOUpdateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx context.Context, v interface{}) (models.UpdateContentInput, error) {
+	return ec.unmarshalInputUpdateContentInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOUpdateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx context.Context, v interface{}) (*models.UpdateContentInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOUpdateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOUpdateOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateOrderInput(ctx context.Context, v interface{}) (models.UpdateOrderInput, error) {

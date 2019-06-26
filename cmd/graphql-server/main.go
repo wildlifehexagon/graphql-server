@@ -63,6 +63,16 @@ func main() {
 					Usage:  "permission grpc port",
 				},
 				cli.StringFlag{
+					Name:   "content-grpc-host, ch",
+					EnvVar: "CONTENT_API_SERVICE_HOST",
+					Usage:  "content grpc host",
+				},
+				cli.StringFlag{
+					Name:   "content-grpc-port, cp",
+					EnvVar: "CONTENT_API_SERVICE_PORT",
+					Usage:  "content grpc port",
+				},
+				cli.StringFlag{
 					Name:   "publication-api, pub",
 					EnvVar: "PUBLICATION_API_ENDPOINT",
 					Usage:  "publication api endpoint",

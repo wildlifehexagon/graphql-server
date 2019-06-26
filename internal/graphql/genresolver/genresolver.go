@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/dictyBase/go-genproto/dictybaseapis/content"
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
@@ -17,6 +18,9 @@ type Resolver struct{}
 
 func (r *Resolver) Author() generated.AuthorResolver {
 	return &authorResolver{r}
+}
+func (r *Resolver) Content() generated.ContentResolver {
+	return &contentResolver{r}
 }
 func (r *Resolver) Mutation() generated.MutationResolver {
 	return &mutationResolver{r}
@@ -49,6 +53,36 @@ func (r *Resolver) User() generated.UserResolver {
 type authorResolver struct{ *Resolver }
 
 func (r *authorResolver) Rank(ctx context.Context, obj *publication.Author) (*string, error) {
+	panic("not implemented")
+}
+
+type contentResolver struct{ *Resolver }
+
+func (r *contentResolver) ID(ctx context.Context, obj *content.Content) (string, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) Name(ctx context.Context, obj *content.Content) (string, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) Slug(ctx context.Context, obj *content.Content) (string, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) CreatedBy(ctx context.Context, obj *content.Content) (string, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) UpdatedBy(ctx context.Context, obj *content.Content) (string, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) CreatedAt(ctx context.Context, obj *content.Content) (*time.Time, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) UpdatedAt(ctx context.Context, obj *content.Content) (*time.Time, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) Content(ctx context.Context, obj *content.Content) (string, error) {
+	panic("not implemented")
+}
+func (r *contentResolver) Namespace(ctx context.Context, obj *content.Content) (string, error) {
 	panic("not implemented")
 }
 
@@ -106,6 +140,15 @@ func (r *mutationResolver) UpdatePermission(ctx context.Context, id string, inpu
 	panic("not implemented")
 }
 func (r *mutationResolver) DeletePermission(ctx context.Context, id string) (*models.DeletePermission, error) {
+	panic("not implemented")
+}
+func (r *mutationResolver) CreateContent(ctx context.Context, input *models.CreateContentInput) (*content.Content, error) {
+	panic("not implemented")
+}
+func (r *mutationResolver) UpdateContent(ctx context.Context, input *models.UpdateContentInput) (*content.Content, error) {
+	panic("not implemented")
+}
+func (r *mutationResolver) DeleteContent(ctx context.Context, id string) (*models.DeleteContent, error) {
 	panic("not implemented")
 }
 
@@ -313,6 +356,12 @@ func (r *queryResolver) Permission(ctx context.Context, id string) (*user.Permis
 	panic("not implemented")
 }
 func (r *queryResolver) ListPermissions(ctx context.Context) ([]user.Permission, error) {
+	panic("not implemented")
+}
+func (r *queryResolver) Content(ctx context.Context, id string) (*content.Content, error) {
+	panic("not implemented")
+}
+func (r *queryResolver) ContentBySlug(ctx context.Context, slug string) (*content.Content, error) {
 	panic("not implemented")
 }
 

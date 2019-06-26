@@ -16,6 +16,13 @@ type Stock interface {
 	IsStock()
 }
 
+type CreateContentInput struct {
+	Name      string `json:"name"`
+	CreatedBy string `json:"created_by"`
+	Content   string `json:"content"`
+	Namespace string `json:"namespace"`
+}
+
 type CreateOrderInput struct {
 	Courier          string     `json:"courier"`
 	CourierAccount   string     `json:"courier_account"`
@@ -96,6 +103,10 @@ type CreateUserInput struct {
 	IsActive      bool    `json:"is_active"`
 }
 
+type DeleteContent struct {
+	Success bool `json:"success"`
+}
+
 type DeletePermission struct {
 	Success bool `json:"success"`
 }
@@ -154,6 +165,12 @@ type StrainListWithCursor struct {
 	PreviousCursor int      `json:"previousCursor"`
 	Limit          *int     `json:"limit"`
 	TotalCount     int      `json:"totalCount"`
+}
+
+type UpdateContentInput struct {
+	ID        string `json:"id"`
+	UpdatedBy string `json:"updated_by"`
+	Content   string `json:"content"`
 }
 
 type UpdateOrderInput struct {
