@@ -9,6 +9,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/apihelpers/aphgrpc"
+	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
@@ -20,11 +21,20 @@ import (
 	"github.com/vektah/gqlparser/gqlerror"
 )
 
+const (
+	phenoOntology = "Dicty Phenotypes"
+	envOntology   = "Dicty Environment"
+	assayOntology = "Dictyostellium Assay"
+	literatureTag = "literature_tag"
+	noteTag       = "public note"
+)
+
 type StrainResolver struct {
-	Client     pb.StockServiceClient
-	UserClient user.UserServiceClient
-	Registry   registry.Registry
-	Logger     *logrus.Entry
+	Client           pb.StockServiceClient
+	UserClient       user.UserServiceClient
+	AnnotationClient annotation.TaggedAnnotationServiceClient
+	Registry         registry.Registry
+	Logger           *logrus.Entry
 }
 
 func (r *StrainResolver) ID(ctx context.Context, obj *models.Strain) (string, error) {
@@ -193,7 +203,60 @@ func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool,
 	return true, nil
 }
 func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]*models.Phenotype, error) {
-	return []*models.Phenotype{}, nil
+	p := []*models.Phenotype{}
+	strainId := obj.Data.Id
+	gc, err := r.AnnotationClient.ListAnnotationGroups(
+		context.Background(),
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id==%s;ontology==%s",
+				strainId,
+				phenoOntology,
+			),
+			Limit: 30,
+		})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return p, err
+	}
+	for _, item := range gc.Data {
+		var phenotype, environment, assay, literature, note string
+		switch item.Type {
+		case phenoOntology:
+			arr := item.Group.Data
+			for _, p := range arr {
+				phenotype = p.Attributes.Value
+			}
+		case envOntology:
+			arr := item.Group.Data
+			for _, p := range arr {
+				environment = p.Attributes.Value
+			}
+		case assayOntology:
+			arr := item.Group.Data
+			for _, p := range arr {
+				assay = p.Attributes.Value
+			}
+		case literatureTag:
+			literature = ""
+			// need to fetch publication by ID here
+		case noteTag:
+			arr := item.Group.Data
+			for _, p := range arr {
+				note = p.Attributes.Value
+			}
+		}
+		pheno := &models.Phenotype{
+			Phenotype:   phenotype,
+			Note:        &note,
+			Assay:       &assay,
+			Environment: &environment,
+			// Publication: &literature,
+		}
+		p = append(p, pheno)
+	}
+	return p, nil
 }
 func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.Strain) (*string, error) {
 	s := ""
