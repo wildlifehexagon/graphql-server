@@ -4,15 +4,13 @@ require (
 	github.com/99designs/gqlgen v0.8.2
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/dictyBase/apihelpers v0.0.0-20181218160245-dce81474776f
-	github.com/dictyBase/go-genproto v0.0.0-20190417165125-903e1d6677f9
+	github.com/dictyBase/go-genproto v0.0.0-20190626215142-14201dc5f4f6
 	github.com/emirpasic/gods v1.12.0
 	github.com/fatih/structs v1.1.0
 	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/go-chi/cors v1.0.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/protobuf v1.3.1 // indirect
-	github.com/google/go-github v17.0.0+incompatible // indirect
-	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.6.4 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
