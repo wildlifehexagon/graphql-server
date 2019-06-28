@@ -20,11 +20,17 @@ import (
 )
 
 const (
-	phenoOntology = "Dicty Phenotypes"
-	envOntology   = "Dicty Environment"
-	assayOntology = "Dictyostellium Assay"
-	literatureTag = "literature_tag"
-	noteTag       = "public note"
+	phenoOntology       = "Dicty Phenotypes"
+	envOntology         = "Dicty Environment"
+	assayOntology       = "Dictyostellium Assay"
+	mutagenesisOntology = "Dd Mutagenesis Method"
+	geneticModOntology  = "genetic modification"
+	dictyAnnoOntology   = "dicty_annotation"
+	literatureTag       = "literature_tag"
+	noteTag             = "public note"
+	sysnameTag          = "systematic name"
+	mutmethodTag        = "mutagenesis method"
+	muttypeTag          = "mutant type"
 )
 
 type StrainResolver struct {
@@ -190,12 +196,40 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 	return p, nil
 }
 func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.Strain) (*string, error) {
-	s := ""
-	return &s, nil
+	var gm string
+	gc, err := r.AnnotationClient.GetEntryAnnotation(
+		ctx,
+		&annotation.EntryAnnotationRequest{
+			Tag:      mutmethodTag,
+			Ontology: muttypeTag,
+			EntryId:  obj.Data.Id,
+		},
+	)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &gm, err
+	}
+	gm = gc.Data.Attributes.Value
+	return &gm, nil
 }
 func (r *StrainResolver) MutagenesisMethod(ctx context.Context, obj *models.Strain) (*string, error) {
-	s := ""
-	return &s, nil
+	var m string
+	gc, err := r.AnnotationClient.GetEntryAnnotation(
+		ctx,
+		&annotation.EntryAnnotationRequest{
+			Tag:      mutmethodTag,
+			Ontology: mutagenesisOntology,
+			EntryId:  obj.Data.Id,
+		},
+	)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &m, err
+	}
+	m = gc.Data.Attributes.Value
+	return &m, nil
 }
 func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	s := ""
@@ -206,5 +240,18 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 	return []*string{&s}, nil
 }
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
-	return "", nil
+	sn, err := r.AnnotationClient.GetEntryAnnotation(
+		ctx,
+		&annotation.EntryAnnotationRequest{
+			Tag:      sysnameTag,
+			Ontology: dictyAnnoOntology,
+			EntryId:  obj.Data.Id,
+		},
+	)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return "", err
+	}
+	return sn.Data.Attributes.Value, nil
 }
