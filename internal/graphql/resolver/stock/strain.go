@@ -2,12 +2,11 @@ package stock
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql"
+	"github.com/dictyBase/graphql-server/internal/graphql/utils"
+
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
@@ -18,7 +17,6 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
-	"github.com/vektah/gqlparser/gqlerror"
 )
 
 const (
@@ -102,66 +100,12 @@ func (r *StrainResolver) Dbxrefs(ctx context.Context, obj *models.Strain) ([]*st
 func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error) {
 	pubs := []*publication.Publication{}
 	for _, id := range obj.Data.Attributes.Publications {
-		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
-		url := endpoint + "/" + id
-		res, err := http.Get(url)
+		p, err := utils.FetchPublication(ctx, r.Registry, id)
 		if err != nil {
-			return nil, fmt.Errorf("error in http get request %s", err)
-		}
-		defer res.Body.Close()
-		if res.StatusCode != 200 {
-			graphql.AddError(ctx, &gqlerror.Error{
-				Message: "error fetching publication with this ID",
-				Extensions: map[string]interface{}{
-					"code":      "NotFound",
-					"timestamp": time.Now(),
-				},
-			})
+			errorutils.AddGQLError(ctx, err)
 			r.Logger.Error(err)
-			return nil, err
+			return pubs, err
 		}
-		decoder := json.NewDecoder(res.Body)
-		var pub PubJsonAPI
-		err = decoder.Decode(&pub)
-		if err != nil {
-			return nil, fmt.Errorf("error decoding json %s", err)
-		}
-		attr := pub.Data.Attributes
-		pd, err := time.Parse("2006-01-02", attr.PublishedDate)
-		if err != nil {
-			return nil, fmt.Errorf("could not parse published date %s", err)
-		}
-		p := &publication.Publication{
-			Data: &publication.Publication_Data{
-				Type: "publication",
-				Id:   id,
-				Attributes: &publication.PublicationAttributes{
-					Doi:      attr.Doi,
-					Title:    attr.Title,
-					Abstract: attr.Abstract,
-					Journal:  attr.Journal,
-					PubDate:  aphgrpc.TimestampProto(pd),
-					Pages:    attr.Page,
-					Issn:     attr.Issn,
-					PubType:  attr.PubType,
-					Source:   attr.Source,
-					Issue:    string(attr.Issue),
-					Status:   attr.Status,
-					Volume:   "", // field does not exist yet
-				},
-			},
-		}
-		var authors []*publication.Author
-		for i, a := range attr.Authors {
-			authors = append(authors, &publication.Author{
-				FirstName: a.FirstName,
-				LastName:  a.LastName,
-				Rank:      int64(i),
-				Initials:  a.Initials,
-			})
-		}
-		p.Data.Attributes.Authors = authors
-		r.Logger.Debugf("successfully found publication with ID %s", pub.Data.ID)
 		pubs = append(pubs, p)
 	}
 	return pubs, nil
@@ -224,7 +168,7 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 		var phenotype, environment, assay, note string
 		pub := &publication.Publication{}
 		for _, g := range item.Group.Data {
-			switch g.Id {
+			switch g.Attributes.Ontology {
 			case phenoOntology:
 				phenotype = g.Attributes.Tag
 			case envOntology:
@@ -232,7 +176,11 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 			case assayOntology:
 				assay = g.Attributes.Tag
 			case literatureTag:
-				// need to fetch by ID and use Value
+				pub, err = utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
+				if err != nil {
+					errorutils.AddGQLError(ctx, err)
+					r.Logger.Error(err)
+				}
 			case noteTag:
 				note = g.Attributes.Value
 			}
@@ -266,44 +214,4 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 }
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
 	return "", nil
-}
-
-type PubJsonAPI struct {
-	Data  *PubData `json:"data"`
-	Links *Links   `json:"links"`
-}
-
-type Links struct {
-	Self string `json:"self"`
-}
-
-type PubData struct {
-	Type       string       `json:"type"`
-	ID         string       `json:"id"`
-	Attributes *Publication `json:"attributes"`
-}
-
-type Publication struct {
-	Abstract      string      `json:"abstract"`
-	Doi           string      `json:"doi,omitempty"`
-	FullTextURL   string      `json:"full_text_url,omitempty"`
-	PubmedURL     string      `json:"pubmed_url"`
-	Journal       string      `json:"journal"`
-	Issn          string      `json:"issn,omitempty"`
-	Page          string      `json:"page,omitempty"`
-	Pubmed        string      `json:"pubmed"`
-	Title         string      `json:"title"`
-	Source        string      `json:"source"`
-	Status        string      `json:"status"`
-	PubType       string      `json:"pub_type"`
-	Issue         json.Number `json:"issue,omitempty"`
-	PublishedDate string      `json:"publication_date"`
-	Authors       []*Author   `json:"authors"`
-}
-
-type Author struct {
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name"`
-	FullName  string `json:"full_name"`
-	Initials  string `json:"initials"`
 }
