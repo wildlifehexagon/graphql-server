@@ -196,8 +196,8 @@ func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.St
 	gc, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
 		&annotation.EntryAnnotationRequest{
-			Tag:      mutmethodTag,
-			Ontology: muttypeTag,
+			Tag:      muttypeTag,
+			Ontology: geneticModOntology,
 			EntryId:  obj.Data.Id,
 		},
 	)
