@@ -26,11 +26,13 @@ const (
 	mutagenesisOntology = "Dd Mutagenesis Method"
 	geneticModOntology  = "genetic modification"
 	dictyAnnoOntology   = "dicty_annotation"
+	strainCharOnto      = "strain_characteristics"
 	literatureTag       = "literature_tag"
 	noteTag             = "public note"
 	sysnameTag          = "systematic name"
 	mutmethodTag        = "mutagenesis method"
 	muttypeTag          = "mutant type"
+	genoTag             = "genotype"
 )
 
 type StrainResolver struct {
@@ -146,12 +148,6 @@ func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*stri
 	return pn, nil
 }
 
-/*
-* Note: none of the below have been implemented yet.
- */
-func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
-	return true, nil
-}
 func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]*models.Phenotype, error) {
 	p := []*models.Phenotype{}
 	strainId := obj.Data.Id
@@ -231,14 +227,6 @@ func (r *StrainResolver) MutagenesisMethod(ctx context.Context, obj *models.Stra
 	m = gc.Data.Attributes.Value
 	return &m, nil
 }
-func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	s := ""
-	return []*string{&s}, nil
-}
-func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	s := ""
-	return []*string{&s}, nil
-}
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
 	sn, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
@@ -254,4 +242,58 @@ func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain)
 		return "", err
 	}
 	return sn.Data.Attributes.Value, nil
+}
+func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error) {
+	c := []*string{}
+	cg, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id==%s;ontology==%s",
+				obj.Data.Id,
+				strainCharOnto,
+			),
+			Limit: 30,
+		})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return c, err
+	}
+	for _, item := range cg.Data {
+		for _, t := range item.Group.Data {
+			c = append(c, &t.Attributes.Tag)
+		}
+	}
+	return c, nil
+}
+func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error) {
+	g := []*string{}
+	gl, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id==%s;tag==%s;ontology==%s",
+				obj.Data.Id,
+				genoTag,
+				dictyAnnoOntology,
+			),
+			Limit: 30,
+		})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return g, err
+	}
+	for _, item := range gl.Data {
+		for _, t := range item.Group.Data {
+			g = append(g, &t.Attributes.Value)
+		}
+	}
+	return g, nil
+}
+
+// still needs to be implemented properly
+func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
+	return true, nil
 }
