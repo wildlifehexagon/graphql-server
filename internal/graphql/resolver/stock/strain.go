@@ -223,33 +223,18 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 	for _, item := range gc.Data {
 		var phenotype, environment, assay, note string
 		pub := &publication.Publication{}
-		switch item.Type {
-		case phenoOntology:
-			arr := item.Group.Data
-			for _, p := range arr {
-				phenotype = p.Attributes.Tag
-			}
-		case envOntology:
-			arr := item.Group.Data
-			for _, p := range arr {
-				environment = p.Attributes.Tag
-			}
-		case assayOntology:
-			arr := item.Group.Data
-			for _, p := range arr {
-				assay = p.Attributes.Tag
-			}
-		case literatureTag:
-			// arr := item.Group.Data
-			// for _, p := range arr {
-				// pubId := p.Attributes.Value
-
-				// need to fetch publication data by pubId
-			// }
-		case noteTag:
-			arr := item.Group.Data
-			for _, p := range arr {
-				note = p.Attributes.Value
+		for _, g := range item.Group.Data {
+			switch g.Id {
+			case phenoOntology:
+				phenotype = g.Attributes.Tag
+			case envOntology:
+				environment = g.Attributes.Tag
+			case assayOntology:
+				assay = g.Attributes.Tag
+			case literatureTag:
+				// need to fetch by ID and use Value
+			case noteTag:
+				note = g.Attributes.Value
 			}
 		}
 		pheno := &models.Phenotype{
