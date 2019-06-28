@@ -150,7 +150,7 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 	p := []*models.Phenotype{}
 	strainId := obj.Data.Id
 	gc, err := r.AnnotationClient.ListAnnotationGroups(
-		context.Background(),
+		ctx,
 		&annotation.ListGroupParameters{
 			Filter: fmt.Sprintf(
 				"entry_id==%s;ontology==%s",
@@ -165,34 +165,27 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 		return p, err
 	}
 	for _, item := range gc.Data {
-		var phenotype, environment, assay, note string
-		pub := &publication.Publication{}
+		m := &models.Phenotype{}
 		for _, g := range item.Group.Data {
 			switch g.Attributes.Ontology {
 			case phenoOntology:
-				phenotype = g.Attributes.Tag
+				m.Phenotype = g.Attributes.Tag
 			case envOntology:
-				environment = g.Attributes.Tag
+				m.Environment = &g.Attributes.Tag
 			case assayOntology:
-				assay = g.Attributes.Tag
+				m.Assay = &g.Attributes.Tag
 			case literatureTag:
-				pub, err = utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
+				pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
 				if err != nil {
 					errorutils.AddGQLError(ctx, err)
 					r.Logger.Error(err)
 				}
+				m.Publication = pub
 			case noteTag:
-				note = g.Attributes.Value
+				m.Note = &g.Attributes.Value
 			}
 		}
-		pheno := &models.Phenotype{
-			Phenotype:   phenotype,
-			Note:        &note,
-			Assay:       &assay,
-			Environment: &environment,
-			Publication: pub,
-		}
-		p = append(p, pheno)
+		p = append(p, m)
 	}
 	return p, nil
 }
