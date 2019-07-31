@@ -13,8 +13,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dictyBase/apihelpers v0.0.0-20181218160245-dce81474776f h1:OK7SIEJdVWdRw7Dc681txXz6N8lwEub5YcabplgqBsE=
 github.com/dictyBase/apihelpers v0.0.0-20181218160245-dce81474776f/go.mod h1:WMCcrIvQoc3UBfA643QFDQufK2a+7mYGgkGxVFWfJus=
-github.com/dictyBase/go-genproto v0.0.0-20190626215142-14201dc5f4f6 h1:OWwT3zGizo70OJ5cMxpjsekdDKLmNJFk5I2zIuhG72E=
-github.com/dictyBase/go-genproto v0.0.0-20190626215142-14201dc5f4f6/go.mod h1:uvt0ErfvhRMAzfRo4y/99/XVhM1EduGOLxTZ9SYetRY=
+github.com/dictyBase/go-genproto v0.0.0-20190731000734-94f1379d56f1 h1:WIbEbucOJksFAXtZzRQ6+6MCTzW3kqchPWX2KVEydB0=
+github.com/dictyBase/go-genproto v0.0.0-20190731000734-94f1379d56f1/go.mod h1:uvt0ErfvhRMAzfRo4y/99/XVhM1EduGOLxTZ9SYetRY=
 github.com/emirpasic/gods v1.12.0 h1:QAUIPSaCu4G+POclxeqb3F+WPpdKqFGlw36+yOzGlrg=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/fatih/structs v1.1.0 h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=

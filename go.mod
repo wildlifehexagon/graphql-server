@@ -4,7 +4,7 @@ require (
 	github.com/99designs/gqlgen v0.8.2
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/dictyBase/apihelpers v0.0.0-20181218160245-dce81474776f
-	github.com/dictyBase/go-genproto v0.0.0-20190626215142-14201dc5f4f6
+	github.com/dictyBase/go-genproto v0.0.0-20190731000734-94f1379d56f1
 	github.com/emirpasic/gods v1.12.0
 	github.com/fatih/structs v1.1.0
 	github.com/garyburd/redigo v1.6.0 // indirect
