@@ -2,13 +2,13 @@ package stock
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql"
+	"github.com/dictyBase/graphql-server/internal/graphql/utils"
+
 	"github.com/dictyBase/apihelpers/aphgrpc"
+	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
@@ -17,14 +17,30 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
-	"github.com/vektah/gqlparser/gqlerror"
+)
+
+const (
+	phenoOntology       = "Dicty Phenotypes"
+	envOntology         = "Dicty Environment"
+	assayOntology       = "Dictyostellium Assay"
+	mutagenesisOntology = "Dd Mutagenesis Method"
+	geneticModOntology  = "genetic modification"
+	dictyAnnoOntology   = "dicty_annotation"
+	strainCharOnto      = "strain_characteristics"
+	literatureTag       = "literature_tag"
+	noteTag             = "public note"
+	sysnameTag          = "systematic name"
+	mutmethodTag        = "mutagenesis method"
+	muttypeTag          = "mutant type"
+	genoTag             = "genotype"
 )
 
 type StrainResolver struct {
-	Client     pb.StockServiceClient
-	UserClient user.UserServiceClient
-	Registry   registry.Registry
-	Logger     *logrus.Entry
+	Client           pb.StockServiceClient
+	UserClient       user.UserServiceClient
+	AnnotationClient annotation.TaggedAnnotationServiceClient
+	Registry         registry.Registry
+	Logger           *logrus.Entry
 }
 
 func (r *StrainResolver) ID(ctx context.Context, obj *models.Strain) (string, error) {
@@ -92,66 +108,12 @@ func (r *StrainResolver) Dbxrefs(ctx context.Context, obj *models.Strain) ([]*st
 func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error) {
 	pubs := []*publication.Publication{}
 	for _, id := range obj.Data.Attributes.Publications {
-		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
-		url := endpoint + "/" + id
-		res, err := http.Get(url)
+		p, err := utils.FetchPublication(ctx, r.Registry, id)
 		if err != nil {
-			return nil, fmt.Errorf("error in http get request %s", err)
-		}
-		defer res.Body.Close()
-		if res.StatusCode != 200 {
-			graphql.AddError(ctx, &gqlerror.Error{
-				Message: "error fetching publication with this ID",
-				Extensions: map[string]interface{}{
-					"code":      "NotFound",
-					"timestamp": time.Now(),
-				},
-			})
+			errorutils.AddGQLError(ctx, err)
 			r.Logger.Error(err)
-			return nil, err
+			return pubs, err
 		}
-		decoder := json.NewDecoder(res.Body)
-		var pub PubJsonAPI
-		err = decoder.Decode(&pub)
-		if err != nil {
-			return nil, fmt.Errorf("error decoding json %s", err)
-		}
-		attr := pub.Data.Attributes
-		pd, err := time.Parse("2006-01-02", attr.PublishedDate)
-		if err != nil {
-			return nil, fmt.Errorf("could not parse published date %s", err)
-		}
-		p := &publication.Publication{
-			Data: &publication.Publication_Data{
-				Type: "publication",
-				Id:   id,
-				Attributes: &publication.PublicationAttributes{
-					Doi:      attr.Doi,
-					Title:    attr.Title,
-					Abstract: attr.Abstract,
-					Journal:  attr.Journal,
-					PubDate:  aphgrpc.TimestampProto(pd),
-					Pages:    attr.Page,
-					Issn:     attr.Issn,
-					PubType:  attr.PubType,
-					Source:   attr.Source,
-					Issue:    string(attr.Issue),
-					Status:   attr.Status,
-					Volume:   "", // field does not exist yet
-				},
-			},
-		}
-		var authors []*publication.Author
-		for i, a := range attr.Authors {
-			authors = append(authors, &publication.Author{
-				FirstName: a.FirstName,
-				LastName:  a.LastName,
-				Rank:      int64(i),
-				Initials:  a.Initials,
-			})
-		}
-		p.Data.Attributes.Authors = authors
-		r.Logger.Debugf("successfully found publication with ID %s", pub.Data.ID)
 		pubs = append(pubs, p)
 	}
 	return pubs, nil
@@ -186,71 +148,152 @@ func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*stri
 	return pn, nil
 }
 
-/*
-* Note: none of the below have been implemented yet.
- */
-func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
-	return true, nil
-}
 func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]*models.Phenotype, error) {
-	return []*models.Phenotype{}, nil
+	p := []*models.Phenotype{}
+	strainId := obj.Data.Id
+	gc, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id==%s;ontology==%s",
+				strainId,
+				phenoOntology,
+			),
+			Limit: 30,
+		})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return p, err
+	}
+	for _, item := range gc.Data {
+		m := &models.Phenotype{}
+		for _, g := range item.Group.Data {
+			switch g.Attributes.Ontology {
+			case phenoOntology:
+				m.Phenotype = g.Attributes.Tag
+			case envOntology:
+				m.Environment = &g.Attributes.Tag
+			case assayOntology:
+				m.Assay = &g.Attributes.Tag
+			case literatureTag:
+				pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
+				if err != nil {
+					errorutils.AddGQLError(ctx, err)
+					r.Logger.Error(err)
+				}
+				m.Publication = pub
+			case noteTag:
+				m.Note = &g.Attributes.Value
+			}
+		}
+		p = append(p, m)
+	}
+	return p, nil
 }
 func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.Strain) (*string, error) {
-	s := ""
-	return &s, nil
+	var gm string
+	gc, err := r.AnnotationClient.GetEntryAnnotation(
+		ctx,
+		&annotation.EntryAnnotationRequest{
+			Tag:      muttypeTag,
+			Ontology: geneticModOntology,
+			EntryId:  obj.Data.Id,
+		},
+	)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &gm, err
+	}
+	gm = gc.Data.Attributes.Value
+	return &gm, nil
 }
 func (r *StrainResolver) MutagenesisMethod(ctx context.Context, obj *models.Strain) (*string, error) {
-	s := ""
-	return &s, nil
-}
-func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	s := ""
-	return []*string{&s}, nil
-}
-func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	s := ""
-	return []*string{&s}, nil
+	var m string
+	gc, err := r.AnnotationClient.GetEntryAnnotation(
+		ctx,
+		&annotation.EntryAnnotationRequest{
+			Tag:      mutmethodTag,
+			Ontology: mutagenesisOntology,
+			EntryId:  obj.Data.Id,
+		},
+	)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &m, err
+	}
+	m = gc.Data.Attributes.Value
+	return &m, nil
 }
 func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
-	return "", nil
+	sn, err := r.AnnotationClient.GetEntryAnnotation(
+		ctx,
+		&annotation.EntryAnnotationRequest{
+			Tag:      sysnameTag,
+			Ontology: dictyAnnoOntology,
+			EntryId:  obj.Data.Id,
+		},
+	)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return "", err
+	}
+	return sn.Data.Attributes.Value, nil
+}
+func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error) {
+	c := []*string{}
+	cg, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id==%s;ontology==%s",
+				obj.Data.Id,
+				strainCharOnto,
+			),
+			Limit: 30,
+		})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return c, err
+	}
+	for _, item := range cg.Data {
+		for _, t := range item.Group.Data {
+			c = append(c, &t.Attributes.Tag)
+		}
+	}
+	return c, nil
+}
+func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error) {
+	g := []*string{}
+	gl, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id==%s;tag==%s;ontology==%s",
+				obj.Data.Id,
+				genoTag,
+				dictyAnnoOntology,
+			),
+			Limit: 30,
+		})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return g, err
+	}
+	for _, item := range gl.Data {
+		for _, t := range item.Group.Data {
+			g = append(g, &t.Attributes.Value)
+		}
+	}
+	return g, nil
 }
 
-type PubJsonAPI struct {
-	Data  *PubData `json:"data"`
-	Links *Links   `json:"links"`
-}
-
-type Links struct {
-	Self string `json:"self"`
-}
-
-type PubData struct {
-	Type       string       `json:"type"`
-	ID         string       `json:"id"`
-	Attributes *Publication `json:"attributes"`
-}
-
-type Publication struct {
-	Abstract      string      `json:"abstract"`
-	Doi           string      `json:"doi,omitempty"`
-	FullTextURL   string      `json:"full_text_url,omitempty"`
-	PubmedURL     string      `json:"pubmed_url"`
-	Journal       string      `json:"journal"`
-	Issn          string      `json:"issn,omitempty"`
-	Page          string      `json:"page,omitempty"`
-	Pubmed        string      `json:"pubmed"`
-	Title         string      `json:"title"`
-	Source        string      `json:"source"`
-	Status        string      `json:"status"`
-	PubType       string      `json:"pub_type"`
-	Issue         json.Number `json:"issue,omitempty"`
-	PublishedDate string      `json:"publication_date"`
-	Authors       []*Author   `json:"authors"`
-}
-
-type Author struct {
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name"`
-	FullName  string `json:"full_name"`
-	Initials  string `json:"initials"`
+// still needs to be implemented properly
+func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
+	return true, nil
 }

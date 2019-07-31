@@ -98,6 +98,16 @@ func main() {
 					EnvVar: "ORDER_API_SERVICE_PORT",
 					Usage:  "order grpc port",
 				},
+				cli.StringFlag{
+					Name:   "annotation-grpc-host, oh",
+					EnvVar: "ANNOTATION_API_SERVICE_HOST",
+					Usage:  "annotation grpc host",
+				},
+				cli.StringFlag{
+					Name:   "annotation-grpc-port, op",
+					EnvVar: "ANNOTATION_API_SERVICE_PORT",
+					Usage:  "annotation grpc port",
+				},
 			},
 		},
 	}

@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	"github.com/dictyBase/go-genproto/dictybaseapis/content"
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
@@ -17,6 +18,7 @@ const (
 	STOCK       = "stock"
 	ORDER       = "order"
 	CONTENT     = "content"
+	ANNOTATION  = "annotation"
 )
 
 var ServiceMap = map[string]string{
@@ -26,6 +28,7 @@ var ServiceMap = map[string]string{
 	"stock":      STOCK,
 	"order":      ORDER,
 	"content":    CONTENT,
+	"annotation": ANNOTATION,
 }
 
 type collection struct {
@@ -43,6 +46,7 @@ type Registry interface {
 	GetStockClient(key string) stock.StockServiceClient
 	GetOrderClient(key string) order.OrderServiceClient
 	GetContentClient(key string) content.ContentServiceClient
+	GetAnnotationClient(key string) annotation.TaggedAnnotationServiceClient
 }
 
 // NewRegistry constructs a hashmap for our grpc clients
@@ -92,6 +96,10 @@ func (c *collection) GetOrderClient(key string) order.OrderServiceClient {
 
 func (c *collection) GetContentClient(key string) content.ContentServiceClient {
 	return content.NewContentServiceClient(c.GetAPIConnection(key))
+}
+
+func (c *collection) GetAnnotationClient(key string) annotation.TaggedAnnotationServiceClient {
+	return annotation.NewTaggedAnnotationServiceClient(c.GetAPIConnection(key))
 }
 
 func (c *collection) GetAPIEndpoint(key string) string {

@@ -73,10 +73,11 @@ func (r *Resolver) Author() generated.AuthorResolver {
 }
 func (r *Resolver) Strain() generated.StrainResolver {
 	return &stock.StrainResolver{
-		Client:     r.GetStockClient(registry.STOCK),
-		UserClient: r.GetUserClient(registry.USER),
-		Registry:   r.Registry,
-		Logger:     r.Logger,
+		Client:           r.GetStockClient(registry.STOCK),
+		UserClient:       r.GetUserClient(registry.USER),
+		AnnotationClient: r.GetAnnotationClient(registry.ANNOTATION),
+		Registry:         r.Registry,
+		Logger:           r.Logger,
 	}
 }
 func (r *Resolver) Plasmid() generated.PlasmidResolver {
