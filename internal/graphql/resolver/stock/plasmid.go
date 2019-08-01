@@ -86,6 +86,9 @@ func (r *PlasmidResolver) Dbxrefs(ctx context.Context, obj *models.Plasmid) ([]*
 func (r *PlasmidResolver) Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error) {
 	pubs := []*publication.Publication{}
 	for _, id := range obj.Data.Attributes.Publications {
+		if len(id) < 1 {
+			continue
+		}
 		p, err := utils.FetchPublication(ctx, r.Registry, id)
 		if err != nil {
 			errorutils.AddGQLError(ctx, err)
