@@ -200,7 +200,7 @@ func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.St
 		ctx,
 		&annotation.EntryAnnotationRequest{
 			Tag:      muttypeTag,
-			Ontology: geneticModOntology,
+			Ontology: dictyAnnoOntology,
 			EntryId:  obj.Data.Id,
 		},
 	)
