@@ -272,27 +272,19 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 }
 func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	g := []*string{}
-	gl, err := r.AnnotationClient.ListAnnotationGroups(
+	gl, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
-		&annotation.ListGroupParameters{
-			Filter: fmt.Sprintf(
-				"entry_id==%s;tag==%s;ontology==%s",
-				obj.Data.Id,
-				genoTag,
-				dictyAnnoOntology,
-			),
-			Limit: 30,
+		&annotation.EntryAnnotationRequest{
+			EntryId:  obj.Data.Id,
+			Ontology: dictyAnnoOntology,
+			Tag:      genoTag,
 		})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
 		return g, err
 	}
-	for _, item := range gl.Data {
-		for _, t := range item.Group.Data {
-			g = append(g, &t.Attributes.Value)
-		}
-	}
+	g = append(g, &gl.Data.Attributes.Value)
 	return g, nil
 }
 
