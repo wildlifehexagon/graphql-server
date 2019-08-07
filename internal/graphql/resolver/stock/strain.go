@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/utils"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
@@ -205,6 +207,9 @@ func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.St
 		},
 	)
 	if err != nil {
+		if grpc.Code(err) == codes.NotFound {
+			return &gm, err
+		}
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
 		return &gm, err

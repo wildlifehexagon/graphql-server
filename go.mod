@@ -15,6 +15,6 @@ require (
 	github.com/vektah/gqlgen v0.7.1
 	github.com/vektah/gqlparser v1.1.2
 	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a // indirect
-	google.golang.org/grpc v1.21.1
+	google.golang.org/grpc v1.22.1
 	gopkg.in/urfave/cli.v1 v1.20.0
 )
