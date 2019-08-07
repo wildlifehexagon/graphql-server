@@ -208,7 +208,7 @@ func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.St
 	)
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
-			return &gm, err
+			return &gm, nil
 		}
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
