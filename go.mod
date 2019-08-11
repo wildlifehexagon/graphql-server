@@ -12,9 +12,9 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5 // indirect
+	github.com/urfave/cli v1.21.0
 	github.com/vektah/gqlgen v0.7.1
 	github.com/vektah/gqlparser v1.1.2
 	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a // indirect
 	google.golang.org/grpc v1.22.1
-	gopkg.in/urfave/cli.v1 v1.20.0
 )

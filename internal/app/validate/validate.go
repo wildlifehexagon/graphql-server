@@ -3,7 +3,7 @@ package validate
 import (
 	"fmt"
 
-	cli "gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
 )
 
 // ValidateServerArgs validates that the necessary flags are not missing

@@ -13,7 +13,7 @@ import (
 	"github.com/99designs/gqlgen/handler"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/sirupsen/logrus"
-	cli "gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
 )
 
 // RunGraphQLServer starts the GraphQL backend
