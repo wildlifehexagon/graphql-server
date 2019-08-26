@@ -167,6 +167,9 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 			Limit: 30,
 		})
 	if err != nil {
+		if grpc.Code(err) == codes.NotFound {
+			return p, nil
+		}
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
 		return p, err
@@ -196,6 +199,7 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 	}
 	return p, nil
 }
+
 func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.Strain) (*string, error) {
 	var gm string
 	gc, err := r.AnnotationClient.GetEntryAnnotation(
@@ -228,6 +232,9 @@ func (r *StrainResolver) MutagenesisMethod(ctx context.Context, obj *models.Stra
 		},
 	)
 	if err != nil {
+		if grpc.Code(err) == codes.NotFound {
+			return &m, nil
+		}
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
 		return &m, err
@@ -245,6 +252,9 @@ func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain)
 		},
 	)
 	if err != nil {
+		if grpc.Code(err) == codes.NotFound {
+			return "", nil
+		}
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
 		return "", err
@@ -264,6 +274,9 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 			Limit: 30,
 		})
 	if err != nil {
+		if grpc.Code(err) == codes.NotFound {
+			return c, nil
+		}
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
 		return c, err
@@ -285,6 +298,9 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 			Tag:      genoTag,
 		})
 	if err != nil {
+		if grpc.Code(err) == codes.NotFound {
+			return g, nil
+		}
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
 		return g, err
