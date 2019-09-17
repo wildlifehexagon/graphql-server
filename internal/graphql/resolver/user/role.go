@@ -34,8 +34,8 @@ func (r *RoleResolver) UpdatedAt(ctx context.Context, obj *pb.Role) (*time.Time,
 	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt)
 	return &time, nil
 }
-func (r *RoleResolver) Permissions(ctx context.Context, obj *pb.Role) ([]pb.Permission, error) {
-	permissions := []pb.Permission{}
+func (r *RoleResolver) Permissions(ctx context.Context, obj *pb.Role) ([]*pb.Permission, error) {
+	permissions := []*pb.Permission{}
 	rp, err := r.Client.GetRelatedPermissions(ctx, &jsonapi.RelationshipRequest{Id: obj.Data.Id})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -43,7 +43,7 @@ func (r *RoleResolver) Permissions(ctx context.Context, obj *pb.Role) ([]pb.Perm
 		return permissions, err
 	}
 	for _, n := range rp.Data {
-		item := pb.Permission{
+		item := &pb.Permission{
 			Data: &pb.PermissionData{
 				Type: "permission",
 				Id:   n.Id,

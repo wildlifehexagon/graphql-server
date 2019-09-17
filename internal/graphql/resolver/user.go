@@ -241,7 +241,7 @@ func (q *QueryResolver) UserByEmail(ctx context.Context, email string) (*pb.User
 }
 
 func (q *QueryResolver) ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error) {
-	users := []pb.User{}
+	users := []*pb.User{}
 	pn, err := strconv.ParseInt(pagenum, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("error in parsing string %s to int %s", pagenum, err)
@@ -261,7 +261,7 @@ func (q *QueryResolver) ListUsers(ctx context.Context, pagenum string, pagesize 
 		return nil, err
 	}
 	for _, n := range g.Data {
-		item := pb.User{
+		item := &pb.User{
 			Data: &pb.UserData{
 				Type: "user",
 				Id:   n.Id,

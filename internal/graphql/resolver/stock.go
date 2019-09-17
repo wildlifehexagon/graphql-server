@@ -261,11 +261,11 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 		q.Logger.Error(err)
 		return nil, err
 	}
-	strains := []models.Strain{}
+	strains := []*models.Strain{}
 
 	for _, n := range list.Data {
 		attr := n.Attributes
-		item := models.Strain{
+		item := &models.Strain{
 			Data: &pb.Strain_Data{
 				Type:       n.Type,
 				Id:         n.Id,
@@ -309,9 +309,9 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 		q.Logger.Error(err)
 		return nil, err
 	}
-	plasmids := []models.Plasmid{}
+	plasmids := []*models.Plasmid{}
 	for _, n := range list.Data {
-		item := models.Plasmid{
+		item := &models.Plasmid{
 			Data: &pb.Plasmid_Data{
 				Type: n.Type,
 				Id:   n.Id,

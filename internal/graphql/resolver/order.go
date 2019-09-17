@@ -152,9 +152,9 @@ func (q *QueryResolver) ListOrders(ctx context.Context, input *models.ListOrderI
 		q.Logger.Error(err)
 		return nil, err
 	}
-	orders := []pb.Order{}
+	orders := []*pb.Order{}
 	for _, n := range list.Data {
-		item := pb.Order{
+		item := &pb.Order{
 			Data: &pb.Order_Data{
 				Type:       n.Type,
 				Id:         n.Id,

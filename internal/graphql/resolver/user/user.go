@@ -67,8 +67,8 @@ func (r *UserResolver) UpdatedAt(ctx context.Context, obj *pb.User) (*time.Time,
 	time := aphgrpc.ProtoTimeStamp(obj.Data.Attributes.UpdatedAt)
 	return &time, nil
 }
-func (r *UserResolver) Roles(ctx context.Context, obj *pb.User) ([]pb.Role, error) {
-	roles := []pb.Role{}
+func (r *UserResolver) Roles(ctx context.Context, obj *pb.User) ([]*pb.Role, error) {
+	roles := []*pb.Role{}
 	rr, err := r.Client.GetRelatedRoles(ctx, &jsonapi.RelationshipRequest{Id: obj.Data.Id})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -76,7 +76,7 @@ func (r *UserResolver) Roles(ctx context.Context, obj *pb.User) ([]pb.Role, erro
 		return roles, err
 	}
 	for _, n := range rr.Data {
-		item := pb.Role{
+		item := &pb.Role{
 			Data: &pb.RoleData{
 				Type: "role",
 				Id:   n.Id,
