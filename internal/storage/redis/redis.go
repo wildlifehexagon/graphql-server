@@ -35,7 +35,7 @@ func (c *Cache) Add(ctx context.Context, hash string, query string) {
 func (c *Cache) Get(ctx context.Context, hash string) (string, bool) {
 	s, err := c.client.Get(apqPrefix + hash).Result()
 	if err != nil {
-		return "", false
+		return "did not find APQ in cache", false
 	}
 	return s, true
 }

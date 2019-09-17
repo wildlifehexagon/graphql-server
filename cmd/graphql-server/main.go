@@ -118,6 +118,11 @@ func main() {
 					EnvVar: "REDIS_MASTER_SERVICE_PORT",
 					Usage:  "redis master service port",
 				},
+				cli.IntFlag{
+					Name:  "cache-expiration-days",
+					Usage: "number of days to store redis cache",
+					Value: 7,
+				},
 			},
 		},
 	}

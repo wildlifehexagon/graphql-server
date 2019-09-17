@@ -21,8 +21,9 @@ import (
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
-	radd := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
-	cache, err := redis.NewCache(radd, 24*time.Hour)
+	red := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
+	cl := time.Duration(c.Int("cache-expiration-days") * 24)
+	cache, err := redis.NewCache(red, cl*time.Hour)
 	if err != nil {
 		return cli.NewExitError(
 			fmt.Sprintf("cannot create APQ redis cache: %v", err),
