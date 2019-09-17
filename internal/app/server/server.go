@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/dictyBase/graphql-server/internal/registry"
+	"github.com/dictyBase/graphql-server/internal/storage/redis"
 	"github.com/go-chi/cors"
 	"google.golang.org/grpc"
 
@@ -19,6 +21,14 @@ import (
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
+	radd := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
+	cache, err := redis.NewCache(radd, 24*time.Hour)
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot create APQ redis cache: %v", err),
+			2,
+		)
+	}
 	// generate new (empty) hashmap
 	nr := registry.NewRegistry()
 	for k, v := range registry.ServiceMap {
@@ -61,7 +71,7 @@ func RunGraphQLServer(c *cli.Context) error {
 	})
 
 	http.Handle("/", crs.Handler(http.HandlerFunc(handler.Playground("GraphQL playground", "/graphql"))))
-	http.Handle("/graphql", crs.Handler(http.HandlerFunc(handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s})))))
+	http.Handle("/graphql", crs.Handler(http.HandlerFunc(handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s}), handler.EnablePersistedQueryCache(cache)))))
 	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
