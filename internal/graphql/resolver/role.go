@@ -125,8 +125,8 @@ func (q *QueryResolver) Role(ctx context.Context, id string) (*pb.Role, error) {
 	q.Logger.Debugf("successfully found role with ID %s", id)
 	return g, nil
 }
-func (q *QueryResolver) ListRoles(ctx context.Context) ([]pb.Role, error) {
-	roles := []pb.Role{}
+func (q *QueryResolver) ListRoles(ctx context.Context) ([]*pb.Role, error) {
+	roles := []*pb.Role{}
 	l, err := q.GetRoleClient(registry.ROLE).ListRoles(ctx, &jsonapi.SimpleListRequest{})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -134,7 +134,7 @@ func (q *QueryResolver) ListRoles(ctx context.Context) ([]pb.Role, error) {
 		return nil, err
 	}
 	for _, n := range l.Data {
-		item := pb.Role{
+		item := &pb.Role{
 			Data: &pb.RoleData{
 				Type: "role",
 				Id:   n.Id,

@@ -349,13 +349,13 @@ func (r *queryResolver) ListUsers(ctx context.Context, pagenum string, pagesize 
 func (r *queryResolver) Role(ctx context.Context, id string) (*user.Role, error) {
 	panic("not implemented")
 }
-func (r *queryResolver) ListRoles(ctx context.Context) ([]user.Role, error) {
+func (r *queryResolver) ListRoles(ctx context.Context) ([]*user.Role, error) {
 	panic("not implemented")
 }
 func (r *queryResolver) Permission(ctx context.Context, id string) (*user.Permission, error) {
 	panic("not implemented")
 }
-func (r *queryResolver) ListPermissions(ctx context.Context) ([]user.Permission, error) {
+func (r *queryResolver) ListPermissions(ctx context.Context) ([]*user.Permission, error) {
 	panic("not implemented")
 }
 func (r *queryResolver) Content(ctx context.Context, id string) (*content.Content, error) {
@@ -382,7 +382,7 @@ func (r *roleResolver) CreatedAt(ctx context.Context, obj *user.Role) (*time.Tim
 func (r *roleResolver) UpdatedAt(ctx context.Context, obj *user.Role) (*time.Time, error) {
 	panic("not implemented")
 }
-func (r *roleResolver) Permissions(ctx context.Context, obj *user.Role) ([]user.Permission, error) {
+func (r *roleResolver) Permissions(ctx context.Context, obj *user.Role) ([]*user.Permission, error) {
 	panic("not implemented")
 }
 
@@ -508,6 +508,6 @@ func (r *userResolver) CreatedAt(ctx context.Context, obj *user.User) (*time.Tim
 func (r *userResolver) UpdatedAt(ctx context.Context, obj *user.User) (*time.Time, error) {
 	panic("not implemented")
 }
-func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]user.Role, error) {
+func (r *userResolver) Roles(ctx context.Context, obj *user.User) ([]*user.Role, error) {
 	panic("not implemented")
 }

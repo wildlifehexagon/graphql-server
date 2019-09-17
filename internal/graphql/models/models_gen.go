@@ -136,11 +136,11 @@ type ListStockInput struct {
 }
 
 type OrderListWithCursor struct {
-	Orders         []order.Order `json:"orders"`
-	NextCursor     int           `json:"nextCursor"`
-	PreviousCursor int           `json:"previousCursor"`
-	Limit          *int          `json:"limit"`
-	TotalCount     int           `json:"totalCount"`
+	Orders         []*order.Order `json:"orders"`
+	NextCursor     int            `json:"nextCursor"`
+	PreviousCursor int            `json:"previousCursor"`
+	Limit          *int           `json:"limit"`
+	TotalCount     int            `json:"totalCount"`
 }
 
 type Phenotype struct {
@@ -152,19 +152,19 @@ type Phenotype struct {
 }
 
 type PlasmidListWithCursor struct {
-	Plasmids       []Plasmid `json:"plasmids"`
+	Plasmids       []*Plasmid `json:"plasmids"`
+	NextCursor     int        `json:"nextCursor"`
+	PreviousCursor int        `json:"previousCursor"`
+	Limit          *int       `json:"limit"`
+	TotalCount     int        `json:"totalCount"`
+}
+
+type StrainListWithCursor struct {
+	Strains        []*Strain `json:"strains"`
 	NextCursor     int       `json:"nextCursor"`
 	PreviousCursor int       `json:"previousCursor"`
 	Limit          *int      `json:"limit"`
 	TotalCount     int       `json:"totalCount"`
-}
-
-type StrainListWithCursor struct {
-	Strains        []Strain `json:"strains"`
-	NextCursor     int      `json:"nextCursor"`
-	PreviousCursor int      `json:"previousCursor"`
-	Limit          *int     `json:"limit"`
-	TotalCount     int      `json:"totalCount"`
 }
 
 type UpdateContentInput struct {
@@ -248,10 +248,10 @@ type UpdateUserInput struct {
 }
 
 type UserList struct {
-	Users      []user.User `json:"users"`
-	PageNum    *string     `json:"pageNum"`
-	PageSize   *string     `json:"pageSize"`
-	TotalCount int         `json:"totalCount"`
+	Users      []*user.User `json:"users"`
+	PageNum    *string      `json:"pageNum"`
+	PageSize   *string      `json:"pageSize"`
+	TotalCount int          `json:"totalCount"`
 }
 
 type StatusEnum string

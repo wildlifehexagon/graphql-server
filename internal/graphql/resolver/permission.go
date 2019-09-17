@@ -97,8 +97,8 @@ func (q *QueryResolver) Permission(ctx context.Context, id string) (*pb.Permissi
 	q.Logger.Debugf("successfully found permission with ID %s", id)
 	return g, nil
 }
-func (q *QueryResolver) ListPermissions(ctx context.Context) ([]pb.Permission, error) {
-	permissions := []pb.Permission{}
+func (q *QueryResolver) ListPermissions(ctx context.Context) ([]*pb.Permission, error) {
+	permissions := []*pb.Permission{}
 	l, err := q.GetPermissionClient(registry.PERMISSION).ListPermissions(ctx, &jsonapi.SimpleListRequest{})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -106,7 +106,7 @@ func (q *QueryResolver) ListPermissions(ctx context.Context) ([]pb.Permission, e
 		return nil, err
 	}
 	for _, n := range l.Data {
-		item := pb.Permission{
+		item := &pb.Permission{
 			Data: &pb.PermissionData{
 				Type: "permission",
 				Id:   n.Id,

@@ -108,6 +108,21 @@ func main() {
 					EnvVar: "ANNOTATION_API_SERVICE_PORT",
 					Usage:  "annotation grpc port",
 				},
+				cli.StringFlag{
+					Name:   "redis-master-service-host",
+					EnvVar: "REDIS_MASTER_SERVICE_HOST",
+					Usage:  "redis master service host",
+				},
+				cli.StringFlag{
+					Name:   "redis-master-service-port",
+					EnvVar: "REDIS_MASTER_SERVICE_PORT",
+					Usage:  "redis master service port",
+				},
+				cli.IntFlag{
+					Name:  "cache-expiration-days",
+					Usage: "number of days to store redis cache",
+					Value: 7,
+				},
 			},
 		},
 	}
