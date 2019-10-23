@@ -20,7 +20,11 @@ import (
 func (m *MutationResolver) CreateUser(ctx context.Context, input *models.CreateUserInput) (*pb.User, error) {
 	attr := &pb.UserAttributes{}
 	a := normalizeCreateUserAttr(input)
-	mapstructure.Decode(a, attr)
+	err := mapstructure.Decode(a, attr)
+	if err != nil {
+		m.Logger.Error(err)
+		return nil, err
+	}
 	n, err := m.GetUserClient(registry.USER).CreateUser(ctx, &pb.CreateUserRequest{
 		Data: &pb.CreateUserRequest_Data{
 			Type: "user",
