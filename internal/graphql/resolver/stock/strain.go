@@ -288,7 +288,6 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 				strainCharOnto,
 			),
 		})
-	r.Logger.Infof("cg is %v", cg)
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
 			return c, nil
@@ -298,10 +297,7 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 		return c, err
 	}
 	for _, item := range cg.Data {
-		r.Logger.Infof("cg.Data is %v", cg.Data)
-		r.Logger.Infof("item is %v", item)
 		for _, t := range item.Group.Data {
-			r.Logger.Infof("t.tag is %v", &t.Attributes.Tag)
 			c = append(c, &t.Attributes.Tag)
 		}
 	}
