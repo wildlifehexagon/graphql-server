@@ -35,6 +35,7 @@ const (
 	mutmethodTag        = "mutagenesis method"
 	muttypeTag          = "mutant type"
 	genoTag             = "genotype"
+	synTag              = "synonym"
 )
 
 type StrainResolver struct {
@@ -145,12 +146,30 @@ func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*model
 	}, nil
 }
 func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	n := obj.Data.Attributes.Names
-	pn := []*string{}
-	for i := 0; i < len(n); i++ {
-		pn = append(pn, &n[i])
+	names := []*string{}
+	cg, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id===%s;tag===%s;ontology===%s",
+				obj.Data.Id, synTag, dictyAnnoOntology,
+			),
+			Limit: 30,
+		})
+	if err != nil {
+		if grpc.Code(err) == codes.NotFound {
+			return names, nil
+		}
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return names, err
 	}
-	return pn, nil
+	for _, item := range cg.Data {
+		for _, t := range item.Group.Data {
+			names = append(names, &t.Attributes.Tag)
+		}
+	}
+	return names, nil
 }
 
 func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]*models.Phenotype, error) {
