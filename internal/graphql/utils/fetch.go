@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/apihelpers/aphgrpc"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/dictyBase/graphql-server/internal/registry"
-	"github.com/vektah/gqlgen/graphql"
+	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/gqlerror"
-		"github.com/sirupsen/logrus"
 )
 
 type PubJsonAPI struct {
@@ -54,7 +54,6 @@ type Author struct {
 	FullName  string `json:"full_name"`
 	Initials  string `json:"initials"`
 }
-
 
 func FetchPublication(ctx context.Context, reg registry.Registry, id string) (*pb.Publication, error) {
 	logger := *logrus.New()

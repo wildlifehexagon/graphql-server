@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/vektah/gqlgen/graphql"
+	"github.com/99designs/gqlgen/graphql"
 )
 
 func MarshalTimestamp(t time.Time) graphql.Marshaler {
