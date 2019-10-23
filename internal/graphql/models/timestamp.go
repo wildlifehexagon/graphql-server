@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"io"
+	"log"
 	"strconv"
 	"time"
 
@@ -12,7 +13,9 @@ import (
 func MarshalTimestamp(t time.Time) graphql.Marshaler {
 	ct := t.Format("2006-01-02T15:04:05.000Z")
 	return graphql.WriterFunc(func(w io.Writer) {
-		io.WriteString(w, strconv.Quote(ct))
+		if _, err := io.WriteString(w, strconv.Quote(ct)); err != nil {
+			log.Fatal("error writing timestamp string")
+		}
 	})
 }
 

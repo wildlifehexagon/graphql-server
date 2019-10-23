@@ -26,7 +26,6 @@ const (
 	envOntology         = "Dicty Environment"
 	assayOntology       = "Dictyostellium Assay"
 	mutagenesisOntology = "Dd Mutagenesis Method"
-	geneticModOntology  = "genetic modification"
 	dictyAnnoOntology   = "dicty_annotation"
 	strainCharOnto      = "strain_characteristics"
 	literatureTag       = "literature_tag"

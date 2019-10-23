@@ -76,7 +76,11 @@ func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *mo
 	}
 	attr := &pb.OrderUpdateAttributes{}
 	norm := normalizeUpdateOrderAttr(input)
-	mapstructure.Decode(norm, attr)
+	err = mapstructure.Decode(norm, attr)
+	if err != nil {
+		m.Logger.Error(err)
+		return nil, err
+	}
 	if input.Status != nil {
 		attr.Status = statusConverter(*input.Status)
 	} else {

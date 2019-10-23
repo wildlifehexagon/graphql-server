@@ -14,7 +14,11 @@ import (
 func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.CreateStrainInput) (*models.Strain, error) {
 	attr := &pb.NewStrainAttributes{}
 	norm := normalizeCreateStrainAttr(input)
-	mapstructure.Decode(norm, attr)
+	err := mapstructure.Decode(norm, attr)
+	if err != nil {
+		m.Logger.Error(err)
+		return nil, err
+	}
 	n, err := m.GetStockClient(registry.STOCK).CreateStrain(ctx, &pb.NewStrain{
 		Data: &pb.NewStrain_Data{
 			Type:       "strain",
@@ -118,7 +122,11 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 	}
 	attr := &pb.StrainUpdateAttributes{}
 	norm := normalizeUpdateStrainAttr(input)
-	mapstructure.Decode(norm, attr)
+	err = mapstructure.Decode(norm, attr)
+	if err != nil {
+		m.Logger.Error(err)
+		return nil, err
+	}
 	n, err := m.GetStockClient(registry.STOCK).UpdateStrain(ctx, &pb.StrainUpdate{
 		Data: &pb.StrainUpdate_Data{
 			Type:       "strain",
@@ -163,7 +171,11 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 	}
 	attr := &pb.PlasmidUpdateAttributes{}
 	norm := normalizeUpdatePlasmidAttr(input)
-	mapstructure.Decode(norm, attr)
+	err = mapstructure.Decode(norm, attr)
+	if err != nil {
+		m.Logger.Error(err)
+		return nil, err
+	}
 	n, err := m.GetStockClient(registry.STOCK).UpdatePlasmid(ctx, &pb.PlasmidUpdate{
 		Data: &pb.PlasmidUpdate_Data{
 			Type:       "plasmid",
