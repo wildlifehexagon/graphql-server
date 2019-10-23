@@ -279,11 +279,15 @@ func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain)
 }
 func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	c := []*string{}
-	cg, err := r.AnnotationClient.GetEntryAnnotation(
+	cg, err := r.AnnotationClient.ListAnnotationGroups(
 		ctx,
-		&annotation.EntryAnnotationRequest{
-			EntryId:  obj.Data.Id,
-			Ontology: phenoOntology,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id==%s;ontology==%s",
+				obj.Data.Id,
+				strainCharOnto,
+			),
+			Limit: 30,
 		})
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
@@ -293,7 +297,11 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 		r.Logger.Error(err)
 		return c, err
 	}
-	c = append(c, &cg.Data.Attributes.Value)
+	for _, item := range cg.Data {
+		for _, t := range item.Group.Data {
+			c = append(c, &t.Attributes.Tag)
+		}
+	}
 	return c, nil
 }
 func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*string, error) {
