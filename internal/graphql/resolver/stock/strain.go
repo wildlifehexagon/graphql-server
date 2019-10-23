@@ -147,13 +147,14 @@ func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*model
 }
 func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	names := []*string{}
-	n, err := r.AnnotationClient.GetEntryAnnotation(
+	n, err := r.AnnotationClient.ListAnnotations(
 		ctx,
-		&annotation.EntryAnnotationRequest{
-			EntryId:  obj.Data.Id,
-			Ontology: dictyAnnoOntology,
-			Tag:      synTag,
-		})
+		&annotation.ListParameters{
+			Limit: 20,
+			Filter: fmt.Sprintf(
+				"entry_id===%s;tag===%s;ontology===%s",
+				obj.Data.Id, synTag, dictyAnnoOntology,
+			)})
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
 			return names, nil
@@ -162,7 +163,9 @@ func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*stri
 		r.Logger.Error(err)
 		return names, err
 	}
-	names = append(names, &n.Data.Attributes.Value)
+	for _, syn := range n.Data {
+		names = append(names, &syn.Attributes.Value)
+	}
 	return names, nil
 }
 
