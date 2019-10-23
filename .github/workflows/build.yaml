@@ -15,7 +15,7 @@ jobs:
       - name: check out code
         uses: actions/checkout@v1
       - name: build docker image
-        run: docker build -t dictybase/graphql-server:$(echo ${{ github.ref }} | sed -E 's/refs\/(heads|tags)\///')-$(git rev-parse --short HEAD) .
+        run: docker build -f build/package/Dockerfile -t dictybase/graphql-server:$(echo ${{ github.ref }} | sed -E 's/refs\/(heads|tags)\///')-$(git rev-parse --short HEAD) .
       - name: login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: push to docker hub
