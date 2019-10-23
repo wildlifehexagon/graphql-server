@@ -70,7 +70,11 @@ func normalizeCreateStrainAttr(attr *models.CreateStrainInput) map[string]interf
 func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.CreatePlasmidInput) (*models.Plasmid, error) {
 	attr := &pb.NewPlasmidAttributes{}
 	norm := normalizeCreatePlasmidAttr(input)
-	mapstructure.Decode(norm, attr)
+	err := mapstructure.Decode(norm, attr)
+	if err != nil {
+		m.Logger.Error(err)
+		return nil, err
+	}
 	n, err := m.GetStockClient(registry.STOCK).CreatePlasmid(ctx, &pb.NewPlasmid{
 		Data: &pb.NewPlasmid_Data{
 			Type:       "plasmid",
