@@ -25,6 +25,8 @@ spec:
             "--log-level",
             "{{ .Values.logLevel }}",
             "start-server",
+            "--publication-api",
+            "{{ .Values.endpoints.publication }}"
           ]
           ports:
             - name: {{ .Values.service.name }}

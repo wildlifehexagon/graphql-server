@@ -77,7 +77,6 @@ func main() {
 					Name:   "publication-api, pub",
 					EnvVar: "PUBLICATION_API_ENDPOINT",
 					Usage:  "publication api endpoint",
-					Value:  "https://betafunc.dictybase.org/publications",
 				},
 				cli.StringFlag{
 					Name:   "stock-grpc-host",
