@@ -31,21 +31,22 @@ type PubData struct {
 }
 
 type Publication struct {
-	Abstract      string      `json:"abstract"`
-	Doi           string      `json:"doi,omitempty"`
-	FullTextURL   string      `json:"full_text_url,omitempty"`
-	PubmedURL     string      `json:"pubmed_url"`
-	Journal       string      `json:"journal"`
-	Issn          string      `json:"issn,omitempty"`
-	Page          string      `json:"page,omitempty"`
-	Pubmed        string      `json:"pubmed"`
-	Title         string      `json:"title"`
-	Source        string      `json:"source"`
-	Status        string      `json:"status"`
-	PubType       string      `json:"pub_type"`
-	Issue         json.Number `json:"issue,omitempty"`
-	PublishedDate string      `json:"publication_date"`
-	Authors       []*Author   `json:"authors"`
+	Abstract      string    `json:"abstract"`
+	Doi           string    `json:"doi,omitempty"`
+	FullTextURL   string    `json:"full_text_url,omitempty"`
+	PubmedURL     string    `json:"pubmed_url"`
+	Journal       string    `json:"journal"`
+	Issn          string    `json:"issn,omitempty"`
+	Page          string    `json:"page,omitempty"`
+	Pubmed        string    `json:"pubmed"`
+	Title         string    `json:"title"`
+	Source        string    `json:"source"`
+	Status        string    `json:"status"`
+	PubType       string    `json:"pub_type"`
+	Issue         string    `json:"issue"`
+	Volume        string    `json:"volume"`
+	PublishedDate string    `json:"publication_date"`
+	Authors       []*Author `json:"authors"`
 }
 
 type Author struct {
@@ -101,9 +102,9 @@ func FetchPublication(ctx context.Context, reg registry.Registry, id string) (*p
 				Issn:     attr.Issn,
 				PubType:  attr.PubType,
 				Source:   attr.Source,
-				Issue:    string(attr.Issue),
+				Issue:    attr.Issue,
+				Volume:   attr.Volume,
 				Status:   attr.Status,
-				Volume:   "", // field does not exist yet
 			},
 		},
 	}
