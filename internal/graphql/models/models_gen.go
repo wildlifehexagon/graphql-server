@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
@@ -123,6 +124,15 @@ type DeleteUser struct {
 	Success bool `json:"success"`
 }
 
+type Identity struct {
+	ID         string    `json:"id"`
+	Identifier string    `json:"identifier"`
+	Provider   string    `json:"provider"`
+	UserID     string    `json:"user_id"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
 type ListOrderInput struct {
 	Cursor *int    `json:"cursor"`
 	Limit  *int    `json:"limit"`
@@ -133,6 +143,19 @@ type ListStockInput struct {
 	Cursor *int    `json:"cursor"`
 	Limit  *int    `json:"limit"`
 	Filter *string `json:"filter"`
+}
+
+type LoginInput struct {
+	ClientID    string `json:"client_id"`
+	State       string `json:"state"`
+	Code        string `json:"code"`
+	Scopes      string `json:"scopes"`
+	Provider    string `json:"provider"`
+	RedirectURL string `json:"redirect_url"`
+}
+
+type Logout struct {
+	Success bool `json:"success"`
 }
 
 type OrderListWithCursor struct {
@@ -165,6 +188,10 @@ type StrainListWithCursor struct {
 	PreviousCursor int       `json:"previousCursor"`
 	Limit          *int      `json:"limit"`
 	TotalCount     int       `json:"totalCount"`
+}
+
+type Token struct {
+	Token string `json:"token"`
 }
 
 type UpdateContentInput struct {

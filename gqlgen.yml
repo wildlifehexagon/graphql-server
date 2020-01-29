@@ -32,3 +32,5 @@ models:
     model: github.com/dictyBase/graphql-server/internal/graphql/models.Plasmid
   Order:
     model: github.com/dictyBase/go-genproto/dictybaseapis/order.Order
+  Auth:
+    model: github.com/dictyBase/go-genproto/dictybaseapis/auth.Auth
