@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/dictyBase/graphql-server/internal/app/middleware"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/dictyBase/graphql-server/internal/storage/redis"
@@ -71,8 +72,10 @@ func RunGraphQLServer(c *cli.Context) error {
 		AllowCredentials: true,
 	})
 
+	gqlHandler := handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s}), handler.EnablePersistedQueryCache(cache))
+
 	http.Handle("/", crs.Handler(http.HandlerFunc(handler.Playground("GraphQL playground", "/graphql"))))
-	http.Handle("/graphql", crs.Handler(http.HandlerFunc(handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s}), handler.EnablePersistedQueryCache(cache)))))
+	http.Handle("/graphql", crs.Handler(auth.AuthMiddleWare(http.HandlerFunc(gqlHandler))))
 	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
