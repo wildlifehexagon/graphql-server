@@ -1,4 +1,4 @@
-FROM golang:1.11.10-alpine3.10
+FROM golang:1.11.13-alpine3.10
 LABEL maintainer="Eric Hartline <eric.hartline@northwestern.edu>"
 LABEL maintainer="Siddhartha Basu <siddhartha-basu@northwestern.edu>"
 ENV GOPROXY https://proxy.golang.org
