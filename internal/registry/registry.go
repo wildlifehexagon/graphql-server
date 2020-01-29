@@ -1,10 +1,10 @@
 package registry
 
 import (
-	"github.com/dictyBase/go-genproto/dictybaseapis/identity"
-	"github.com/dictyBase/go-genproto/dictybaseapis/auth"
 	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
+	"github.com/dictyBase/go-genproto/dictybaseapis/auth"
 	"github.com/dictyBase/go-genproto/dictybaseapis/content"
+	"github.com/dictyBase/go-genproto/dictybaseapis/identity"
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"

@@ -11,10 +11,10 @@ import (
 )
 
 type AuthResolver struct {
-	Client auth.AuthServiceClient
-	UserClient user.UserServiceClient
+	Client         auth.AuthServiceClient
+	UserClient     user.UserServiceClient
 	IdentityClient identity.IdentityServiceClient
-	Logger *logrus.Entry
+	Logger         *logrus.Entry
 }
 
 func (r *AuthResolver) Identity(ctx context.Context, obj *auth.Auth) (*models.Identity, error) {

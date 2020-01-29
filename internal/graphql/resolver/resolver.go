@@ -109,9 +109,9 @@ func (r *Resolver) Content() generated.ContentResolver {
 
 func (r *Resolver) Auth() generated.AuthResolver {
 	return &auth.AuthResolver{
-		Client: r.GetAuthClient(registry.AUTH),
-		UserClient: r.GetUserClient(registry.USER),
+		Client:         r.GetAuthClient(registry.AUTH),
+		UserClient:     r.GetUserClient(registry.USER),
 		IdentityClient: r.GetIdentityClient(registry.IDENTITY),
-		Logger:     r.Logger,
+		Logger:         r.Logger,
 	}
 }

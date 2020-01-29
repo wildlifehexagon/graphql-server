@@ -37,3 +37,7 @@ linters:
   # - maligned,prealloc
   # - gochecknoglobals
   # - golint
+run:
+  skip-dirs:
+    - internal/graphql/generated
+    - internal/graphql/genresolver
