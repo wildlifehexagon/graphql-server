@@ -25,6 +25,10 @@ func ValidateServerArgs(c *cli.Context) error {
 		"annotation-grpc-port",
 		"redis-master-service-host",
 		"redis-master-service-port",
+		"auth-grpc-host",
+		"auth-grpc-port",
+		"identity-grpc-host",
+		"identity-grpc-port",
 	} {
 		if len(c.String(p)) == 0 {
 			return cli.NewExitError(
