@@ -1,4 +1,4 @@
-package auth
+package middleware
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-var contextKey = "refreshToken"
+var AuthContextKey = "refreshToken"
 
 type authResponseWriter struct {
 	http.ResponseWriter
@@ -33,7 +33,7 @@ func AuthMiddleWare(next http.HandlerFunc) http.HandlerFunc {
 		}
 		arw.cookieStr = c.Value
 		// store cookie in context
-		ctx := context.WithValue(r.Context(), contextKey, &w)
+		ctx := context.WithValue(r.Context(), AuthContextKey, &w)
 		// call with new context
 		r = r.WithContext(ctx)
 		// execute next
