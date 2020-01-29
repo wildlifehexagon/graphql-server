@@ -3,6 +3,7 @@ package resolver
 
 import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/auth"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/content"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/order"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/publication"
@@ -102,6 +103,15 @@ func (r *Resolver) Content() generated.ContentResolver {
 	return &content.ContentResolver{
 		Client:     r.GetContentClient(registry.CONTENT),
 		UserClient: r.GetUserClient(registry.USER),
+		Logger:     r.Logger,
+	}
+}
+
+func (r *Resolver) Auth() generated.AuthResolver {
+	return &auth.AuthResolver{
+		Client: r.GetAuthClient(registry.AUTH),
+		UserClient: r.GetUserClient(registry.USER),
+		IdentityClient: r.GetIdentityClient(registry.IDENTITY),
 		Logger:     r.Logger,
 	}
 }

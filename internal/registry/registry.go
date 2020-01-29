@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"github.com/dictyBase/go-genproto/dictybaseapis/identity"
+	"github.com/dictyBase/go-genproto/dictybaseapis/auth"
 	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	"github.com/dictyBase/go-genproto/dictybaseapis/content"
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
@@ -19,6 +21,8 @@ const (
 	ORDER       = "order"
 	CONTENT     = "content"
 	ANNOTATION  = "annotation"
+	AUTH        = "auth"
+	IDENTITY    = "identity"
 )
 
 var ServiceMap = map[string]string{
@@ -29,6 +33,8 @@ var ServiceMap = map[string]string{
 	"order":      ORDER,
 	"content":    CONTENT,
 	"annotation": ANNOTATION,
+	"auth":       AUTH,
+	"identity":   IDENTITY,
 }
 
 type collection struct {
@@ -47,6 +53,8 @@ type Registry interface {
 	GetOrderClient(key string) order.OrderServiceClient
 	GetContentClient(key string) content.ContentServiceClient
 	GetAnnotationClient(key string) annotation.TaggedAnnotationServiceClient
+	GetAuthClient(key string) auth.AuthServiceClient
+	GetIdentityClient(key string) identity.IdentityServiceClient
 }
 
 // NewRegistry constructs a hashmap for our grpc clients
@@ -100,6 +108,14 @@ func (c *collection) GetContentClient(key string) content.ContentServiceClient {
 
 func (c *collection) GetAnnotationClient(key string) annotation.TaggedAnnotationServiceClient {
 	return annotation.NewTaggedAnnotationServiceClient(c.GetAPIConnection(key))
+}
+
+func (c *collection) GetAuthClient(key string) auth.AuthServiceClient {
+	return auth.NewAuthServiceClient(c.GetAPIConnection(key))
+}
+
+func (c *collection) GetIdentityClient(key string) identity.IdentityServiceClient {
+	return identity.NewIdentityServiceClient(c.GetAPIConnection(key))
 }
 
 func (c *collection) GetAPIEndpoint(key string) string {
