@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	r "github.com/go-redis/redis"
+	r "github.com/go-redis/redis/v7"
 )
 
 type Cache struct {
