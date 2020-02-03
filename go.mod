@@ -20,5 +20,5 @@ require (
 	github.com/urfave/cli v1.22.2
 	github.com/vektah/gqlparser v1.2.1
 	google.golang.org/appengine v1.4.0 // indirect
-	google.golang.org/grpc v1.24.0
+	google.golang.org/grpc v1.27.0
 )
