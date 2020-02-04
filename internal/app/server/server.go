@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -37,10 +38,12 @@ func RunGraphQLServer(c *cli.Context) error {
 		host := c.String(fmt.Sprintf("%s-grpc-host", k))
 		port := c.String(fmt.Sprintf("%s-grpc-port", k))
 		// establish grpc connections
-		conn, err := grpc.Dial(fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure())
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure(), grpc.WithBlock())
 		if err != nil {
 			return cli.NewExitError(
-				fmt.Sprintf("cannot connect to grpc microservice for %s", err),
+				fmt.Sprintf("cannot connect to grpc microservice %s", err),
 				2,
 			)
 		}
