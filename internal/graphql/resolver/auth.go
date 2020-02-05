@@ -24,7 +24,7 @@ func (m *MutationResolver) Login(ctx context.Context, input *models.LoginInput) 
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		m.Logger.Error(err)
-		return nil, err
+		return a, err
 	}
 	// 2, Set refresh token cookie with response
 	cookie := ctx.Value(middleware.AuthContextKey).(string)

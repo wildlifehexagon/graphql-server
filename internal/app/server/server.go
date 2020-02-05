@@ -75,10 +75,11 @@ func RunGraphQLServer(c *cli.Context) error {
 		AllowCredentials: true,
 	})
 
-	gqlHandler := handler.GraphQL(generated.NewExecutableSchema(generated.Config{Resolvers: s}), handler.EnablePersistedQueryCache(cache))
+	execSchema := generated.NewExecutableSchema(generated.Config{Resolvers: s})
+	gqlHandler := handler.GraphQL(execSchema, handler.EnablePersistedQueryCache(cache))
 
 	http.Handle("/", crs.Handler(http.HandlerFunc(handler.Playground("GraphQL playground", "/graphql"))))
-	http.Handle("/graphql", crs.Handler(middleware.AuthMiddleWare(http.HandlerFunc(gqlHandler))))
+	http.Handle("/graphql", crs.Handler(middleware.AuthMiddleWare(gqlHandler)))
 	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
