@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"strconv"
 	"context"
+	"strconv"
 
-	"github.com/dictyBase/apihelpers/aphgrpc"
+	"github.com/dictyBase/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/auth"
 	"github.com/dictyBase/go-genproto/dictybaseapis/identity"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"

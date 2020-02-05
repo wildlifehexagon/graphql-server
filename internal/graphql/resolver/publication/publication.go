@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/dictyBase/apihelpers/aphgrpc"
+	"github.com/dictyBase/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/sirupsen/logrus"
 )

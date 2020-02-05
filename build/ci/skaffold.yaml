@@ -17,3 +17,4 @@ deploy:
         namespace: dictybase
         setValueTemplates:
           image.tag: "{{.IMAGE_TAG}}"
+          # endpoints.publication: https://ericfunc.dictybase.dev/publications

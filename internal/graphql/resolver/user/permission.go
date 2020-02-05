@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dictyBase/apihelpers/aphgrpc"
+	"github.com/dictyBase/aphgrpc"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/sirupsen/logrus"
 )
