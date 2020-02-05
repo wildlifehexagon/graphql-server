@@ -45,3 +45,8 @@ func AuthMiddleWare(next http.HandlerFunc) http.HandlerFunc {
 		next(&arw, r.WithContext(newCtx))
 	}
 }
+
+// ForContext finds the refresh token from the context. REQUIRES Middleware to have run.
+func ForContext(ctx context.Context) string {
+	return ctx.Value(AuthContextKey).(string)
+}
