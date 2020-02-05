@@ -2,6 +2,9 @@ package resolver
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"time"
 
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/auth"
 	"github.com/dictyBase/graphql-server/internal/app/middleware"
@@ -38,12 +41,22 @@ func (m *MutationResolver) Login(ctx context.Context, input *models.LoginInput) 
 	return a, nil
 }
 func (m *MutationResolver) Logout(ctx context.Context) (*models.Logout, error) {
-	// 1. Set expired refresh token cookie
-	// fix this
-	cookie := middleware.ForContext(ctx)
+	// 1. Check for refresh token
+	if rt := middleware.ForContext(ctx); rt == "" {
+		err := fmt.Errorf("refresh token does not exist")
+		errorutils.AddGQLError(ctx, err)
+		return nil, err
+	}
+	// Create expired cookie
+	cookie := http.Cookie{
+		Name:     middleware.CookieStr,
+		HttpOnly: true,
+		Expires:  time.Unix(0, 0), // make it expired
+	}
+	// still need to set this in context
 	// 2. Call Logout service method
 	_, err := m.GetAuthClient(registry.AUTH).Logout(ctx, &pb.NewRefreshToken{
-		RefreshToken: cookie,
+		RefreshToken: cookie.Value,
 	})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
