@@ -99,7 +99,7 @@ func (q *QueryResolver) GetRefreshToken(ctx context.Context, token string) (*mod
 		Value:    t.RefreshToken,
 		HttpOnly: true,
 	}
-	http.SetCookie(arw, nc)	
+	http.SetCookie(arw, nc)
 	// 5. Return JWT
 	return &models.Token{
 		Token: t.Token,
