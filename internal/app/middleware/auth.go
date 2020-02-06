@@ -25,13 +25,11 @@ type authResponseWriter struct {
 }
 
 func (w *authResponseWriter) Write(b []byte) (int, error) {
-	if w.refreshTokenToResolver != w.refreshTokenFromCookie {
-		http.SetCookie(w, &http.Cookie{
-			Name:     CookieStr,
-			Value:    w.refreshTokenFromCookie,
-			HttpOnly: true,
-		})
-	}
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     CookieStr,
+	// 	Value:    string(b), // this is refresh token from auth service
+	// 	HttpOnly: true,
+	// })
 	return w.ResponseWriter.Write(b)
 }
 
