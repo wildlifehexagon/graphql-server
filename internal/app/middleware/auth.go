@@ -7,29 +7,35 @@ import (
 	"net/http"
 )
 
-// A private key for context that only this package can access. This is important
-// to prevent collisions between different context uses
-type contextKey struct {
-	name string
+type contextKey string
+
+// String output the details of context key
+func (c contextKey) String() string {
+	return "context key " + string(c)
 }
 
 var (
-	AuthContextKey = &contextKey{"refreshToken"}
-	WriterKey      = &contextKey{"authResponseWriter"}
+	AuthContextKey = contextKey("refreshToken")
 	CookieStr      = "refresh-token"
 )
 
 type authResponseWriter struct {
 	http.ResponseWriter
-	refreshTokenFromCookie string
-	refreshTokenToResolver string
+	RefreshToken string
 }
 
 func (w *authResponseWriter) Write(b []byte) (int, error) {
-	if w.refreshTokenFromCookie != w.refreshTokenToResolver {
+	if w.RefreshToken == "logout" {
 		http.SetCookie(w, &http.Cookie{
 			Name:     CookieStr,
-			Value:    "xyz", // this needs to be updated with real token
+			Value:    w.RefreshToken,
+			HttpOnly: true,
+			Expires:  time.Unix(0, 0), // expired
+		})
+	} else {
+		http.SetCookie(w, &http.Cookie{
+			Name:     CookieStr,
+			Value:    w.RefreshToken,
 			HttpOnly: true,
 			Expires:  time.Now().AddDate(0, 1, 0), // one month
 		})
@@ -40,30 +46,23 @@ func (w *authResponseWriter) Write(b []byte) (int, error) {
 func AuthMiddleWare(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		arw := authResponseWriter{w, "", ""}
+		arw := authResponseWriter{w, ""}
+		w = &arw
 		// get refresh token from cookie
 		c, err := r.Cookie(CookieStr)
 		if err != nil || c == nil {
-			newCtx := context.WithValue(ctx, AuthContextKey, &arw.refreshTokenToResolver)
-			newCtxWithWriter := context.WithValue(newCtx, WriterKey, &arw)
-			h.ServeHTTP(w, r.WithContext(newCtxWithWriter))
+			newCtx := context.WithValue(ctx, AuthContextKey, w)
+			h.ServeHTTP(w, r.WithContext(newCtx))
 			return
 		}
-		arw.refreshTokenFromCookie = c.Value
-		arw.refreshTokenToResolver = c.Value
-		newCtx := context.WithValue(ctx, AuthContextKey, &arw.refreshTokenToResolver)
-		newCtxWithWriter := context.WithValue(newCtx, WriterKey, &arw)
-		h.ServeHTTP(&arw, r.WithContext(newCtxWithWriter))
+		arw.RefreshToken = c.Value
+		newCtx := context.WithValue(ctx, AuthContextKey, w)
+		h.ServeHTTP(w, r.WithContext(newCtx))
 	}
 	return http.HandlerFunc(fn)
 }
 
-// TokenFromContext finds the refresh token from the context.
-func TokenFromContext(ctx context.Context) *string {
-	return ctx.Value(AuthContextKey).(*string)
-}
-
 // WriterFromContext finds the HTTP response writer from the context.
 func WriterFromContext(ctx context.Context) *authResponseWriter {
-	return ctx.Value(WriterKey).(*authResponseWriter)
+	return ctx.Value(AuthContextKey).(*authResponseWriter)
 }
