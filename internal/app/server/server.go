@@ -73,6 +73,7 @@ func RunGraphQLServer(c *cli.Context) error {
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowCredentials: true,
+		AllowedHeaders:     []string{"*"},
 	})
 
 	execSchema := generated.NewExecutableSchema(generated.Config{Resolvers: s})
