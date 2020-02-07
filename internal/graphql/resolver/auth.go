@@ -35,7 +35,7 @@ func (m *MutationResolver) Login(ctx context.Context, input *models.LoginInput) 
 		Name:     middleware.CookieStr,
 		Value:    l.RefreshToken,
 		HttpOnly: true,
-		Expires: time.Now().AddDate(0, 1, 0), // one month
+		Expires:  time.Now().AddDate(0, 1, 0), // one month
 	}
 	http.SetCookie(arw, cookie)
 	// 3. Convert rest of response to Auth model
@@ -99,7 +99,7 @@ func (q *QueryResolver) GetRefreshToken(ctx context.Context, token string) (*mod
 		Name:     middleware.CookieStr,
 		Value:    t.RefreshToken,
 		HttpOnly: true,
-		Expires: time.Now().AddDate(0, 1, 0), // one month
+		Expires:  time.Now().AddDate(0, 1, 0), // one month
 	}
 	http.SetCookie(arw, nc)
 	// 5. Return JWT
