@@ -94,7 +94,7 @@ func (q *QueryResolver) GetRefreshToken(ctx context.Context, token string) (*mod
 	arw := middleware.WriterFromContext(ctx)
 	_, err = arw.Write([]byte(t.RefreshToken))
 	if err != nil {
-		return a, err
+		return tkn, err
 	}
 	// 5. Return JWT
 	return &models.Token{
