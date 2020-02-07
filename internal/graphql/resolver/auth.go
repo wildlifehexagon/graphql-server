@@ -31,17 +31,14 @@ func (m *MutationResolver) Login(ctx context.Context, input *models.LoginInput) 
 	}
 	// 2, Set refresh token cookie with response
 	arw := middleware.WriterFromContext(ctx)
-	cookie := &http.Cookie{
-		Name:     middleware.CookieStr,
-		Value:    l.RefreshToken,
-		HttpOnly: true,
-		Expires:  time.Now().AddDate(0, 1, 0), // one month
+	_, err = arw.Write([]byte(l.RefreshToken))
+	if err != nil {
+		return a, err
 	}
-	http.SetCookie(arw, cookie)
 	// 3. Convert rest of response to Auth model
 	a = &pb.Auth{
 		Token:        l.Token,
-		RefreshToken: cookie.Value,
+		RefreshToken: l.RefreshToken,
 		User:         l.User,
 		Identity:     l.Identity,
 	}
@@ -95,13 +92,10 @@ func (q *QueryResolver) GetRefreshToken(ctx context.Context, token string) (*mod
 	}
 	// 4. Set new refresh token cookie from response
 	arw := middleware.WriterFromContext(ctx)
-	nc := &http.Cookie{
-		Name:     middleware.CookieStr,
-		Value:    t.RefreshToken,
-		HttpOnly: true,
-		Expires:  time.Now().AddDate(0, 1, 0), // one month
+	_, err = arw.Write([]byte(t.RefreshToken))
+	if err != nil {
+		return a, err
 	}
-	http.SetCookie(arw, nc)
 	// 5. Return JWT
 	return &models.Token{
 		Token: t.Token,

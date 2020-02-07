@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"time"
 
 	"net/http"
 )
@@ -25,11 +26,14 @@ type authResponseWriter struct {
 }
 
 func (w *authResponseWriter) Write(b []byte) (int, error) {
-	// http.SetCookie(w, &http.Cookie{
-	// 	Name:     CookieStr,
-	// 	Value:    string(b), // this is refresh token from auth service
-	// 	HttpOnly: true,
-	// })
+	if w.refreshTokenFromCookie != w.refreshTokenToResolver {
+		http.SetCookie(w, &http.Cookie{
+			Name:     CookieStr,
+			Value:    "xyz", // this needs to be updated with real token
+			HttpOnly: true,
+			Expires:  time.Now().AddDate(0, 1, 0), // one month
+		})
+	}
 	return w.ResponseWriter.Write(b)
 }
 
