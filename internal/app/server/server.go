@@ -85,7 +85,7 @@ func RunGraphQLServer(c *cli.Context) error {
 	router.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
 	router.Handle("/graphql", gqlHandler)
 	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
-	http.ListenAndServe(":8080", router)
+	log.Fatal(http.ListenAndServe(":8080", router))
 	return nil
 }
 
