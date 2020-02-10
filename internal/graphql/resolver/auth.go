@@ -49,9 +49,7 @@ func (m *MutationResolver) Logout(ctx context.Context) (*models.Logout, error) {
 		errorutils.AddGQLError(ctx, nerr)
 		return nil, nerr
 	}
-	// 2. Create expired cookie
-	arw.RefreshToken = "logout"
-	// 3. Call Logout service method
+	// 2. Call Logout service method
 	_, err := m.GetAuthClient(registry.AUTH).Logout(ctx, &pb.NewRefreshToken{
 		RefreshToken: arw.RefreshToken,
 	})
@@ -60,6 +58,8 @@ func (m *MutationResolver) Logout(ctx context.Context) (*models.Logout, error) {
 		m.Logger.Error(err)
 		return nil, err
 	}
+	// 3. Set expired cookie
+	arw.RefreshToken = "logout"
 	return &models.Logout{
 		Success: true,
 	}, nil
