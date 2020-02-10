@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dictyBase/graphql-server/internal/app/middleware"
+	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/dictyBase/graphql-server/internal/storage/redis"
@@ -15,7 +16,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/99designs/gqlgen/handler"
-	"github.com/dictyBase/graphql-server/internal/graphql/generated"
+	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -23,6 +24,7 @@ import (
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
+	router := chi.NewRouter()
 	red := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
 	cl := time.Duration(c.Int("cache-expiration-days") * 24)
 	cache, err := redis.NewCache(red, cl*time.Hour)
@@ -75,14 +77,15 @@ func RunGraphQLServer(c *cli.Context) error {
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
 	})
+	router.Use(crs.Handler)
+	router.Use(middleware.AuthMiddleWare)
 
 	execSchema := generated.NewExecutableSchema(generated.Config{Resolvers: s})
 	gqlHandler := handler.GraphQL(execSchema, handler.EnablePersistedQueryCache(cache))
-
-	http.Handle("/", crs.Handler(http.HandlerFunc(handler.Playground("GraphQL playground", "/graphql"))))
-	http.Handle("/graphql", crs.Handler(middleware.AuthMiddleWare(gqlHandler)))
+	router.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
+	router.Handle("/graphql", gqlHandler)
 	log.Debugf("connect to http://localhost:8080/ for GraphQL playground")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.ListenAndServe(":8080", router)
 	return nil
 }
 

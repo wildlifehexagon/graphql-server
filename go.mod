@@ -8,6 +8,7 @@ require (
 	github.com/dictyBase/go-genproto v0.0.0-20200122001226-b1ccbdee4aa3
 	github.com/emirpasic/gods v1.12.0
 	github.com/fatih/structs v1.1.0
+	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-chi/cors v1.0.0
 	github.com/go-redis/redis/v7 v7.0.0-beta.5
 	github.com/gogo/protobuf v1.3.1 // indirect
