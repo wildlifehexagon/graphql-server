@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dictyBase/aphgrpc"
+
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/auth"
 	"github.com/dictyBase/graphql-server/internal/app/middleware"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
@@ -43,9 +45,9 @@ func (m *MutationResolver) Logout(ctx context.Context) (*models.Logout, error) {
 	// 1. Check for refresh token
 	arw := middleware.WriterFromContext(ctx)
 	if arw.RefreshToken == "" {
-		err := fmt.Errorf("refresh token does not exist")
-		errorutils.AddGQLError(ctx, err)
-		return nil, err
+		nerr := aphgrpc.HandleNotFoundError(ctx, fmt.Errorf("refresh token does not exist"))
+		errorutils.AddGQLError(ctx, nerr)
+		return nil, nerr
 	}
 	// 2. Create expired cookie
 	arw.RefreshToken = "logout"
@@ -67,9 +69,9 @@ func (q *QueryResolver) GetRefreshToken(ctx context.Context, token string) (*mod
 	// 1. Get the refresh token from the cookie
 	arw := middleware.WriterFromContext(ctx)
 	if arw.RefreshToken == "" {
-		err := fmt.Errorf("refresh token does not exist")
-		errorutils.AddGQLError(ctx, err)
-		return tkn, err
+		nerr := aphgrpc.HandleNotFoundError(ctx, fmt.Errorf("refresh token does not exist"))
+		errorutils.AddGQLError(ctx, nerr)
+		return tkn, nerr
 	}
 	// 3. Pass refresh token and JWT into GetRefreshToken method
 	t, err := q.GetAuthClient(registry.AUTH).GetRefreshToken(ctx, &pb.NewToken{
