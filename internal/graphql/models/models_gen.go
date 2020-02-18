@@ -190,10 +190,6 @@ type StrainListWithCursor struct {
 	TotalCount     int       `json:"totalCount"`
 }
 
-type Token struct {
-	Token string `json:"token"`
-}
-
 type UpdateContentInput struct {
 	ID        string `json:"id"`
 	UpdatedBy string `json:"updated_by"`

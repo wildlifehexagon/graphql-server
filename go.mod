@@ -13,6 +13,8 @@ require (
 	github.com/go-redis/redis/v7 v7.0.0-beta.6
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/google/go-cmp v0.4.0 // indirect
+	github.com/google/go-github v17.0.0+incompatible // indirect
+	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.12.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect

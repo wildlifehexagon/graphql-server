@@ -332,7 +332,7 @@ func (r *publicationResolver) Authors(ctx context.Context, obj *publication.Publ
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) GetRefreshToken(ctx context.Context, token string) (*models.Token, error) {
+func (r *queryResolver) GetRefreshToken(ctx context.Context, token string) (*auth.Auth, error) {
 	panic("not implemented")
 }
 func (r *queryResolver) Content(ctx context.Context, id string) (*content.Content, error) {

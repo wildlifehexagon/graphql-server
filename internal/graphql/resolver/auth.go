@@ -64,29 +64,26 @@ func (m *MutationResolver) Logout(ctx context.Context) (*models.Logout, error) {
 		Success: true,
 	}, nil
 }
-func (q *QueryResolver) GetRefreshToken(ctx context.Context, token string) (*models.Token, error) {
-	tkn := &models.Token{}
+func (q *QueryResolver) GetRefreshToken(ctx context.Context, token string) (*pb.Auth, error) {
+	a := &pb.Auth{}
 	// 1. Get the refresh token from the cookie
 	arw := middleware.WriterFromContext(ctx)
 	if arw.RefreshToken == "" {
 		nerr := aphgrpc.HandleNotFoundError(ctx, fmt.Errorf("refresh token does not exist"))
 		errorutils.AddGQLError(ctx, nerr)
-		return tkn, nerr
+		return a, nerr
 	}
-	// 3. Pass refresh token and JWT into GetRefreshToken method
-	t, err := q.GetAuthClient(registry.AUTH).GetRefreshToken(ctx, &pb.NewToken{
+	// 2. Get user and identity information
+	a, err := q.GetAuthClient(registry.AUTH).Relogin(ctx, &pb.NewRelogin{
 		RefreshToken: arw.RefreshToken,
-		Token:        token,
 	})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
-		return tkn, err
+		return a, err
 	}
-	// 4. Set new refresh token cookie from response
-	arw.RefreshToken = t.RefreshToken
-	// 5. Return JWT
-	return &models.Token{
-		Token: t.Token,
-	}, nil
+	// 3. Set new refresh token cookie from response
+	arw.RefreshToken = a.RefreshToken
+	// 4. Return new JWT and user/identity data
+	return a, nil
 }

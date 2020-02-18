@@ -293,10 +293,6 @@ type ComplexityRoot struct {
 		TotalCount     func(childComplexity int) int
 	}
 
-	Token struct {
-		Token func(childComplexity int) int
-	}
-
 	User struct {
 		City          func(childComplexity int) int
 		Country       func(childComplexity int) int
@@ -426,7 +422,7 @@ type PublicationResolver interface {
 	Authors(ctx context.Context, obj *publication.Publication) ([]*publication.Author, error)
 }
 type QueryResolver interface {
-	GetRefreshToken(ctx context.Context, token string) (*models.Token, error)
+	GetRefreshToken(ctx context.Context, token string) (*auth.Auth, error)
 	Content(ctx context.Context, id string) (*content.Content, error)
 	ContentBySlug(ctx context.Context, slug string) (*content.Content, error)
 	Order(ctx context.Context, id string) (*order.Order, error)
@@ -1866,13 +1862,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.StrainListWithCursor.TotalCount(childComplexity), true
 
-	case "Token.token":
-		if e.complexity.Token.Token == nil {
-			break
-		}
-
-		return e.complexity.Token.Token(childComplexity), true
-
 	case "User.city":
 		if e.complexity.User.City == nil {
 			break
@@ -2106,10 +2095,6 @@ type Auth {
   identity: Identity!
 }
 
-type Token {
-  token: String!
-}
-
 type Logout {
   success: Boolean!
 }
@@ -2311,7 +2296,7 @@ type Author {
 `},
 	&ast.Source{Name: "api/query.graphql", Input: `type Query {
   # Auth queries
-  getRefreshToken(token: String!): Token
+  getRefreshToken(token: String!): Auth
   # Content queries
   content(id: ID!): Content
   contentBySlug(slug: String!): Content
@@ -7569,10 +7554,10 @@ func (ec *executionContext) _Query_getRefreshToken(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.Token)
+	res := resTmp.(*auth.Auth)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOToken2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐToken(ctx, field.Selections, res)
+	return ec.marshalOAuth2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋauthᚐAuth(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_content(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -9503,43 +9488,6 @@ func (ec *executionContext) _StrainListWithCursor_totalCount(ctx context.Context
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Token_token(ctx context.Context, field graphql.CollectedField, obj *models.Token) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Token",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Token, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
@@ -14491,33 +14439,6 @@ func (ec *executionContext) _StrainListWithCursor(ctx context.Context, sel ast.S
 	return out
 }
 
-var tokenImplementors = []string{"Token"}
-
-func (ec *executionContext) _Token(ctx context.Context, sel ast.SelectionSet, obj *models.Token) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, tokenImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Token")
-		case "token":
-			out.Values[i] = ec._Token_token(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *user.User) graphql.Marshaler {
@@ -16349,17 +16270,6 @@ func (ec *executionContext) marshalOTimestamp2ᚖtimeᚐTime(ctx context.Context
 		return graphql.Null
 	}
 	return ec.marshalOTimestamp2timeᚐTime(ctx, sel, *v)
-}
-
-func (ec *executionContext) marshalOToken2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐToken(ctx context.Context, sel ast.SelectionSet, v models.Token) graphql.Marshaler {
-	return ec._Token(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalOToken2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐToken(ctx context.Context, sel ast.SelectionSet, v *models.Token) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Token(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOUpdateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx context.Context, v interface{}) (models.UpdateContentInput, error) {
