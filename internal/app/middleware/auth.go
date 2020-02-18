@@ -22,17 +22,19 @@ var (
 type authResponseWriter struct {
 	http.ResponseWriter
 	RefreshToken string
+	Identifier   string
 }
 
 func (w *authResponseWriter) Write(b []byte) (int, error) {
-	if w.RefreshToken == "logout" {
+	if w.Identifier == "logout" {
 		http.SetCookie(w, &http.Cookie{
 			Name:     CookieStr,
-			Value:    w.RefreshToken,
+			Value:    "",
 			HttpOnly: true,
 			Expires:  time.Unix(0, 0), // expired
 		})
-	} else {
+	}
+	if w.Identifier == "login" {
 		http.SetCookie(w, &http.Cookie{
 			Name:     CookieStr,
 			Value:    w.RefreshToken,
@@ -46,7 +48,7 @@ func (w *authResponseWriter) Write(b []byte) (int, error) {
 func AuthMiddleWare(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		arw := authResponseWriter{w, ""}
+		arw := authResponseWriter{w, "", ""}
 		w = &arw
 		// get refresh token from cookie
 		c, err := r.Cookie(CookieStr)
