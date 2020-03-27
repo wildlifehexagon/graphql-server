@@ -52,10 +52,13 @@ func AuthMiddleWare(h http.Handler) http.Handler {
 		w = &arw
 		// get refresh token from cookie
 		c, err := r.Cookie(CookieStr)
-		if err != nil || c == nil {
-			newCtx := context.WithValue(ctx, AuthContextKey, w)
-			h.ServeHTTP(w, r.WithContext(newCtx))
-			return
+		if err != nil {
+			if err == http.ErrNoCookie {
+				newCtx := context.WithValue(ctx, AuthContextKey, w)
+				h.ServeHTTP(w, r.WithContext(newCtx))
+				return
+			}
+			http.Error(w, "could not retrieve cookie", http.StatusInternalServerError)
 		}
 		arw.RefreshToken = c.Value
 		newCtx := context.WithValue(ctx, AuthContextKey, w)
