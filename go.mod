@@ -21,7 +21,7 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.2.2
 	github.com/mwitkow/go-proto-validators v0.3.0 // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.5.0
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/urfave/cli v1.22.3
 	github.com/vektah/gqlparser v1.3.1
