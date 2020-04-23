@@ -7,6 +7,7 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
+	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,4 +30,26 @@ func TestOrder(t *testing.T) {
 	assert.Exactly(o.Data.Attributes.Payer, "george@costanza.com", "should match payer")
 	assert.Exactly(o.Data.Attributes.Purchaser, "thatsgold@jerry.org", "should match purchaser")
 	assert.ElementsMatch(o.Data.Attributes.Items, []string{"DBS123456"}, "should match items")
+}
+
+func TestListOrders(t *testing.T) {
+	assert := assert.New(t)
+	ord := &QueryResolver{
+		Registry: &mocks.MockRegistry{},
+		Logger:   mocks.TestLogger(),
+	}
+	cursor := 0
+	limit := 10
+	filter := "type===strain"
+	o, err := ord.ListOrders(context.Background(), &models.ListOrderInput{
+		Cursor: &cursor,
+		Limit:  &limit,
+		Filter: &filter,
+	})
+	assert.NoError(err, "expect no error from getting list of orders")
+	assert.Exactly(o.Limit, &limit, "should match limit")
+	assert.Exactly(o.PreviousCursor, 0, "should match previous cursor")
+	assert.Exactly(o.NextCursor, 10000, "should match next cursor")
+	assert.Exactly(o.TotalCount, 1, "should match total count (length) of items")
+	// add test for items
 }
