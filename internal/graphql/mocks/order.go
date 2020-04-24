@@ -55,6 +55,29 @@ func mockOrderCollection() *order.OrderCollection {
 	}
 }
 
+func mockUpdateOrder() *order.Order {
+	return &order.Order{
+		Data: &order.Order_Data{
+			Type: "order",
+			Id:   "999",
+			Attributes: &order.OrderAttributes{
+				CreatedAt:        ptypes.TimestampNow(),
+				UpdatedAt:        ptypes.TimestampNow(),
+				Courier:          "FedEx",
+				CourierAccount:   "444444",
+				Comments:         "Please send ASAP",
+				Payment:          "credit",
+				PurchaseOrderNum: "987654",
+				Status:           1, // growing
+				Consumer:         "art@vandelayindustries.com",
+				Payer:            "george@costanza.com",
+				Purchaser:        "thatsgold@jerry.org",
+				Items:            []string{"DBS123456"},
+			},
+		},
+	}
+}
+
 func mockedOrderClient() *clients.OrderServiceClient {
 	mockedOrderClient := new(clients.OrderServiceClient)
 	mockedOrderClient.On(
@@ -71,6 +94,11 @@ func mockedOrderClient() *clients.OrderServiceClient {
 			"CreateOrder",
 			mock.Anything,
 			mock.AnythingOfType("*order.NewOrder"),
-		).Return(mockOrder(), nil)
+		).Return(mockOrder(), nil).
+		On(
+			"UpdateOrder",
+			mock.Anything,
+			mock.AnythingOfType("*order.OrderUpdate"),
+		).Return(mockUpdateOrder(), nil)
 	return mockedOrderClient
 }

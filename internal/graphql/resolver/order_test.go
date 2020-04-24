@@ -87,3 +87,36 @@ func TestCreateOrder(t *testing.T) {
 	assert.Exactly(o.Data.Attributes.Purchaser, "thatsgold@jerry.org", "should match purchaser")
 	assert.ElementsMatch(o.Data.Attributes.Items, []string{"DBS123456"}, "should match items")
 }
+
+func TestUpdateOrder(t *testing.T) {
+	assert := assert.New(t)
+	ord := &MutationResolver{
+		Registry: &mocks.MockRegistry{},
+		Logger:   mocks.TestLogger(),
+	}
+	courier := "FedEx"
+	courierAccount := "444444"
+	comments := "Please send ASAP"
+	status := models.StatusEnumGrowing
+	o, err := ord.UpdateOrder(
+		context.Background(),
+		"999",
+		&models.UpdateOrderInput{
+			Courier:        &courier,
+			CourierAccount: &courierAccount,
+			Comments:       &comments,
+			Status:         &status,
+		},
+	)
+	assert.NoError(err, "expect no error from updating an order")
+	assert.Exactly(o.Data.Attributes.Courier, courier, "should match updated courier")
+	assert.Exactly(o.Data.Attributes.CourierAccount, courierAccount, "should match updated courier account")
+	assert.Exactly(o.Data.Attributes.Comments, comments, "should match updated comments")
+	assert.Exactly(o.Data.Attributes.Payment, "credit", "should match payment")
+	assert.Exactly(o.Data.Attributes.PurchaseOrderNum, "987654", "should match purchase order number")
+	assert.Exactly(o.Data.Attributes.Status, order.OrderStatus_Growing, "should match updated status")
+	assert.Exactly(o.Data.Attributes.Consumer, "art@vandelayindustries.com", "should match consumer")
+	assert.Exactly(o.Data.Attributes.Payer, "george@costanza.com", "should match payer")
+	assert.Exactly(o.Data.Attributes.Purchaser, "thatsgold@jerry.org", "should match purchaser")
+	assert.ElementsMatch(o.Data.Attributes.Items, []string{"DBS123456"}, "should match items")
+}
