@@ -98,14 +98,8 @@ func (m *MutationResolver) UpdateOrder(ctx context.Context, id string, input *mo
 		m.Logger.Error(err)
 		return nil, err
 	}
-	u, err := m.GetOrderClient(registry.ORDER).GetOrder(ctx, &pb.OrderId{Id: o.Data.Id})
-	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		m.Logger.Error(err)
-		return nil, err
-	}
-	m.Logger.Debugf("successfully updated order with ID %s", u.Data.Id)
-	return u, nil
+	m.Logger.Debugf("successfully updated order with ID %s", o.Data.Id)
+	return o, nil
 }
 
 func normalizeUpdateOrderAttr(attr *models.UpdateOrderInput) map[string]interface{} {
