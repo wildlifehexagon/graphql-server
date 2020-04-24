@@ -112,7 +112,9 @@ func normalizeUpdateOrderAttr(attr *models.UpdateOrderInput) map[string]interfac
 	fields := structs.Fields(attr)
 	newAttr := make(map[string]interface{})
 	for _, k := range fields {
-		if !k.IsZero() {
+		if k.Name() == "Status" {
+			newAttr["Status"] = statusConverter(*attr.Status)
+		} else if !k.IsZero() {
 			newAttr[k.Name()] = k.Value()
 		}
 	}
