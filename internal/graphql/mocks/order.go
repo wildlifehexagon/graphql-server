@@ -66,6 +66,11 @@ func mockedOrderClient() *clients.OrderServiceClient {
 			"ListOrders",
 			mock.Anything,
 			mock.AnythingOfType("*order.ListParameters"),
-		).Return(mockOrderCollection(), nil)
+		).Return(mockOrderCollection(), nil).
+		On(
+			"CreateOrder",
+			mock.Anything,
+			mock.AnythingOfType("*order.NewOrder"),
+		).Return(mockOrder(), nil)
 	return mockedOrderClient
 }
