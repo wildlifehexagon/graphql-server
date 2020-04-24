@@ -50,6 +50,6 @@ func TestListOrders(t *testing.T) {
 	assert.Exactly(o.Limit, &limit, "should match limit")
 	assert.Exactly(o.PreviousCursor, 0, "should match previous cursor")
 	assert.Exactly(o.NextCursor, 10000, "should match next cursor")
-	assert.Exactly(o.TotalCount, 1, "should match total count (length) of items")
-	// add test for items
+	assert.Exactly(o.TotalCount, 3, "should match total count (length) of items")
+	assert.Len(o.Orders, 3, "should have three orders")
 }
