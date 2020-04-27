@@ -31,9 +31,30 @@ func mockPlasmid() *stock.Plasmid {
 	}
 }
 
-// func mockStrain() *stock.Strain {
-// 	return &stock.Strain{}
-// }
+func mockStrain() *stock.Strain {
+	return &stock.Strain{
+		Data: &stock.Strain_Data{
+			Type: "strain",
+			Id:   "DBS123456",
+			Attributes: &stock.StrainAttributes{
+				CreatedAt:       ptypes.TimestampNow(),
+				UpdatedAt:       ptypes.TimestampNow(),
+				CreatedBy:       "art@vandelay.com",
+				UpdatedBy:       "art@vandelay.com",
+				Summary:         "test summary",
+				EditableSummary: "editable test summary",
+				Depositor:       "Kenny Bania",
+				Genes:           []string{"sadA"},
+				Dbxrefs:         []string{"test1"},
+				Publications:    []string{"99999"},
+				Label:           "test99",
+				Species:         "human",
+				Plasmid:         "pTest",
+				Names:           []string{"fusilli"},
+			},
+		},
+	}
+}
 
 func mockedStockClient() *clients.StockServiceClient {
 	mockedStockClient := new(clients.StockServiceClient)
@@ -41,6 +62,10 @@ func mockedStockClient() *clients.StockServiceClient {
 		"GetPlasmid",
 		mock.AnythingOfType("*context.emptyCtx"),
 		mock.AnythingOfType("*stock.StockId"),
-	).Return(mockPlasmid(), nil)
+	).Return(mockPlasmid(), nil).On(
+		"GetStrain",
+		mock.AnythingOfType("*context.emptyCtx"),
+		mock.AnythingOfType("*stock.StockId"),
+	).Return(mockStrain(), nil)
 	return mockedStockClient
 }
