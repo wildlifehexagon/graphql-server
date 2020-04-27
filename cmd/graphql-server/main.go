@@ -192,14 +192,14 @@ func nonGRPCFlags() []cli.Flag {
 }
 
 /**
-  A list of allowed origins is necessary since server has set 
+  A list of allowed origins is necessary since server has set
   allow-credentials to true.
   See https://github.com/rs/cors/issues/55
 */
 func allowedOriginFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringSliceFlag{
-			Name:   "allowed-origin",
+			Name:  "allowed-origin",
 			Usage: "allowed origins for CORS",
 			Value: &cli.StringSlice{},
 		},
