@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-blue.svg)](LICENSE)  
 ![GitHub action](https://github.com/dictyBase/graphql-server/workflows/Build/badge.svg)
+[![codecov](https://codecov.io/gh/dictyBase/modware-annotation/branch/develop/graph/badge.svg)](https://codecov.io/gh/dictyBase/modware-annotation)  
 [![Go Report Card](https://goreportcard.com/badge/github.com/dictyBase/graphql-server)](https://goreportcard.com/report/github.com/dictyBase/graphql-server)
 [![Technical debt](https://badgen.net/codeclimate/tech-debt/dictyBase/graphql-server)](https://codeclimate.com/github/dictyBase/graphql-server/trends/technical_debt)
 [![Issues](https://badgen.net/codeclimate/issues/dictyBase/graphql-server)](https://codeclimate.com/github/dictyBase/graphql-server/issues)
