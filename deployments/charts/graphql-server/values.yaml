@@ -16,6 +16,12 @@ service:
 
 logLevel: debug
 
+allowedOrigins:
+  - "https://*.dictybase.org"
+  - "https://*.dictycr.org"
+  - "https://*.dictybase.dev"
+  - "http://localhost:*"
+
 # endpoints:
 # publication: https://ericfunc.dictybase.dev/publications
 
