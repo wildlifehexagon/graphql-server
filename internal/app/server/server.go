@@ -70,10 +70,10 @@ func RunGraphQLServer(c *cli.Context) error {
 	// publication api status is fine, so add it to registry
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
 	s := resolver.NewResolver(nr, log)
-
+	
 	crs := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedOrigins:   c.StringSlice("allowed-origin"),
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
 	})

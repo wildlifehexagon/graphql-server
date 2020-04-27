@@ -47,6 +47,7 @@ func getServerFlags() []cli.Flag {
 	f = append(f, dscFlags()...)
 	f = append(f, contentFlags()...)
 	f = append(f, nonGRPCFlags()...)
+	f = append(f, allowedOriginFlags()...)
 	return append(f, authFlags()...)
 }
 
@@ -186,6 +187,16 @@ func nonGRPCFlags() []cli.Flag {
 			Name:   "publication-api, pub",
 			EnvVar: "PUBLICATION_API_ENDPOINT",
 			Usage:  "publication api endpoint",
+		},
+	}
+}
+
+func allowedOriginFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.StringSliceFlag{
+			Name:   "allowed-origin",
+			Usage: "allowed origins for CORS",
+			Value: &cli.StringSlice{},
 		},
 	}
 }
