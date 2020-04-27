@@ -327,25 +327,12 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	}
 	plasmids := []*models.Plasmid{}
 	for _, n := range list.Data {
+		attr := n.Attributes
 		item := &models.Plasmid{
 			Data: &pb.Plasmid_Data{
-				Type: n.Type,
-				Id:   n.Id,
-				Attributes: &pb.PlasmidAttributes{
-					CreatedAt:       n.Attributes.CreatedAt,
-					UpdatedAt:       n.Attributes.UpdatedAt,
-					CreatedBy:       n.Attributes.CreatedBy,
-					UpdatedBy:       n.Attributes.UpdatedBy,
-					Summary:         n.Attributes.Summary,
-					EditableSummary: n.Attributes.EditableSummary,
-					Depositor:       n.Attributes.Depositor,
-					Genes:           n.Attributes.Genes,
-					Dbxrefs:         n.Attributes.Dbxrefs,
-					Publications:    n.Attributes.Publications,
-					ImageMap:        n.Attributes.ImageMap,
-					Sequence:        n.Attributes.Sequence,
-					Name:            n.Attributes.Name,
-				},
+				Type:       n.Type,
+				Id:         n.Id,
+				Attributes: attr,
 			},
 		}
 		plasmids = append(plasmids, item)
