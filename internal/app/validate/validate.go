@@ -23,8 +23,6 @@ func ValidateServerArgs(c *cli.Context) error {
 		"content-grpc-port",
 		"annotation-grpc-host",
 		"annotation-grpc-port",
-		"redis-master-service-host",
-		"redis-master-service-port",
 		"auth-grpc-host",
 		"auth-grpc-port",
 		"identity-grpc-host",
