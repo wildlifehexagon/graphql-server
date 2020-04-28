@@ -17,19 +17,20 @@ func TestOrder(t *testing.T) {
 		Registry: &mocks.MockRegistry{},
 		Logger:   mocks.TestLogger(),
 	}
-	o, err := ord.Order(context.Background(), "999")
+	id := "999"
+	o, err := ord.Order(context.Background(), id)
 	assert.NoError(err, "expect no error from getting order information")
-	assert.Exactly(o.Data.Id, "999", "should match id")
-	assert.Exactly(o.Data.Attributes.Courier, "USPS", "should match courier")
-	assert.Exactly(o.Data.Attributes.CourierAccount, "123456", "should match courier account")
-	assert.Exactly(o.Data.Attributes.Comments, "first order", "should match comments")
-	assert.Exactly(o.Data.Attributes.Payment, "credit", "should match payment")
-	assert.Exactly(o.Data.Attributes.PurchaseOrderNum, "987654", "should match purchase order number")
+	assert.Exactly(o.Data.Id, id, "should match id")
+	assert.Exactly(o.Data.Attributes.Courier, mocks.MockOrderAttributes.Courier, "should match courier")
+	assert.Exactly(o.Data.Attributes.CourierAccount, mocks.MockOrderAttributes.CourierAccount, "should match courier account")
+	assert.Exactly(o.Data.Attributes.Comments, mocks.MockOrderAttributes.Comments, "should match comments")
+	assert.Exactly(o.Data.Attributes.Payment, mocks.MockOrderAttributes.Payment, "should match payment")
+	assert.Exactly(o.Data.Attributes.PurchaseOrderNum, mocks.MockOrderAttributes.PurchaseOrderNum, "should match purchase order number")
 	assert.Exactly(o.Data.Attributes.Status, order.OrderStatus_In_preparation, "should match status")
-	assert.Exactly(o.Data.Attributes.Consumer, "art@vandelayindustries.com", "should match consumer")
-	assert.Exactly(o.Data.Attributes.Payer, "george@costanza.com", "should match payer")
-	assert.Exactly(o.Data.Attributes.Purchaser, "thatsgold@jerry.org", "should match purchaser")
-	assert.ElementsMatch(o.Data.Attributes.Items, []string{"DBS123456"}, "should match items")
+	assert.Exactly(o.Data.Attributes.Consumer, mocks.MockOrderAttributes.Consumer, "should match consumer")
+	assert.Exactly(o.Data.Attributes.Payer, mocks.MockOrderAttributes.Payer, "should match payer")
+	assert.Exactly(o.Data.Attributes.Purchaser, mocks.MockOrderAttributes.Purchaser, "should match purchaser")
+	assert.ElementsMatch(o.Data.Attributes.Items, mocks.MockOrderAttributes.Items, "should match items")
 }
 
 func TestListOrders(t *testing.T) {
@@ -63,7 +64,7 @@ func TestCreateOrder(t *testing.T) {
 	comments := "first order"
 	pon := "987654"
 	id := "DBS123456"
-	o, err := ord.CreateOrder(context.Background(), &models.CreateOrderInput{
+	input := &models.CreateOrderInput{
 		Courier:          "USPS",
 		CourierAccount:   "123456",
 		Comments:         &comments,
@@ -74,17 +75,18 @@ func TestCreateOrder(t *testing.T) {
 		Payer:            "george@costanza.com",
 		Purchaser:        "thatsgold@jerry.org",
 		Items:            []*string{&id},
-	})
+	}
+	o, err := ord.CreateOrder(context.Background(), input)
 	assert.NoError(err, "expect no error from creating an order")
-	assert.Exactly(o.Data.Attributes.Courier, "USPS", "should match courier")
-	assert.Exactly(o.Data.Attributes.CourierAccount, "123456", "should match courier account")
-	assert.Exactly(o.Data.Attributes.Comments, "first order", "should match comments")
-	assert.Exactly(o.Data.Attributes.Payment, "credit", "should match payment")
-	assert.Exactly(o.Data.Attributes.PurchaseOrderNum, "987654", "should match purchase order number")
+	assert.Exactly(o.Data.Attributes.Courier, input.Courier, "should match courier")
+	assert.Exactly(o.Data.Attributes.CourierAccount, input.CourierAccount, "should match courier account")
+	assert.Exactly(&o.Data.Attributes.Comments, input.Comments, "should match comments")
+	assert.Exactly(o.Data.Attributes.Payment, input.Payment, "should match payment")
+	assert.Exactly(&o.Data.Attributes.PurchaseOrderNum, input.PurchaseOrderNum, "should match purchase order number")
 	assert.Exactly(o.Data.Attributes.Status, order.OrderStatus_In_preparation, "should match status")
-	assert.Exactly(o.Data.Attributes.Consumer, "art@vandelayindustries.com", "should match consumer")
-	assert.Exactly(o.Data.Attributes.Payer, "george@costanza.com", "should match payer")
-	assert.Exactly(o.Data.Attributes.Purchaser, "thatsgold@jerry.org", "should match purchaser")
+	assert.Exactly(o.Data.Attributes.Consumer, input.Consumer, "should match consumer")
+	assert.Exactly(o.Data.Attributes.Payer, input.Payer, "should match payer")
+	assert.Exactly(o.Data.Attributes.Purchaser, input.Purchaser, "should match purchaser")
 	assert.ElementsMatch(o.Data.Attributes.Items, []string{"DBS123456"}, "should match items")
 }
 
@@ -112,11 +114,11 @@ func TestUpdateOrder(t *testing.T) {
 	assert.Exactly(o.Data.Attributes.Courier, courier, "should match updated courier")
 	assert.Exactly(o.Data.Attributes.CourierAccount, courierAccount, "should match updated courier account")
 	assert.Exactly(o.Data.Attributes.Comments, comments, "should match updated comments")
-	assert.Exactly(o.Data.Attributes.Payment, "credit", "should match payment")
 	assert.Exactly(o.Data.Attributes.PurchaseOrderNum, "987654", "should match purchase order number")
 	assert.Exactly(o.Data.Attributes.Status, order.OrderStatus_Growing, "should match updated status")
-	assert.Exactly(o.Data.Attributes.Consumer, "art@vandelayindustries.com", "should match consumer")
-	assert.Exactly(o.Data.Attributes.Payer, "george@costanza.com", "should match payer")
-	assert.Exactly(o.Data.Attributes.Purchaser, "thatsgold@jerry.org", "should match purchaser")
-	assert.ElementsMatch(o.Data.Attributes.Items, []string{"DBS123456"}, "should match items")
+	assert.Exactly(o.Data.Attributes.Payment, mocks.MockOrderAttributes.Payment, "should match existing payment")
+	assert.Exactly(o.Data.Attributes.Consumer, mocks.MockOrderAttributes.Consumer, "should match existing consumer")
+	assert.Exactly(o.Data.Attributes.Payer, mocks.MockOrderAttributes.Payer, "should match existing payer")
+	assert.Exactly(o.Data.Attributes.Purchaser, mocks.MockOrderAttributes.Purchaser, "should match existing purchaser")
+	assert.ElementsMatch(o.Data.Attributes.Items, mocks.MockOrderAttributes.Items, "should match existing items")
 }

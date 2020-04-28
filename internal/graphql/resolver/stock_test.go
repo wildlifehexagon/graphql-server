@@ -100,7 +100,7 @@ func TestListStrains(t *testing.T) {
 	assert.Len(s.Strains, 3, "should have three strains")
 }
 
-func CreatePlasmid(t *testing.T) {
+func TestCreatePlasmid(t *testing.T) {
 	assert := assert.New(t)
 	m := &MutationResolver{
 		Registry: &mocks.MockRegistry{},
@@ -122,12 +122,12 @@ func CreatePlasmid(t *testing.T) {
 	assert.Exactly(p.Data.Id, "DBP123456", "should match plasmid ID")
 	assert.Exactly(p.Data.Attributes.CreatedBy, input.CreatedBy, "should match created_by")
 	assert.Exactly(p.Data.Attributes.UpdatedBy, input.UpdatedBy, "should match updated_by")
-	assert.Exactly(p.Data.Attributes.Summary, input.Summary, "should match summary")
-	assert.Exactly(p.Data.Attributes.EditableSummary, input.EditableSummary, "should match editable summary")
-	assert.Exactly(p.Data.Attributes.Depositor, input.Depositor, "should match depositor (he's gold)")
+	assert.Exactly(&p.Data.Attributes.Summary, input.Summary, "should match summary")
+	assert.Exactly(&p.Data.Attributes.EditableSummary, input.EditableSummary, "should match editable summary")
+	assert.Exactly(&p.Data.Attributes.Depositor, input.Depositor, "should match depositor (he's gold)")
 }
 
-func CreateStrain(t *testing.T) {
+func TestCreateStrain(t *testing.T) {
 	assert := assert.New(t)
 	m := &MutationResolver{
 		Registry: &mocks.MockRegistry{},
@@ -152,9 +152,9 @@ func CreateStrain(t *testing.T) {
 	assert.Exactly(p.Data.Id, "DBS123456", "should match strain ID")
 	assert.Exactly(p.Data.Attributes.CreatedBy, input.CreatedBy, "should match created_by")
 	assert.Exactly(p.Data.Attributes.UpdatedBy, input.UpdatedBy, "should match updated_by")
-	assert.Exactly(p.Data.Attributes.Summary, input.Summary, "should match summary")
-	assert.Exactly(p.Data.Attributes.EditableSummary, input.EditableSummary, "should match editable summary")
-	assert.Exactly(p.Data.Attributes.Depositor, input.Depositor, "should match depositor (he's gold)")
+	assert.Exactly(&p.Data.Attributes.Summary, input.Summary, "should match summary")
+	assert.Exactly(&p.Data.Attributes.EditableSummary, input.EditableSummary, "should match editable summary")
+	assert.Exactly(&p.Data.Attributes.Depositor, input.Depositor, "should match depositor (he's gold)")
 	assert.Exactly(p.Data.Attributes.Label, input.Label, "should match label")
 	assert.Exactly(p.Data.Attributes.Species, input.Species, "should match species")
 }

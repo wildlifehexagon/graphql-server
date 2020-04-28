@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var mockOrderAttributes = &order.OrderAttributes{
+var MockOrderAttributes = &order.OrderAttributes{
 	CreatedAt:        ptypes.TimestampNow(),
 	UpdatedAt:        ptypes.TimestampNow(),
 	Courier:          "USPS",
@@ -26,14 +26,14 @@ var singleMockOrder = &order.Order{
 	Data: &order.Order_Data{
 		Type:       "order",
 		Id:         "999",
-		Attributes: mockOrderAttributes,
+		Attributes: MockOrderAttributes,
 	},
 }
 
 var mockCollection = &order.OrderCollection_Data{
 	Type:       "order",
 	Id:         "999",
-	Attributes: mockOrderAttributes,
+	Attributes: MockOrderAttributes,
 }
 
 func mockOrder() *order.Order {
@@ -42,9 +42,7 @@ func mockOrder() *order.Order {
 
 func mockOrderCollection() *order.OrderCollection {
 	var orders []*order.OrderCollection_Data
-	orders = append(orders, mockCollection)
-	orders = append(orders, mockCollection)
-	orders = append(orders, mockCollection)
+	orders = append(orders, mockCollection, mockCollection, mockCollection)
 	return &order.OrderCollection{
 		Data: orders,
 		Meta: &order.Meta{
