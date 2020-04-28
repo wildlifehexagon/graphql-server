@@ -113,6 +113,29 @@ func (r *PlasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string
 * Note: none of the below have been implemented yet.
  */
 func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (bool, error) {
+	// gc, err := r.AnnotationClient.ListAnnotationGroups(
+	// 	ctx,
+	// 	&annotation.ListGroupParameters{
+	// 		Filter: fmt.Sprintf(
+	// 			"entry_id===%s;tag===%s;ontology===%s",
+	// 			obj.Data.Id, InvLocationTag, PlasmidInvOnto,
+	// 		)},
+	// )
+	// if err != nil {
+	// 	if status.Code(err) == codes.NotFound {
+	// 		r.Logger.Error(err)
+	// 		return false, nil
+	// 	}
+	// 	r.Logger.Error(err)
+	// 	return false, err
+	// }
+	// for _, item := range gc.Data {
+	// 	for _, gd := range item.Group.Data {
+	// 		r.Logger.Debugf("tag is %s", gd.Attributes.Tag)
+	// 		r.Logger.Debugf("value is %s", gd.Attributes.Value)
+	// 		r.Logger.Debugf("entry id is %s", gd.Attributes.EntryId)
+	// 	}
+	// }
 	return true, nil
 }
 func (r *PlasmidResolver) Keywords(ctx context.Context, obj *models.Plasmid) ([]*string, error) {

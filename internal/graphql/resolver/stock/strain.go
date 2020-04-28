@@ -28,6 +28,9 @@ const (
 	mutagenesisOntology = "Dd Mutagenesis Method"
 	dictyAnnoOntology   = "dicty_annotation"
 	strainCharOnto      = "strain_characteristics"
+	strainInvOnto       = "strain_inventory"
+	PlasmidInvOnto      = "plasmid_inventory"
+	InvLocationTag      = "location"
 	literatureTag       = "literature_tag"
 	noteTag             = "public note"
 	sysnameTag          = "systematic name"
@@ -320,5 +323,28 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 
 // still needs to be implemented properly
 func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
+	// gc, err := r.AnnotationClient.ListAnnotationGroups(
+	// 	ctx,
+	// 	&annotation.ListGroupParameters{
+	// 		Filter: fmt.Sprintf(
+	// 			"entry_id===%s;tag===%s;ontology===%s",
+	// 			obj.Data.Id, invLocationTag, strainInvOnto,
+	// 		)},
+	// )
+	// if err != nil {
+	// 	if status.Code(err) == codes.NotFound {
+	// 		r.Logger.Error(err)
+	// 		return false, nil
+	// 	}
+	// 	r.Logger.Error(err)
+	// 	return false, err
+	// }
+	// for _, item := range gc.Data {
+	// 	for _, gd := range item.Group.Data {
+	// 		r.Logger.Debugf("tag is %s", gd.Attributes.Tag)
+	// 		r.Logger.Debugf("value is %s", gd.Attributes.Value)
+	// 		r.Logger.Debugf("entry id is %s", gd.Attributes.EntryId)
+	// 	}
+	// }
 	return true, nil
 }
