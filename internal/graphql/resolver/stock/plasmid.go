@@ -118,7 +118,7 @@ func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (boo
 	// 	&annotation.ListGroupParameters{
 	// 		Filter: fmt.Sprintf(
 	// 			"entry_id===%s;tag===%s;ontology===%s",
-	// 			obj.Data.Id, InvLocationTag, PlasmidInvOnto,
+	// 			obj.Data.Id, registry.InvLocationTag, registry.PlasmidInvOnto,
 	// 		)},
 	// )
 	// if err != nil {

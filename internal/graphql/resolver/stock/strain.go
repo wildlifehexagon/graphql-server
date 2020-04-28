@@ -21,25 +21,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	PhenoOntology       = "Dicty Phenotypes"
-	EnvOntology         = "Dicty Environment"
-	AssayOntology       = "Dictyostellium Assay"
-	MutagenesisOntology = "Dd Mutagenesis Method"
-	DictyAnnoOntology   = "dicty_annotation"
-	StrainCharOnto      = "strain_characteristics"
-	StrainInvOnto       = "strain_inventory"
-	PlasmidInvOnto      = "plasmid_inventory"
-	InvLocationTag      = "location"
-	LiteratureTag       = "literature_tag"
-	NoteTag             = "public note"
-	SysnameTag          = "systematic name"
-	MutmethodTag        = "mutagenesis method"
-	MuttypeTag          = "mutant type"
-	GenoTag             = "genotype"
-	SynTag              = "synonym"
-)
-
 type StrainResolver struct {
 	Client           pb.StockServiceClient
 	UserClient       user.UserServiceClient
@@ -155,7 +136,7 @@ func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*stri
 			Limit: 20,
 			Filter: fmt.Sprintf(
 				"entry_id===%s;tag===%s;ontology===%s",
-				obj.Data.Id, SynTag, DictyAnnoOntology,
+				obj.Data.Id, registry.SynTag, registry.DictyAnnoOntology,
 			)})
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
@@ -180,7 +161,7 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 			Filter: fmt.Sprintf(
 				"entry_id==%s;ontology==%s",
 				strainId,
-				PhenoOntology,
+				registry.PhenoOntology,
 			),
 			Limit: 30,
 		})
@@ -196,20 +177,20 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 		m := &models.Phenotype{}
 		for _, g := range item.Group.Data {
 			switch g.Attributes.Ontology {
-			case PhenoOntology:
+			case registry.PhenoOntology:
 				m.Phenotype = g.Attributes.Tag
-			case EnvOntology:
+			case registry.EnvOntology:
 				m.Environment = &g.Attributes.Tag
-			case AssayOntology:
+			case registry.AssayOntology:
 				m.Assay = &g.Attributes.Tag
-			case LiteratureTag:
+			case registry.LiteratureTag:
 				pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
 				if err != nil {
 					errorutils.AddGQLError(ctx, err)
 					r.Logger.Error(err)
 				}
 				m.Publication = pub
-			case NoteTag:
+			case registry.NoteTag:
 				m.Note = &g.Attributes.Value
 			}
 		}
@@ -223,8 +204,8 @@ func (r *StrainResolver) GeneticModification(ctx context.Context, obj *models.St
 	gc, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
 		&annotation.EntryAnnotationRequest{
-			Tag:      MuttypeTag,
-			Ontology: DictyAnnoOntology,
+			Tag:      registry.MuttypeTag,
+			Ontology: registry.DictyAnnoOntology,
 			EntryId:  obj.Data.Id,
 		},
 	)
@@ -244,8 +225,8 @@ func (r *StrainResolver) MutagenesisMethod(ctx context.Context, obj *models.Stra
 	gc, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
 		&annotation.EntryAnnotationRequest{
-			Tag:      MutmethodTag,
-			Ontology: MutagenesisOntology,
+			Tag:      registry.MutmethodTag,
+			Ontology: registry.MutagenesisOntology,
 			EntryId:  obj.Data.Id,
 		},
 	)
@@ -264,8 +245,8 @@ func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain)
 	sn, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
 		&annotation.EntryAnnotationRequest{
-			Tag:      SysnameTag,
-			Ontology: DictyAnnoOntology,
+			Tag:      registry.SysnameTag,
+			Ontology: registry.DictyAnnoOntology,
 			EntryId:  obj.Data.Id,
 		},
 	)
@@ -284,7 +265,7 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 	cg, err := r.AnnotationClient.ListAnnotations(
 		ctx, &annotation.ListParameters{Filter: fmt.Sprintf(
 			"entry_id===%s;ontology===%s",
-			obj.Data.Id, StrainCharOnto,
+			obj.Data.Id, registry.StrainCharOnto,
 		)},
 	)
 	if err != nil {
@@ -306,8 +287,8 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 		ctx,
 		&annotation.EntryAnnotationRequest{
 			EntryId:  obj.Data.Id,
-			Ontology: DictyAnnoOntology,
-			Tag:      GenoTag,
+			Ontology: registry.DictyAnnoOntology,
+			Tag:      registry.GenoTag,
 		})
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
@@ -328,7 +309,7 @@ func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool,
 	// 	&annotation.ListGroupParameters{
 	// 		Filter: fmt.Sprintf(
 	// 			"entry_id===%s;tag===%s;ontology===%s",
-	// 			obj.Data.Id, invLocationTag, strainInvOnto,
+	// 			obj.Data.Id, registry.invLocationTag, registry.strainInvOnto,
 	// 		)},
 	// )
 	// if err != nil {

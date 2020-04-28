@@ -13,6 +13,25 @@ import (
 )
 
 const (
+	PhenoOntology       = "Dicty Phenotypes"
+	EnvOntology         = "Dicty Environment"
+	AssayOntology       = "Dictyostellium Assay"
+	MutagenesisOntology = "Dd Mutagenesis Method"
+	DictyAnnoOntology   = "dicty_annotation"
+	StrainCharOnto      = "strain_characteristics"
+	StrainInvOnto       = "strain_inventory"
+	PlasmidInvOnto      = "plasmid_inventory"
+	InvLocationTag      = "location"
+	LiteratureTag       = "literature_tag"
+	NoteTag             = "public note"
+	SysnameTag          = "systematic name"
+	MutmethodTag        = "mutagenesis method"
+	MuttypeTag          = "mutant type"
+	GenoTag             = "genotype"
+	SynTag              = "synonym"
+)
+
+const (
 	USER        = "user"
 	ROLE        = "role"
 	PERMISSION  = "permission"
