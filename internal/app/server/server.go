@@ -11,11 +11,11 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/dictyBase/graphql-server/internal/registry"
-	"github.com/dictyBase/graphql-server/internal/storage/redis"
 	"github.com/go-chi/cors"
 	"google.golang.org/grpc"
 
-	"github.com/99designs/gqlgen/handler"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -24,16 +24,7 @@ import (
 // RunGraphQLServer starts the GraphQL backend
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
-	router := chi.NewRouter()
-	red := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
-	cl := time.Duration(c.Int("cache-expiration-days") * 24)
-	cache, err := redis.NewCache(red, cl*time.Hour)
-	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot create APQ redis cache: %v", err),
-			2,
-		)
-	}
+	r := chi.NewRouter()
 	// generate new (empty) hashmap
 	nr := registry.NewRegistry()
 	for k, v := range registry.ServiceMap {
@@ -77,15 +68,14 @@ func RunGraphQLServer(c *cli.Context) error {
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
 	})
-	router.Use(crs.Handler)
-	router.Use(middleware.AuthMiddleWare)
-
+	r.Use(crs.Handler)
+	r.Use(middleware.AuthMiddleWare)
 	execSchema := generated.NewExecutableSchema(generated.Config{Resolvers: s})
-	gqlHandler := handler.GraphQL(execSchema, handler.EnablePersistedQueryCache(cache))
-	router.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
-	router.Handle("/graphql", gqlHandler)
+	srv := handler.NewDefaultServer(execSchema)
+	r.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
+	r.Handle("/graphql", srv)
 	log.Debugf("connect to port 8080 for GraphQL playground")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8080", r))
 	return nil
 }
 
