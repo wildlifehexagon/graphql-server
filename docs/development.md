@@ -45,7 +45,7 @@ After adding your new schema and running the generator script, you will need to 
    - Put the main generated function (i.e. `Permission()`) in the [resolver.go](./internal/graphql/resolver/resolver.go) file and update it to match the format of the other functions.
    - Create new files as necessary for each client, each one containing their query and mutation methods. Look at [permission.go](./internal/graphql/resolver/permission.go) for an example. Make sure to update the receivers for each method. For queries we are using `(q *QueryResolver)` and for mutations `(m *MutationResolver)`.
 5. Now add any _unshared_ resolvers into a separate folder inside `resolver`. These resolvers are generally tied to the individual fields for that model, and they are unique to that particular client. You can look at the [user](./internal/graphql/resolver/user) folder for examples. Also update the package name if necessary.
-6. Add any necessary command line flags in [main.go](./cmd/graphql-server/main.go) and [validation](./internal/app/validate/validate.go).
+6. Add any necessary command line flags in [main.go](./cmd/graphql-server/main.go).
 7. Fill out your resolver stubs and then test it out in the playground!
 
 ### Error Handling
@@ -78,10 +78,8 @@ To improve error handling in our front end web applications, we are adding custo
 ├── graphql-server
 ├── internal
 │   ├── app
-│   │   ├── server
-│   │   │   └── server.go
-│   │   └── validate
-│   │       └── validate.go
+│   │   └── server
+│   │       └── server.go
 │   ├── graphql
 │   │   ├── generated
 │   │   │   └── generated.go

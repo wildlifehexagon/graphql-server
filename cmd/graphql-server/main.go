@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/dictyBase/graphql-server/internal/app/server"
-	"github.com/dictyBase/graphql-server/internal/app/validate"
 	"github.com/urfave/cli"
 )
 
@@ -31,7 +30,6 @@ func main() {
 			Name:   "start-server",
 			Usage:  "starts the graphql-server backend",
 			Action: server.RunGraphQLServer,
-			Before: validate.ValidateServerArgs,
 			Flags:  getServerFlags(),
 		},
 	}
@@ -53,34 +51,40 @@ func getServerFlags() []cli.Flag {
 func userFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:   "user-grpc-host",
-			EnvVar: "USER_API_SERVICE_HOST",
-			Usage:  "user grpc host",
+			Name:     "user-grpc-host",
+			EnvVar:   "USER_API_SERVICE_HOST",
+			Usage:    "user grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "user-grpc-port",
-			EnvVar: "USER_API_SERVICE_PORT",
-			Usage:  "user grpc port",
+			Name:     "user-grpc-port",
+			EnvVar:   "USER_API_SERVICE_PORT",
+			Usage:    "user grpc port",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "role-grpc-host",
-			EnvVar: "ROLE_API_SERVICE_HOST",
-			Usage:  "role grpc host",
+			Name:     "role-grpc-host",
+			EnvVar:   "ROLE_API_SERVICE_HOST",
+			Usage:    "role grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "role-grpc-port",
-			EnvVar: "ROLE_API_SERVICE_PORT",
-			Usage:  "role grpc port",
+			Name:     "role-grpc-port",
+			EnvVar:   "ROLE_API_SERVICE_PORT",
+			Usage:    "role grpc port",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "permission-grpc-host",
-			EnvVar: "PERMISSION_API_SERVICE_HOST",
-			Usage:  "permission grpc host",
+			Name:     "permission-grpc-host",
+			EnvVar:   "PERMISSION_API_SERVICE_HOST",
+			Usage:    "permission grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "permission-grpc-port",
-			EnvVar: "PERMISSION_API_SERVICE_PORT",
-			Usage:  "permission grpc port",
+			Name:     "permission-grpc-port",
+			EnvVar:   "PERMISSION_API_SERVICE_PORT",
+			Usage:    "permission grpc port",
+			Required: true,
 		},
 	}
 }
@@ -88,24 +92,28 @@ func userFlags() []cli.Flag {
 func authFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:   "auth-grpc-host",
-			EnvVar: "AUTH_API_SERVICE_HOST",
-			Usage:  "auth grpc host",
+			Name:     "auth-grpc-host",
+			EnvVar:   "AUTH_API_SERVICE_HOST",
+			Usage:    "auth grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "auth-grpc-port",
-			EnvVar: "AUTH_API_SERVICE_PORT",
-			Usage:  "auth grpc port",
+			Name:     "auth-grpc-port",
+			EnvVar:   "AUTH_API_SERVICE_PORT",
+			Usage:    "auth grpc port",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "identity-grpc-host",
-			EnvVar: "IDENTITY_API_SERVICE_HOST",
-			Usage:  "identity grpc host",
+			Name:     "identity-grpc-host",
+			EnvVar:   "IDENTITY_API_SERVICE_HOST",
+			Usage:    "identity grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "identity-grpc-port",
-			EnvVar: "IDENTITY_API_SERVICE_PORT",
-			Usage:  "identity grpc port",
+			Name:     "identity-grpc-port",
+			EnvVar:   "IDENTITY_API_SERVICE_PORT",
+			Usage:    "identity grpc port",
+			Required: true,
 		},
 	}
 }
@@ -113,34 +121,40 @@ func authFlags() []cli.Flag {
 func dscFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:   "stock-grpc-host",
-			EnvVar: "STOCK_API_SERVICE_HOST",
-			Usage:  "stock grpc host",
+			Name:     "stock-grpc-host",
+			EnvVar:   "STOCK_API_SERVICE_HOST",
+			Usage:    "stock grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "stock-grpc-port",
-			EnvVar: "STOCK_API_SERVICE_PORT",
-			Usage:  "stock grpc port",
+			Name:     "stock-grpc-port",
+			EnvVar:   "STOCK_API_SERVICE_PORT",
+			Usage:    "stock grpc port",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "order-grpc-host",
-			EnvVar: "ORDER_API_SERVICE_HOST",
-			Usage:  "order grpc host",
+			Name:     "order-grpc-host",
+			EnvVar:   "ORDER_API_SERVICE_HOST",
+			Usage:    "order grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "order-grpc-port",
-			EnvVar: "ORDER_API_SERVICE_PORT",
-			Usage:  "order grpc port",
+			Name:     "order-grpc-port",
+			EnvVar:   "ORDER_API_SERVICE_PORT",
+			Usage:    "order grpc port",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "annotation-grpc-host",
-			EnvVar: "ANNOTATION_API_SERVICE_HOST",
-			Usage:  "annotation grpc host",
+			Name:     "annotation-grpc-host",
+			EnvVar:   "ANNOTATION_API_SERVICE_HOST",
+			Usage:    "annotation grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "annotation-grpc-port",
-			EnvVar: "ANNOTATION_API_SERVICE_PORT",
-			Usage:  "annotation grpc port",
+			Name:     "annotation-grpc-port",
+			EnvVar:   "ANNOTATION_API_SERVICE_PORT",
+			Usage:    "annotation grpc port",
+			Required: true,
 		},
 	}
 }
@@ -148,14 +162,16 @@ func dscFlags() []cli.Flag {
 func contentFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:   "content-grpc-host",
-			EnvVar: "CONTENT_API_SERVICE_HOST",
-			Usage:  "content grpc host",
+			Name:     "content-grpc-host",
+			EnvVar:   "CONTENT_API_SERVICE_HOST",
+			Usage:    "content grpc host",
+			Required: true,
 		},
 		cli.StringFlag{
-			Name:   "content-grpc-port",
-			EnvVar: "CONTENT_API_SERVICE_PORT",
-			Usage:  "content grpc port",
+			Name:     "content-grpc-port",
+			EnvVar:   "CONTENT_API_SERVICE_PORT",
+			Usage:    "content grpc port",
+			Required: true,
 		},
 	}
 }
@@ -163,9 +179,10 @@ func contentFlags() []cli.Flag {
 func nonGRPCFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:   "publication-api, pub",
-			EnvVar: "PUBLICATION_API_ENDPOINT",
-			Usage:  "publication api endpoint",
+			Name:     "publication-api, pub",
+			EnvVar:   "PUBLICATION_API_ENDPOINT",
+			Usage:    "publication api endpoint",
+			Required: true,
 		},
 	}
 }
