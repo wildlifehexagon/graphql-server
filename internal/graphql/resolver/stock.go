@@ -143,15 +143,9 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 		m.Logger.Error(err)
 		return nil, err
 	}
-	u, err := m.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: n.Data.Id})
-	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		m.Logger.Error(err)
-		return nil, err
-	}
-	m.Logger.Debugf("successfully updated strain with ID %s", u.Data.Id)
+	m.Logger.Debugf("successfully updated strain with ID %s", n.Data.Id)
 	return &models.Strain{
-		Data: u.Data,
+		Data: n.Data,
 	}, nil
 }
 
@@ -192,15 +186,9 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 		m.Logger.Error(err)
 		return nil, err
 	}
-	u, err := m.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: n.Data.Id})
-	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		m.Logger.Error(err)
-		return nil, err
-	}
-	m.Logger.Debugf("successfully updated plasmid with ID %s", u.Data.Id)
+	m.Logger.Debugf("successfully updated plasmid with ID %s", n.Data.Id)
 	return &models.Plasmid{
-		Data: u.Data,
+		Data: n.Data,
 	}, nil
 }
 
