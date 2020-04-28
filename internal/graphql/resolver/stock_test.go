@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
+	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,4 +52,48 @@ func TestStrain(t *testing.T) {
 	assert.Exactly(p.Data.Attributes.Species, "human", "should match species")
 	assert.Exactly(p.Data.Attributes.Plasmid, "pTest", "should match plasmid")
 	assert.ElementsMatch(p.Data.Attributes.Names, []string{"fusilli"}, "should match names")
+}
+
+func TestListPlasmids(t *testing.T) {
+	assert := assert.New(t)
+	q := &QueryResolver{
+		Registry: &mocks.MockRegistry{},
+		Logger:   mocks.TestLogger(),
+	}
+	cursor := 0
+	limit := 10
+	filter := "type===plasmid"
+	p, err := q.ListPlasmids(context.Background(), &models.ListStockInput{
+		Cursor: &cursor,
+		Limit:  &limit,
+		Filter: &filter,
+	})
+	assert.NoError(err, "expect no error from getting list of strains")
+	assert.Exactly(p.Limit, &limit, "should match limit")
+	assert.Exactly(p.PreviousCursor, 0, "should match previous cursor")
+	assert.Exactly(p.NextCursor, 10000, "should match next cursor")
+	assert.Exactly(p.TotalCount, 3, "should match total count (length) of items")
+	assert.Len(p.Plasmids, 3, "should have three plasmids")
+}
+
+func TestListStrains(t *testing.T) {
+	assert := assert.New(t)
+	q := &QueryResolver{
+		Registry: &mocks.MockRegistry{},
+		Logger:   mocks.TestLogger(),
+	}
+	cursor := 0
+	limit := 10
+	filter := "type===strain"
+	s, err := q.ListStrains(context.Background(), &models.ListStockInput{
+		Cursor: &cursor,
+		Limit:  &limit,
+		Filter: &filter,
+	})
+	assert.NoError(err, "expect no error from getting list of strains")
+	assert.Exactly(s.Limit, &limit, "should match limit")
+	assert.Exactly(s.PreviousCursor, 0, "should match previous cursor")
+	assert.Exactly(s.NextCursor, 10000, "should match next cursor")
+	assert.Exactly(s.TotalCount, 3, "should match total count (length) of items")
+	assert.Len(s.Strains, 3, "should have three strains")
 }
