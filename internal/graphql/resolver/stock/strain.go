@@ -278,15 +278,12 @@ func (r *StrainResolver) SystematicName(ctx context.Context, obj *models.Strain)
 }
 func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	c := []*string{}
-	cg, err := r.AnnotationClient.ListAnnotationGroups(
-		ctx,
-		&annotation.ListGroupParameters{
-			Filter: fmt.Sprintf(
-				"entry_id==%s;ontology==%s",
-				obj.Data.Id,
-				strainCharOnto,
-			),
-		})
+	cg, err := r.AnnotationClient.ListAnnotations(
+		ctx, &annotation.ListParameters{Filter: fmt.Sprintf(
+			"entry_id===%s;ontology===%s",
+			obj.Data.Id, strainCharOnto,
+		)},
+	)
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
 			return c, nil
@@ -296,9 +293,7 @@ func (r *StrainResolver) Characteristics(ctx context.Context, obj *models.Strain
 		return c, err
 	}
 	for _, item := range cg.Data {
-		for _, t := range item.Group.Data {
-			c = append(c, &t.Attributes.Tag)
-		}
+		c = append(c, &item.Attributes.Tag)
 	}
 	return c, nil
 }
