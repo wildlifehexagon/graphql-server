@@ -8,7 +8,7 @@ import (
 // 	return &identity.Identity{}
 // }
 
-func mockedIdentityClient() *clients.IdentityServiceClient {
+func MockedIdentityClient() *clients.IdentityServiceClient {
 	mockedIdentityClient := new(clients.IdentityServiceClient)
 	return mockedIdentityClient
 }

@@ -8,7 +8,7 @@ import (
 // 	return &user.Role{}
 // }
 
-func mockedRoleClient() *clients.RoleServiceClient {
+func MockedRoleClient() *clients.RoleServiceClient {
 	mockedRoleClient := new(clients.RoleServiceClient)
 	return mockedRoleClient
 }

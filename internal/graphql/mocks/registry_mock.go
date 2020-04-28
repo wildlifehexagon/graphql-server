@@ -26,39 +26,39 @@ func (mr *MockRegistry) GetAPIConnection(key string) (conn *grpc.ClientConn) {
 }
 
 func (mr *MockRegistry) GetUserClient(key string) user.UserServiceClient {
-	return mockedUserClient()
+	return MockedUserClient()
 }
 
 func (mr *MockRegistry) GetRoleClient(key string) user.RoleServiceClient {
-	return mockedRoleClient()
+	return MockedRoleClient()
 }
 
 func (mr *MockRegistry) GetPermissionClient(key string) user.PermissionServiceClient {
-	return mockedPermissionClient()
+	return MockedPermissionClient()
 }
 
 func (mr *MockRegistry) GetStockClient(key string) stock.StockServiceClient {
-	return mockedStockClient()
+	return MockedStockClient()
 }
 
 func (mr *MockRegistry) GetOrderClient(key string) order.OrderServiceClient {
-	return mockedOrderClient()
+	return MockedOrderClient()
 }
 
 func (mr *MockRegistry) GetContentClient(key string) content.ContentServiceClient {
-	return mockedContentClient()
+	return MockedContentClient()
 }
 
 func (mr *MockRegistry) GetAnnotationClient(key string) annotation.TaggedAnnotationServiceClient {
-	return mockedAnnotationClient()
+	return MockedAnnotationClient()
 }
 
 func (mr *MockRegistry) GetAuthClient(key string) auth.AuthServiceClient {
-	return mockedAuthClient()
+	return MockedAuthClient()
 }
 
 func (mr *MockRegistry) GetIdentityClient(key string) identity.IdentityServiceClient {
-	return mockedIdentityClient()
+	return MockedIdentityClient()
 }
 
 func (mr MockRegistry) GetAPIEndpoint(key string) string {

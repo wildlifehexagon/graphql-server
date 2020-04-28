@@ -76,7 +76,7 @@ func mockUpdateOrder() *order.Order {
 	}
 }
 
-func mockedOrderClient() *clients.OrderServiceClient {
+func MockedOrderClient() *clients.OrderServiceClient {
 	mockedOrderClient := new(clients.OrderServiceClient)
 	mockedOrderClient.On(
 		"GetOrder",

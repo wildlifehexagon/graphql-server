@@ -151,7 +151,7 @@ func mockUpdateStrain() *stock.Strain {
 	}
 }
 
-func mockedStockClient() *clients.StockServiceClient {
+func MockedStockClient() *clients.StockServiceClient {
 	mockedStockClient := new(clients.StockServiceClient)
 	mockedStockClient.On(
 		"GetPlasmid",

@@ -8,7 +8,7 @@ import (
 // 	return &user.User{}
 // }
 
-func mockedUserClient() *clients.UserServiceClient {
+func MockedUserClient() *clients.UserServiceClient {
 	mockedUserClient := new(clients.UserServiceClient)
 	return mockedUserClient
 }

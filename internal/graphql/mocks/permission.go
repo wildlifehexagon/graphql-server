@@ -8,7 +8,7 @@ import (
 // 	return &user.Permission{}
 // }
 
-func mockedPermissionClient() *clients.PermissionServiceClient {
+func MockedPermissionClient() *clients.PermissionServiceClient {
 	mockedPermissionClient := new(clients.PermissionServiceClient)
 	return mockedPermissionClient
 }

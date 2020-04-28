@@ -43,7 +43,7 @@ func mockAuth() *auth.Auth {
 	}
 }
 
-func mockedAuthClient() *clients.AuthServiceClient {
+func MockedAuthClient() *clients.AuthServiceClient {
 	mockedAuthClient := new(clients.AuthServiceClient)
 	mockedAuthClient.On(
 		"Login",

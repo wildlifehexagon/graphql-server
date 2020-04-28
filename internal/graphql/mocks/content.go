@@ -8,7 +8,7 @@ import (
 // 	return &content.Content{}
 // }
 
-func mockedContentClient() *clients.ContentServiceClient {
+func MockedContentClient() *clients.ContentServiceClient {
 	mockedContentClient := new(clients.ContentServiceClient)
 	return mockedContentClient
 }
