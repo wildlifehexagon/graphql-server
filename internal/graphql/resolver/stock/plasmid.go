@@ -19,10 +19,11 @@ import (
 )
 
 type PlasmidResolver struct {
-	Client     pb.StockServiceClient
-	UserClient user.UserServiceClient
-	Registry   registry.Registry
-	Logger     *logrus.Entry
+	Client           pb.StockServiceClient
+	UserClient       user.UserServiceClient
+	AnnotationClient annotation.TaggedAnnotationServiceClient
+	Registry         registry.Registry
+	Logger           *logrus.Entry
 }
 
 func (r *PlasmidResolver) ID(ctx context.Context, obj *models.Plasmid) (string, error) {
@@ -112,7 +113,7 @@ func (r *PlasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string
 }
 
 func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (bool, error) {
-	gc, err := r.AnnotationClient.ListAnnotationGroups(
+	_, err := r.AnnotationClient.ListAnnotationGroups(
 		ctx,
 		&annotation.ListGroupParameters{
 			Filter: fmt.Sprintf(

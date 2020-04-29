@@ -83,10 +83,11 @@ func (r *Resolver) Strain() generated.StrainResolver {
 }
 func (r *Resolver) Plasmid() generated.PlasmidResolver {
 	return &stock.PlasmidResolver{
-		Client:     r.GetStockClient(registry.STOCK),
-		UserClient: r.GetUserClient(registry.USER),
-		Registry:   r.Registry,
-		Logger:     r.Logger,
+		Client:           r.GetStockClient(registry.STOCK),
+		UserClient:       r.GetUserClient(registry.USER),
+		AnnotationClient: r.GetAnnotationClient(registry.ANNOTATION),
+		Registry:         r.Registry,
+		Logger:           r.Logger,
 	}
 }
 
