@@ -12,6 +12,7 @@ import (
 )
 
 func TestOrder(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	ord := &QueryResolver{
 		Registry: &mocks.MockRegistry{},
@@ -34,6 +35,7 @@ func TestOrder(t *testing.T) {
 }
 
 func TestListOrders(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	ord := &QueryResolver{
 		Registry: &mocks.MockRegistry{},
@@ -56,6 +58,7 @@ func TestListOrders(t *testing.T) {
 }
 
 func TestCreateOrder(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	ord := &MutationResolver{
 		Registry: &mocks.MockRegistry{},
@@ -91,6 +94,7 @@ func TestCreateOrder(t *testing.T) {
 }
 
 func TestUpdateOrder(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	ord := &MutationResolver{
 		Registry: &mocks.MockRegistry{},

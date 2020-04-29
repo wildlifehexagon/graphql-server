@@ -10,6 +10,7 @@ import (
 )
 
 func TestPlasmid(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	q := &QueryResolver{
 		Registry: &mocks.MockRegistry{},
@@ -33,6 +34,7 @@ func TestPlasmid(t *testing.T) {
 }
 
 func TestStrain(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	q := &QueryResolver{
 		Registry: &mocks.MockRegistry{},
@@ -57,6 +59,7 @@ func TestStrain(t *testing.T) {
 }
 
 func TestListPlasmids(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	q := &QueryResolver{
 		Registry: &mocks.MockRegistry{},
@@ -79,6 +82,7 @@ func TestListPlasmids(t *testing.T) {
 }
 
 func TestListStrains(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	q := &QueryResolver{
 		Registry: &mocks.MockRegistry{},
@@ -101,6 +105,7 @@ func TestListStrains(t *testing.T) {
 }
 
 func TestCreatePlasmid(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	m := &MutationResolver{
 		Registry: &mocks.MockRegistry{},
@@ -128,6 +133,7 @@ func TestCreatePlasmid(t *testing.T) {
 }
 
 func TestCreateStrain(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	m := &MutationResolver{
 		Registry: &mocks.MockRegistry{},
@@ -160,6 +166,7 @@ func TestCreateStrain(t *testing.T) {
 }
 
 func TestUpdatePlasmid(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	m := &MutationResolver{
 		Registry: &mocks.MockRegistry{},
@@ -189,6 +196,7 @@ func TestUpdatePlasmid(t *testing.T) {
 }
 
 func TestUpdateStrain(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	m := &MutationResolver{
 		Registry: &mocks.MockRegistry{},
