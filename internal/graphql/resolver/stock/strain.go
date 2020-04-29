@@ -302,30 +302,18 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 	return g, nil
 }
 
-// still needs to be implemented properly
 func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
-	// gc, err := r.AnnotationClient.ListAnnotationGroups(
-	// 	ctx,
-	// 	&annotation.ListGroupParameters{
-	// 		Filter: fmt.Sprintf(
-	// 			"entry_id===%s;tag===%s;ontology===%s",
-	// 			obj.Data.Id, registry.invLocationTag, registry.strainInvOnto,
-	// 		)},
-	// )
-	// if err != nil {
-	// 	if status.Code(err) == codes.NotFound {
-	// 		r.Logger.Error(err)
-	// 		return false, nil
-	// 	}
-	// 	r.Logger.Error(err)
-	// 	return false, err
-	// }
-	// for _, item := range gc.Data {
-	// 	for _, gd := range item.Group.Data {
-	// 		r.Logger.Debugf("tag is %s", gd.Attributes.Tag)
-	// 		r.Logger.Debugf("value is %s", gd.Attributes.Value)
-	// 		r.Logger.Debugf("entry id is %s", gd.Attributes.EntryId)
-	// 	}
-	// }
+	gc, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id===%s;tag===%s;ontology===%s",
+				obj.Data.Id, registry.invLocationTag, registry.strainInvOnto,
+			)},
+	)
+	if err != nil {
+		r.Logger.Error(err)
+		return false, err
+	}
 	return true, nil
 }

@@ -2,9 +2,11 @@ package stock
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/dictyBase/aphgrpc"
+	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
@@ -109,35 +111,25 @@ func (r *PlasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string
 	return obj.Data.Attributes.Name, nil
 }
 
+func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (bool, error) {
+	gc, err := r.AnnotationClient.ListAnnotationGroups(
+		ctx,
+		&annotation.ListGroupParameters{
+			Filter: fmt.Sprintf(
+				"entry_id===%s;tag===%s;ontology===%s",
+				obj.Data.Id, registry.InvLocationTag, registry.PlasmidInvOnto,
+			)},
+	)
+	if err != nil {
+		r.Logger.Error(err)
+		return false, err
+	}
+	return true, nil
+}
+
 /*
 * Note: none of the below have been implemented yet.
  */
-func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (bool, error) {
-	// gc, err := r.AnnotationClient.ListAnnotationGroups(
-	// 	ctx,
-	// 	&annotation.ListGroupParameters{
-	// 		Filter: fmt.Sprintf(
-	// 			"entry_id===%s;tag===%s;ontology===%s",
-	// 			obj.Data.Id, registry.InvLocationTag, registry.PlasmidInvOnto,
-	// 		)},
-	// )
-	// if err != nil {
-	// 	if status.Code(err) == codes.NotFound {
-	// 		r.Logger.Error(err)
-	// 		return false, nil
-	// 	}
-	// 	r.Logger.Error(err)
-	// 	return false, err
-	// }
-	// for _, item := range gc.Data {
-	// 	for _, gd := range item.Group.Data {
-	// 		r.Logger.Debugf("tag is %s", gd.Attributes.Tag)
-	// 		r.Logger.Debugf("value is %s", gd.Attributes.Value)
-	// 		r.Logger.Debugf("entry id is %s", gd.Attributes.EntryId)
-	// 	}
-	// }
-	return true, nil
-}
 func (r *PlasmidResolver) Keywords(ctx context.Context, obj *models.Plasmid) ([]*string, error) {
 	s := ""
 	return []*string{&s}, nil
