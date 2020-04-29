@@ -8,69 +8,28 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var MockSysNameAnno = &annotation.TaggedAnnotation{
-	Data: &annotation.TaggedAnnotation_Data{
-		Type: "annotation",
-		Id:   "123456",
-		Attributes: &annotation.TaggedAnnotationAttributes{
-			Value:     "DBS0236922",
-			EntryId:   "DBS0236922",
-			CreatedBy: "dsc@dictycr.org",
-			CreatedAt: ptypes.TimestampNow(),
-			Tag:       registry.SysnameTag,
-			Ontology:  registry.DictyAnnoOntology,
-			Version:   1,
+func MockTagAnno(value, tag string) *annotation.TaggedAnnotation {
+	return &annotation.TaggedAnnotation{
+		Data: &annotation.TaggedAnnotation_Data{
+			Type: "annotation",
+			Id:   "123456",
+			Attributes: &annotation.TaggedAnnotationAttributes{
+				Value:     value,
+				EntryId:   "DBS0236922",
+				CreatedBy: "dsc@dictycr.org",
+				CreatedAt: ptypes.TimestampNow(),
+				Tag:       tag,
+				Ontology:  registry.DictyAnnoOntology,
+				Version:   1,
+			},
 		},
-	},
+	}
 }
 
-var MockGenModAnno = &annotation.TaggedAnnotation{
-	Data: &annotation.TaggedAnnotation_Data{
-		Type: "annotation",
-		Id:   "123456",
-		Attributes: &annotation.TaggedAnnotationAttributes{
-			Value:     "exogenous mutation",
-			EntryId:   "DBS0236922",
-			CreatedBy: "dsc@dictycr.org",
-			CreatedAt: ptypes.TimestampNow(),
-			Tag:       registry.MuttypeTag,
-			Ontology:  registry.DictyAnnoOntology,
-			Version:   1,
-		},
-	},
-}
-
-var MockMutMethodAnno = &annotation.TaggedAnnotation{
-	Data: &annotation.TaggedAnnotation_Data{
-		Type: "annotation",
-		Id:   "123456",
-		Attributes: &annotation.TaggedAnnotationAttributes{
-			Value:     "Random Insertion",
-			EntryId:   "DBS0236922",
-			CreatedBy: "dsc@dictycr.org",
-			CreatedAt: ptypes.TimestampNow(),
-			Tag:       registry.MutmethodTag,
-			Ontology:  registry.DictyAnnoOntology,
-			Version:   1,
-		},
-	},
-}
-
-var MockGenotypeAnno = &annotation.TaggedAnnotation{
-	Data: &annotation.TaggedAnnotation_Data{
-		Type: "annotation",
-		Id:   "123456",
-		Attributes: &annotation.TaggedAnnotationAttributes{
-			Value:     "axeA1,axeB1,axeC1,sadA-[sadA-KO],[pSadA-GFP],bsR,neoR",
-			EntryId:   "DBS0236922",
-			CreatedBy: "dsc@dictycr.org",
-			CreatedAt: ptypes.TimestampNow(),
-			Tag:       registry.GenoTag,
-			Ontology:  registry.DictyAnnoOntology,
-			Version:   1,
-		},
-	},
-}
+var MockSysNameAnno = MockTagAnno("DBS0236922", registry.SysnameTag)
+var MockGenModAnno = MockTagAnno("exogenous mutation", registry.MuttypeTag)
+var MockMutMethodAnno = MockTagAnno("Random Insertion", registry.MutmethodTag)
+var MockGenotypeAnno = MockTagAnno("axeA1,axeB1,axeC1,sadA-[sadA-KO],[pSadA-GFP],bsR,neoR", registry.GenoTag)
 
 func MockedAnnotationClient() *clients.TaggedAnnotationServiceClient {
 	mockedAnnoClient := new(clients.TaggedAnnotationServiceClient)
