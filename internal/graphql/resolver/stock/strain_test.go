@@ -4,11 +4,20 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
+	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
+	"github.com/dictyBase/graphql-server/internal/graphql/models"
+
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
-	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/stretchr/testify/assert"
 )
+
+var mockInput = &models.Strain{
+	Data: &stock.Strain_Data{
+		Type:       "strain",
+		Id:         "DBS0236922",
+		Attributes: mocks.MockStrainAttributes,
+	},
+}
 
 func TestSystematicName(t *testing.T) {
 	assert := assert.New(t)
@@ -19,12 +28,7 @@ func TestSystematicName(t *testing.T) {
 		Registry:         &mocks.MockRegistry{},
 		Logger:           mocks.TestLogger(),
 	}
-	id := "123456"
-	sn, err := r.AnnotationClient.GetEntryAnnotation(context.Background(), &annotation.EntryAnnotationRequest{
-		Tag:      registry.SysnameTag,
-		Ontology: registry.DictyAnnoOntology,
-		EntryId:  id,
-	})
-	assert.NoError(err, "expect no error from getting strain characteristics")
-	assert.Exactly(sn.Data.Attributes.Value, mocks.MockSysNameAnno.Data.Attributes.Value, "should match systematic name")
+	sn, err := r.SystematicName(context.Background(), mockInput)
+	assert.NoError(err, "expect no error from getting systematic name")
+	assert.Exactly(sn, mocks.MockSysNameAnno.Data.Attributes.Value, "should match systematic name")
 }
