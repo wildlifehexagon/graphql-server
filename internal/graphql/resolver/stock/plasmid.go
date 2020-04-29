@@ -113,17 +113,18 @@ func (r *PlasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string
 }
 
 func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (bool, error) {
+	id := obj.Data.Id
 	_, err := r.AnnotationClient.ListAnnotationGroups(
 		ctx,
 		&annotation.ListGroupParameters{
 			Filter: fmt.Sprintf(
 				"entry_id===%s;tag===%s;ontology===%s",
-				obj.Data.Id, registry.InvLocationTag, registry.PlasmidInvOnto,
+				id, registry.InvLocationTag, registry.PlasmidInvOnto,
 			)},
 	)
 	if err != nil {
-		r.Logger.Error(err)
-		return false, err
+		r.Logger.Debugf("could not find plasmid %s in inventory: %v", id, err)
+		return false, nil
 	}
 	return true, nil
 }
