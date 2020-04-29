@@ -26,6 +26,36 @@ func MockTagAnno(value, tag string) *annotation.TaggedAnnotation {
 	}
 }
 
+func MockInStockAnno() *annotation.TaggedAnnotationGroupCollection {
+	gcdata := []*annotation.TaggedAnnotationGroupCollection_Data{}
+	gdata := []*annotation.TaggedAnnotationGroup_Data{}
+	gdata = append(gdata, &annotation.TaggedAnnotationGroup_Data{
+		Type: "annotation",
+		Id:   "489483843",
+		Attributes: &annotation.TaggedAnnotationAttributes{
+			Version:   1,
+			EntryId:   "DBS0235559",
+			CreatedBy: "art@vandelay.org",
+			CreatedAt: ptypes.TimestampNow(),
+			Ontology:  registry.DictyAnnoOntology,
+			Tag:       registry.InvLocationTag,
+			Value:     "2-9(55-57)",
+		},
+	})
+	gcdata = append(gcdata, &annotation.TaggedAnnotationGroupCollection_Data{
+		Type: "annotation_group",
+		Group: &annotation.TaggedAnnotationGroup{
+			Data:      gdata,
+			GroupId:   "4924132",
+			CreatedAt: ptypes.TimestampNow(),
+			UpdatedAt: ptypes.TimestampNow(),
+		},
+	})
+	return &annotation.TaggedAnnotationGroupCollection{
+		Data: gcdata,
+	}
+}
+
 var MockSysNameAnno = MockTagAnno("DBS0236922", registry.SysnameTag)
 var MockGenModAnno = MockTagAnno("exogenous mutation", registry.MuttypeTag)
 var MockMutMethodAnno = MockTagAnno("Random Insertion", registry.MutmethodTag)
@@ -73,5 +103,15 @@ func MockedGenotypeClient() *clients.TaggedAnnotationServiceClient {
 		mock.Anything,
 		mock.AnythingOfType("*annotation.EntryAnnotationRequest"),
 	).Return(MockGenotypeAnno, nil)
+	return mockedAnnoClient
+}
+
+func MockedInStockClient() *clients.TaggedAnnotationServiceClient {
+	mockedAnnoClient := new(clients.TaggedAnnotationServiceClient)
+	mockedAnnoClient.On(
+		"ListAnnotationGroups",
+		mock.Anything,
+		mock.AnythingOfType("*annotation.ListGroupParameters"),
+	).Return(MockInStockAnno(), nil)
 	return mockedAnnoClient
 }
