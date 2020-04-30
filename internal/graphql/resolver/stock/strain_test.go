@@ -152,6 +152,26 @@ func TestGenotypes(t *testing.T) {
 	assert.ElementsMatch(g, gl, "should match genotypes")
 }
 
+func TestNames(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedNamesClient())
+	n, err := r.Names(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting names")
+	assert.Exactly(n[0], &mocks.MockNamesAnno().Data[0].Attributes.Value, "should match first names value")
+	assert.Exactly(n[1], &mocks.MockNamesAnno().Data[1].Attributes.Value, "should match second names value")
+}
+
+func TestCharacteristics(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedCharacteristicsClient())
+	c, err := r.Characteristics(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting characteristics")
+	assert.Exactly(c[0], &mocks.MockCharacteristicsAnno().Data[0].Attributes.Tag, "should match first characteristics value")
+	assert.Exactly(c[1], &mocks.MockCharacteristicsAnno().Data[1].Attributes.Tag, "should match second characteristics value")
+}
+
 func TestPhenotypes(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
