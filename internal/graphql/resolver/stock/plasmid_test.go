@@ -6,6 +6,7 @@ import (
 
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
+	"github.com/golang/protobuf/ptypes"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks/clients"
@@ -37,6 +38,26 @@ func TestPlasmidID(t *testing.T) {
 	p, err := r.ID(context.Background(), mockPlasmidInput)
 	assert.NoError(err, "expect no error from getting plasmid id")
 	assert.Exactly(p, mockPlasmidInput.Data.Id, "should match id")
+}
+
+func TestPlasmidCreatedAt(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := plasmidResolver(mocks.MockedAnnotationClient())
+	ca, err := r.CreatedAt(context.Background(), mockPlasmidInput)
+	timestamp, _ := ptypes.Timestamp(mockStrainInput.Data.Attributes.CreatedAt)
+	assert.NoError(err, "expect no error from getting created_at")
+	assert.Exactly(ca, &timestamp, "should match created_at")
+}
+
+func TestPlasmidUpdatedAt(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := plasmidResolver(mocks.MockedAnnotationClient())
+	ua, err := r.UpdatedAt(context.Background(), mockPlasmidInput)
+	timestamp, _ := ptypes.Timestamp(mockStrainInput.Data.Attributes.UpdatedAt)
+	assert.NoError(err, "expect no error from getting updated_at")
+	assert.Exactly(ua, &timestamp, "should match updated_at")
 }
 
 func TestPlasmidSummary(t *testing.T) {

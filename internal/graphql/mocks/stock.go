@@ -1,15 +1,22 @@
 package mocks
 
 import (
+	"time"
+
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks/clients"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/stretchr/testify/mock"
 )
 
+var t = time.Date(2020, time.January, 01, 01, 0, 0, 0, time.UTC)
+var StockTimestamp, _ = ptypes.TimestampProto(t)
+
+// var t = time.Date(2020, time.January, 01, 01, 0, 0, 0, time.UTC)
+
 var MockPlasmidAttributes = &stock.PlasmidAttributes{
-	CreatedAt:       ptypes.TimestampNow(),
-	UpdatedAt:       ptypes.TimestampNow(),
+	CreatedAt:       StockTimestamp,
+	UpdatedAt:       StockTimestamp,
 	CreatedBy:       "art@vandelay.com",
 	UpdatedBy:       "art@vandelay.com",
 	Summary:         "test summary",
@@ -24,8 +31,8 @@ var MockPlasmidAttributes = &stock.PlasmidAttributes{
 }
 
 var MockStrainAttributes = &stock.StrainAttributes{
-	CreatedAt:       ptypes.TimestampNow(),
-	UpdatedAt:       ptypes.TimestampNow(),
+	CreatedAt:       StockTimestamp,
+	UpdatedAt:       StockTimestamp,
 	CreatedBy:       "art@vandelay.com",
 	UpdatedBy:       "art@vandelay.com",
 	Summary:         "test summary",
@@ -41,8 +48,8 @@ var MockStrainAttributes = &stock.StrainAttributes{
 }
 
 var MockUpdateStrainAttributes = &stock.StrainAttributes{
-	CreatedAt:       ptypes.TimestampNow(),
-	UpdatedAt:       ptypes.TimestampNow(),
+	CreatedAt:       StockTimestamp,
+	UpdatedAt:       StockTimestamp,
 	CreatedBy:       "art@vandelay.com",
 	UpdatedBy:       "h.e.@pennypacker.com",
 	Summary:         "updated summary",
@@ -58,8 +65,8 @@ var MockUpdateStrainAttributes = &stock.StrainAttributes{
 }
 
 var MockUpdatePlasmidAttributes = &stock.PlasmidAttributes{
-	CreatedAt:       ptypes.TimestampNow(),
-	UpdatedAt:       ptypes.TimestampNow(),
+	CreatedAt:       StockTimestamp,
+	UpdatedAt:       StockTimestamp,
 	CreatedBy:       "art@vandelay.com",
 	UpdatedBy:       "h.e.@pennypacker.com",
 	Summary:         "updated summary",
