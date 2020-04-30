@@ -30,7 +30,7 @@ var mockPlasmidInput = &models.Plasmid{
 	},
 }
 
-func TestID(t *testing.T) {
+func TestPlasmidID(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
 	r := plasmidResolver(mocks.MockedAnnotationClient())
@@ -39,7 +39,7 @@ func TestID(t *testing.T) {
 	assert.Exactly(p, mockPlasmidInput.Data.Id, "should match id")
 }
 
-func TestSummary(t *testing.T) {
+func TestPlasmidSummary(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
 	r := plasmidResolver(mocks.MockedAnnotationClient())
@@ -48,7 +48,7 @@ func TestSummary(t *testing.T) {
 	assert.Exactly(p, &mockPlasmidInput.Data.Attributes.Summary, "should match summary")
 }
 
-func TestEditableSummary(t *testing.T) {
+func TestPlasmidEditableSummary(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
 	r := plasmidResolver(mocks.MockedAnnotationClient())
@@ -57,7 +57,7 @@ func TestEditableSummary(t *testing.T) {
 	assert.Exactly(p, &mockPlasmidInput.Data.Attributes.EditableSummary, "should match editable summary")
 }
 
-func TestDepositor(t *testing.T) {
+func TestPlasmidDepositor(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
 	r := plasmidResolver(mocks.MockedAnnotationClient())

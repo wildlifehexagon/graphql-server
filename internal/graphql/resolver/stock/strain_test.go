@@ -30,6 +30,69 @@ var mockStrainInput = &models.Strain{
 	},
 }
 
+func TestID(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedAnnotationClient())
+	sn, err := r.ID(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting strain id")
+	assert.Exactly(sn, mockStrainInput.Data.Id, "should match id")
+}
+
+func TestSummary(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedAnnotationClient())
+	sn, err := r.Summary(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting summary")
+	assert.Exactly(sn, &mockStrainInput.Data.Attributes.Summary, "should match summary")
+}
+
+func TestEditableSummary(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedAnnotationClient())
+	sn, err := r.EditableSummary(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting editable summary")
+	assert.Exactly(sn, &mockStrainInput.Data.Attributes.EditableSummary, "should match editable summary")
+}
+
+func TestDepositor(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedAnnotationClient())
+	sn, err := r.Depositor(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting depositor")
+	assert.Exactly(sn, mockStrainInput.Data.Attributes.Depositor, "should match depositor")
+}
+
+func TestLabel(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedAnnotationClient())
+	sn, err := r.Label(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting label")
+	assert.Exactly(sn, mockStrainInput.Data.Attributes.Label, "should match label")
+}
+
+func TestSpecies(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedAnnotationClient())
+	sn, err := r.Species(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting species")
+	assert.Exactly(sn, mockStrainInput.Data.Attributes.Species, "should match species")
+}
+
+func TestPlasmid(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedAnnotationClient())
+	sn, err := r.Plasmid(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting plasmid")
+	assert.Exactly(sn, &mockStrainInput.Data.Attributes.Plasmid, "should match plasmid")
+}
+
 func TestSystematicName(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
