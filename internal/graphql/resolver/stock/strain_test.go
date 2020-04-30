@@ -128,7 +128,22 @@ func TestGenotypes(t *testing.T) {
 	gl := []*string{}
 	gl = append(gl, &mocks.MockMutMethodAnno.Data.Attributes.Value)
 	assert.NoError(err, "expect no error from getting genotypes")
-	assert.Exactly(g, gl, "should match genotypes")
+	assert.ElementsMatch(g, gl, "should match genotypes")
+}
+
+func TestPhenotypes(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedPhenotypeClient())
+	p, err := r.Phenotypes(context.Background(), mockStrainInput)
+	pd := mocks.MockPhenotypeAnno().Data[0]
+	assert.NoError(err, "expect no error from getting phenotypes")
+	for _, n := range p {
+		assert.Exactly(n.Phenotype, pd.Group.Data[0].Attributes.Tag, "should match phenotype")
+		assert.Exactly(n.Assay, &pd.Group.Data[1].Attributes.Tag, "should match assay")
+		assert.Exactly(n.Environment, &pd.Group.Data[2].Attributes.Tag, "should match environment")
+		assert.Exactly(n.Note, &pd.Group.Data[3].Attributes.Value, "should match note")
+	}
 }
 
 func TestStrainInStock(t *testing.T) {

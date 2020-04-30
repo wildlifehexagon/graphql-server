@@ -26,22 +26,48 @@ func MockTagAnno(value, tag string) *annotation.TaggedAnnotation {
 	}
 }
 
-func MockInStockAnno() *annotation.TaggedAnnotationGroupCollection {
-	gcdata := []*annotation.TaggedAnnotationGroupCollection_Data{}
-	gdata := []*annotation.TaggedAnnotationGroup_Data{}
-	gdata = append(gdata, &annotation.TaggedAnnotationGroup_Data{
+func MockTagGroupAnno(onto, tag, value string) *annotation.TaggedAnnotationGroup_Data {
+	return &annotation.TaggedAnnotationGroup_Data{
 		Type: "annotation",
-		Id:   "489483843",
+		Id:   "99999999",
 		Attributes: &annotation.TaggedAnnotationAttributes{
 			Version:   1,
 			EntryId:   "DBS0235559",
 			CreatedBy: "art@vandelay.org",
 			CreatedAt: ptypes.TimestampNow(),
-			Ontology:  registry.DictyAnnoOntology,
-			Tag:       registry.InvLocationTag,
-			Value:     "2-9(55-57)",
+			Ontology:  onto,
+			Tag:       tag,
+			Value:     value,
+		},
+	}
+}
+
+func MockInStockAnno() *annotation.TaggedAnnotationGroupCollection {
+	gcdata := []*annotation.TaggedAnnotationGroupCollection_Data{}
+	gdata := []*annotation.TaggedAnnotationGroup_Data{}
+	gdata = append(gdata, MockTagGroupAnno(registry.DictyAnnoOntology, registry.InvLocationTag, "2-9(55-57)"))
+	gcdata = append(gcdata, &annotation.TaggedAnnotationGroupCollection_Data{
+		Type: "annotation_group",
+		Group: &annotation.TaggedAnnotationGroup{
+			Data:      gdata,
+			GroupId:   "4924132",
+			CreatedAt: ptypes.TimestampNow(),
+			UpdatedAt: ptypes.TimestampNow(),
 		},
 	})
+	return &annotation.TaggedAnnotationGroupCollection{
+		Data: gcdata,
+	}
+}
+
+func MockPhenotypeAnno() *annotation.TaggedAnnotationGroupCollection {
+	gcdata := []*annotation.TaggedAnnotationGroupCollection_Data{}
+	gdata := []*annotation.TaggedAnnotationGroup_Data{}
+	// gdata = append(gdata, MockTagGroupAnno(registry.DictyAnnoOntology, registry.LiteratureTag, "23967067"))
+	gdata = append(gdata, MockTagGroupAnno(registry.PhenoOntology, "delayed culmination", "novalue"))
+	gdata = append(gdata, MockTagGroupAnno(registry.AssayOntology, "confocal microscopy", "novalue"))
+	gdata = append(gdata, MockTagGroupAnno(registry.EnvOntology, "in the presence of 8-Br-cAMP", "novalue"))
+	gdata = append(gdata, MockTagGroupAnno(registry.DictyAnnoOntology, registry.NoteTag, "this is a test note"))
 	gcdata = append(gcdata, &annotation.TaggedAnnotationGroupCollection_Data{
 		Type: "annotation_group",
 		Group: &annotation.TaggedAnnotationGroup{
@@ -113,5 +139,15 @@ func MockedInStockClient() *clients.TaggedAnnotationServiceClient {
 		mock.Anything,
 		mock.AnythingOfType("*annotation.ListGroupParameters"),
 	).Return(MockInStockAnno(), nil)
+	return mockedAnnoClient
+}
+
+func MockedPhenotypeClient() *clients.TaggedAnnotationServiceClient {
+	mockedAnnoClient := new(clients.TaggedAnnotationServiceClient)
+	mockedAnnoClient.On(
+		"ListAnnotationGroups",
+		mock.Anything,
+		mock.AnythingOfType("*annotation.ListGroupParameters"),
+	).Return(MockPhenotypeAnno(), nil)
 	return mockedAnnoClient
 }
