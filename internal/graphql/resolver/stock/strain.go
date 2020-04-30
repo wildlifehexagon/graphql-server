@@ -173,32 +173,7 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 		r.Logger.Error(err)
 		return p, err
 	}
-	for _, item := range gc.Data {
-		m := &models.Phenotype{}
-		for _, g := range item.Group.Data {
-			switch g.Attributes.Ontology {
-			case registry.PhenoOntology:
-				m.Phenotype = g.Attributes.Tag
-			case registry.EnvOntology:
-				m.Environment = &g.Attributes.Tag
-			case registry.AssayOntology:
-				m.Assay = &g.Attributes.Tag
-			case registry.DictyAnnoOntology:
-				if g.Attributes.Tag == registry.LiteratureTag {
-					pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
-					if err != nil {
-						errorutils.AddGQLError(ctx, err)
-						r.Logger.Error(err)
-					}
-					m.Publication = pub
-				}
-				if g.Attributes.Tag == registry.NoteTag {
-					m.Note = &g.Attributes.Value
-				}
-			}
-		}
-		p = append(p, m)
-	}
+	p = getPhenotypes(ctx, r, gc.Data)
 	return p, nil
 }
 
@@ -320,4 +295,35 @@ func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool,
 		return false, nil
 	}
 	return true, nil
+}
+
+func getPhenotypes(ctx context.Context, r *StrainResolver, data []*annotation.TaggedAnnotationGroupCollection_Data) []*models.Phenotype {
+	p := []*models.Phenotype{}
+	for _, item := range data {
+		m := &models.Phenotype{}
+		for _, g := range item.Group.Data {
+			switch g.Attributes.Ontology {
+			case registry.PhenoOntology:
+				m.Phenotype = g.Attributes.Tag
+			case registry.EnvOntology:
+				m.Environment = &g.Attributes.Tag
+			case registry.AssayOntology:
+				m.Assay = &g.Attributes.Tag
+			case registry.DictyAnnoOntology:
+				if g.Attributes.Tag == registry.LiteratureTag {
+					pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
+					if err != nil {
+						r.Logger.Error(err)
+						errorutils.AddGQLError(ctx, err)
+					}
+					m.Publication = pub
+				}
+				if g.Attributes.Tag == registry.NoteTag {
+					m.Note = &g.Attributes.Value
+				}
+			}
+		}
+		p = append(p, m)
+	}
+	return p
 }
