@@ -183,15 +183,18 @@ func (r *StrainResolver) Phenotypes(ctx context.Context, obj *models.Strain) ([]
 				m.Environment = &g.Attributes.Tag
 			case registry.AssayOntology:
 				m.Assay = &g.Attributes.Tag
-			case registry.LiteratureTag:
-				pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
-				if err != nil {
-					errorutils.AddGQLError(ctx, err)
-					r.Logger.Error(err)
+			case registry.DictyAnnoOntology:
+				if g.Attributes.Tag == registry.LiteratureTag {
+					pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
+					if err != nil {
+						errorutils.AddGQLError(ctx, err)
+						r.Logger.Error(err)
+					}
+					m.Publication = pub
 				}
-				m.Publication = pub
-			case registry.NoteTag:
-				m.Note = &g.Attributes.Value
+				if g.Attributes.Tag == registry.NoteTag {
+					m.Note = &g.Attributes.Value
+				}
 			}
 		}
 		p = append(p, m)
