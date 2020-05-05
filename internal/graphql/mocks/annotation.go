@@ -76,24 +76,6 @@ func MockCharacteristicsAnno() *annotation.TaggedAnnotationCollection {
 	}
 }
 
-func MockInStockAnno() *annotation.TaggedAnnotationGroupCollection {
-	gcdata := []*annotation.TaggedAnnotationGroupCollection_Data{}
-	gdata := []*annotation.TaggedAnnotationGroup_Data{}
-	gdata = append(gdata, MockTagGroupAnno(registry.DictyAnnoOntology, registry.InvLocationTag, "2-9(55-57)"))
-	gcdata = append(gcdata, &annotation.TaggedAnnotationGroupCollection_Data{
-		Type: "annotation_group",
-		Group: &annotation.TaggedAnnotationGroup{
-			Data:      gdata,
-			GroupId:   "4924132",
-			CreatedAt: ptypes.TimestampNow(),
-			UpdatedAt: ptypes.TimestampNow(),
-		},
-	})
-	return &annotation.TaggedAnnotationGroupCollection{
-		Data: gcdata,
-	}
-}
-
 func MockPhenotypeAnno() *annotation.TaggedAnnotationGroupCollection {
 	gcdata := []*annotation.TaggedAnnotationGroupCollection_Data{}
 	gdata := []*annotation.TaggedAnnotationGroup_Data{}
@@ -120,6 +102,7 @@ var MockSysNameAnno = MockTagAnno("DBS0236922", registry.SysnameTag)
 var MockGenModAnno = MockTagAnno("exogenous mutation", registry.MuttypeTag)
 var MockMutMethodAnno = MockTagAnno("Random Insertion", registry.MutmethodTag)
 var MockGenotypeAnno = MockTagAnno("axeA1,axeB1,axeC1,sadA-[sadA-KO],[pSadA-GFP],bsR,neoR", registry.GenoTag)
+var MockInStockAnno = MockTagAnno("DBS0236922", registry.SysnameTag)
 
 func MockedAnnotationClient() *clients.TaggedAnnotationServiceClient {
 	mockedAnnoClient := new(clients.TaggedAnnotationServiceClient)
@@ -169,10 +152,10 @@ func MockedGenotypeClient() *clients.TaggedAnnotationServiceClient {
 func MockedInStockClient() *clients.TaggedAnnotationServiceClient {
 	mockedAnnoClient := new(clients.TaggedAnnotationServiceClient)
 	mockedAnnoClient.On(
-		"ListAnnotationGroups",
+		"GetEntryAnnotation",
 		mock.Anything,
-		mock.AnythingOfType("*annotation.ListGroupParameters"),
-	).Return(MockInStockAnno(), nil)
+		mock.AnythingOfType("*annotation.EntryAnnotationRequest"),
+	).Return(MockInStockAnno, nil)
 	return mockedAnnoClient
 }
 
