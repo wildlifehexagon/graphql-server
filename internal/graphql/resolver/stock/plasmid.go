@@ -2,7 +2,6 @@ package stock
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dictyBase/aphgrpc"
@@ -16,6 +15,8 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/utils"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 type PlasmidResolver struct {
@@ -114,17 +115,21 @@ func (r *PlasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string
 
 func (r *PlasmidResolver) InStock(ctx context.Context, obj *models.Plasmid) (bool, error) {
 	id := obj.Data.Id
-	_, err := r.AnnotationClient.ListAnnotationGroups(
+	_, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
-		&annotation.ListGroupParameters{
-			Filter: fmt.Sprintf(
-				"entry_id===%s;tag===%s;ontology===%s",
-				id, registry.InvLocationTag, registry.PlasmidInvOnto,
-			)},
+		&annotation.EntryAnnotationRequest{
+			Tag:      registry.PlasmidInvTag,
+			Ontology: registry.PlasmidInvOnto,
+			EntryId:  id,
+		},
 	)
 	if err != nil {
-		r.Logger.Debugf("could not find plasmid %s in inventory: %v", id, err)
-		return false, nil
+		if grpc.Code(err) == codes.NotFound {
+			return false, nil
+		}
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Errorf("error getting %s from inventory: %v", id, err)
+		return false, err
 	}
 	return true, nil
 }

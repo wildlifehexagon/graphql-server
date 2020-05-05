@@ -282,17 +282,21 @@ func (r *StrainResolver) Genotypes(ctx context.Context, obj *models.Strain) ([]*
 
 func (r *StrainResolver) InStock(ctx context.Context, obj *models.Strain) (bool, error) {
 	id := obj.Data.Id
-	_, err := r.AnnotationClient.ListAnnotationGroups(
+	_, err := r.AnnotationClient.GetEntryAnnotation(
 		ctx,
-		&annotation.ListGroupParameters{
-			Filter: fmt.Sprintf(
-				"entry_id===%s;tag===%s;ontology===%s",
-				id, registry.InvLocationTag, registry.StrainInvOnto,
-			)},
+		&annotation.EntryAnnotationRequest{
+			Tag:      registry.StrainInvTag,
+			Ontology: registry.StrainInvOnto,
+			EntryId:  id,
+		},
 	)
 	if err != nil {
-		r.Logger.Debugf("could not find strain %s in inventory: %v", id, err)
-		return false, nil
+		if grpc.Code(err) == codes.NotFound {
+			return false, nil
+		}
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Errorf("error getting %s from inventory: %v", id, err)
+		return false, err
 	}
 	return true, nil
 }

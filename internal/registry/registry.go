@@ -21,6 +21,8 @@ const (
 	StrainCharOnto      = "strain_characteristics"
 	StrainInvOnto       = "strain_inventory"
 	PlasmidInvOnto      = "plasmid_inventory"
+	StrainInvTag        = "strain_inventory"
+	PlasmidInvTag       = "plasmid_inventory"
 	InvLocationTag      = "location"
 	LiteratureTag       = "pubmed id"
 	NoteTag             = "public note"
