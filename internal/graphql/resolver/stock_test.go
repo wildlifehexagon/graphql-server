@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"context"
+	"log"
 	"testing"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
@@ -19,18 +20,18 @@ func TestPlasmid(t *testing.T) {
 	plasmidID := "DBP123456"
 	p, err := q.Plasmid(context.Background(), plasmidID)
 	assert.NoError(err, "expect no error from getting plasmid by ID")
-	assert.Exactly(p.Data.Id, plasmidID, "should match plasmid ID")
-	assert.Exactly(p.Data.Attributes.CreatedBy, mocks.MockPlasmidAttributes.CreatedBy, "should match created_by")
-	assert.Exactly(p.Data.Attributes.UpdatedBy, mocks.MockPlasmidAttributes.UpdatedBy, "should match updated_by")
-	assert.Exactly(p.Data.Attributes.Summary, mocks.MockPlasmidAttributes.Summary, "should match summary")
-	assert.Exactly(p.Data.Attributes.EditableSummary, mocks.MockPlasmidAttributes.EditableSummary, "should match editable summary")
-	assert.Exactly(p.Data.Attributes.Depositor, mocks.MockPlasmidAttributes.Depositor, "should match depositor (he's gold)")
-	assert.ElementsMatch(p.Data.Attributes.Genes, mocks.MockPlasmidAttributes.Genes, "should match genes list")
-	assert.ElementsMatch(p.Data.Attributes.Dbxrefs, mocks.MockPlasmidAttributes.Dbxrefs, "should match dbxrefs")
-	assert.ElementsMatch(p.Data.Attributes.Publications, mocks.MockPlasmidAttributes.Publications, "should match publications")
-	assert.Exactly(p.Data.Attributes.ImageMap, mocks.MockPlasmidAttributes.ImageMap, "should match image map")
-	assert.Exactly(p.Data.Attributes.Sequence, mocks.MockPlasmidAttributes.Sequence, "should match sequence")
-	assert.Exactly(p.Data.Attributes.Name, mocks.MockPlasmidAttributes.Name, "should match name")
+	assert.Exactly(p.ID, plasmidID, "should match plasmid ID")
+	assert.Exactly(p.CreatedBy, mocks.MockPlasmidAttributes.CreatedBy, "should match created_by")
+	assert.Exactly(p.UpdatedBy, mocks.MockPlasmidAttributes.UpdatedBy, "should match updated_by")
+	assert.Exactly(p.Summary, &mocks.MockPlasmidAttributes.Summary, "should match summary")
+	assert.Exactly(p.EditableSummary, &mocks.MockPlasmidAttributes.EditableSummary, "should match editable summary")
+	assert.Exactly(p.Depositor, &mocks.MockPlasmidAttributes.Depositor, "should match depositor (he's gold)")
+	assert.ElementsMatch(p.Genes, sliceConverter(mocks.MockPlasmidAttributes.Genes), "should match genes list")
+	assert.ElementsMatch(p.Dbxrefs, sliceConverter(mocks.MockPlasmidAttributes.Dbxrefs), "should match dbxrefs")
+	assert.ElementsMatch(p.Publications, sliceConverter(mocks.MockPlasmidAttributes.Publications), "should match publications")
+	assert.Exactly(p.ImageMap, &mocks.MockPlasmidAttributes.ImageMap, "should match image map")
+	assert.Exactly(p.Sequence, &mocks.MockPlasmidAttributes.Sequence, "should match sequence")
+	assert.Exactly(p.Name, mocks.MockPlasmidAttributes.Name, "should match name")
 }
 
 func TestStrain(t *testing.T) {
@@ -42,20 +43,21 @@ func TestStrain(t *testing.T) {
 	}
 	strainID := "DBS123456"
 	p, err := q.Strain(context.Background(), strainID)
+	log.Printf("pubs %v", p.Publications)
 	assert.NoError(err, "expect no error from getting strain by ID")
-	assert.Exactly(p.Data.Id, strainID, "should match strain ID")
-	assert.Exactly(p.Data.Attributes.CreatedBy, mocks.MockStrainAttributes.CreatedBy, "should match created_by")
-	assert.Exactly(p.Data.Attributes.UpdatedBy, mocks.MockStrainAttributes.UpdatedBy, "should match updated_by")
-	assert.Exactly(p.Data.Attributes.Summary, mocks.MockStrainAttributes.Summary, "should match summary")
-	assert.Exactly(p.Data.Attributes.EditableSummary, mocks.MockStrainAttributes.EditableSummary, "should match editable summary")
-	assert.Exactly(p.Data.Attributes.Depositor, mocks.MockStrainAttributes.Depositor, "should match depositor (he's gold)")
-	assert.ElementsMatch(p.Data.Attributes.Genes, mocks.MockStrainAttributes.Genes, "should match genes list")
-	assert.ElementsMatch(p.Data.Attributes.Dbxrefs, mocks.MockStrainAttributes.Dbxrefs, "should match dbxrefs")
-	assert.ElementsMatch(p.Data.Attributes.Publications, mocks.MockStrainAttributes.Publications, "should match publications")
-	assert.Exactly(p.Data.Attributes.Label, mocks.MockStrainAttributes.Label, "should match label")
-	assert.Exactly(p.Data.Attributes.Species, mocks.MockStrainAttributes.Species, "should match species")
-	assert.Exactly(p.Data.Attributes.Plasmid, mocks.MockStrainAttributes.Plasmid, "should match plasmid")
-	assert.ElementsMatch(p.Data.Attributes.Names, mocks.MockStrainAttributes.Names, "should match names")
+	assert.Exactly(p.ID, strainID, "should match strain ID")
+	assert.Exactly(p.CreatedBy, mocks.MockStrainAttributes.CreatedBy, "should match created_by")
+	assert.Exactly(p.UpdatedBy, mocks.MockStrainAttributes.UpdatedBy, "should match updated_by")
+	assert.Exactly(p.Summary, &mocks.MockStrainAttributes.Summary, "should match summary")
+	assert.Exactly(p.EditableSummary, &mocks.MockStrainAttributes.EditableSummary, "should match editable summary")
+	assert.Exactly(p.Depositor, &mocks.MockStrainAttributes.Depositor, "should match depositor (he's gold)")
+	assert.ElementsMatch(p.Genes, sliceConverter(mocks.MockStrainAttributes.Genes), "should match genes list")
+	assert.ElementsMatch(p.Dbxrefs, sliceConverter(mocks.MockStrainAttributes.Dbxrefs), "should match dbxrefs")
+	assert.ElementsMatch(p.Publications, sliceConverter(mocks.MockStrainAttributes.Publications), "should match publications")
+	assert.Exactly(p.Label, mocks.MockStrainAttributes.Label, "should match label")
+	assert.Exactly(p.Species, mocks.MockStrainAttributes.Species, "should match species")
+	assert.Exactly(p.Plasmid, &mocks.MockStrainAttributes.Plasmid, "should match plasmid")
+	assert.ElementsMatch(p.Names, sliceConverter(mocks.MockStrainAttributes.Names), "should match names")
 }
 
 func TestListPlasmids(t *testing.T) {
@@ -124,12 +126,12 @@ func TestCreatePlasmid(t *testing.T) {
 	}
 	p, err := m.CreatePlasmid(context.Background(), input)
 	assert.NoError(err, "expect no error from creating new plasmid")
-	assert.Exactly(p.Data.Id, "DBP123456", "should match plasmid ID")
-	assert.Exactly(p.Data.Attributes.CreatedBy, input.CreatedBy, "should match created_by")
-	assert.Exactly(p.Data.Attributes.UpdatedBy, input.UpdatedBy, "should match updated_by")
-	assert.Exactly(&p.Data.Attributes.Summary, input.Summary, "should match summary")
-	assert.Exactly(&p.Data.Attributes.EditableSummary, input.EditableSummary, "should match editable summary")
-	assert.Exactly(&p.Data.Attributes.Depositor, input.Depositor, "should match depositor (he's gold)")
+	assert.Exactly(p.ID, "DBP123456", "should match plasmid ID")
+	assert.Exactly(p.CreatedBy, input.CreatedBy, "should match created_by")
+	assert.Exactly(p.UpdatedBy, input.UpdatedBy, "should match updated_by")
+	assert.Exactly(&p.Summary, &input.Summary, "should match summary")
+	assert.Exactly(&p.EditableSummary, &input.EditableSummary, "should match editable summary")
+	assert.Exactly(&p.Depositor, &input.Depositor, "should match depositor (he's gold)")
 }
 
 func TestCreateStrain(t *testing.T) {
@@ -155,14 +157,14 @@ func TestCreateStrain(t *testing.T) {
 	}
 	p, err := m.CreateStrain(context.Background(), input)
 	assert.NoError(err, "expect no error from creating new strain")
-	assert.Exactly(p.Data.Id, "DBS123456", "should match strain ID")
-	assert.Exactly(p.Data.Attributes.CreatedBy, input.CreatedBy, "should match created_by")
-	assert.Exactly(p.Data.Attributes.UpdatedBy, input.UpdatedBy, "should match updated_by")
-	assert.Exactly(&p.Data.Attributes.Summary, input.Summary, "should match summary")
-	assert.Exactly(&p.Data.Attributes.EditableSummary, input.EditableSummary, "should match editable summary")
-	assert.Exactly(&p.Data.Attributes.Depositor, input.Depositor, "should match depositor (he's gold)")
-	assert.Exactly(p.Data.Attributes.Label, input.Label, "should match label")
-	assert.Exactly(p.Data.Attributes.Species, input.Species, "should match species")
+	assert.Exactly(p.ID, "DBS123456", "should match strain ID")
+	assert.Exactly(p.CreatedBy, input.CreatedBy, "should match created_by")
+	assert.Exactly(p.UpdatedBy, input.UpdatedBy, "should match updated_by")
+	assert.Exactly(p.Summary, input.Summary, "should match summary")
+	assert.Exactly(p.EditableSummary, input.EditableSummary, "should match editable summary")
+	assert.Exactly(p.Depositor, input.Depositor, "should match depositor (he's gold)")
+	assert.Exactly(p.Label, input.Label, "should match label")
+	assert.Exactly(p.Species, input.Species, "should match species")
 }
 
 func TestUpdatePlasmid(t *testing.T) {
@@ -183,16 +185,16 @@ func TestUpdatePlasmid(t *testing.T) {
 	}
 	p, err := m.UpdatePlasmid(context.Background(), "DBP123456", input)
 	assert.NoError(err, "expect no error from creating new plasmid")
-	assert.Exactly(p.Data.Attributes.UpdatedBy, input.UpdatedBy, "should match updated updated_by")
-	assert.Exactly(&p.Data.Attributes.Summary, input.Summary, "should match updated summary")
-	assert.Exactly(&p.Data.Attributes.EditableSummary, input.EditableSummary, "should match updated editable summary")
-	assert.Exactly(&p.Data.Attributes.Depositor, input.Depositor, "should match updated depositor (he's gold)")
-	assert.ElementsMatch(p.Data.Attributes.Genes, mocks.MockUpdatePlasmidAttributes.Genes, "should match existing genes list")
-	assert.ElementsMatch(p.Data.Attributes.Dbxrefs, mocks.MockUpdatePlasmidAttributes.Dbxrefs, "should match existing dbxrefs")
-	assert.ElementsMatch(p.Data.Attributes.Publications, mocks.MockUpdatePlasmidAttributes.Publications, "should match existing publications")
-	assert.Exactly(p.Data.Attributes.ImageMap, mocks.MockUpdatePlasmidAttributes.ImageMap, "should match existing image map")
-	assert.Exactly(p.Data.Attributes.Sequence, mocks.MockUpdatePlasmidAttributes.Sequence, "should match existing sequence")
-	assert.Exactly(p.Data.Attributes.Name, mocks.MockUpdatePlasmidAttributes.Name, "should match name")
+	assert.Exactly(p.UpdatedBy, input.UpdatedBy, "should match updated updated_by")
+	assert.Exactly(p.Summary, input.Summary, "should match updated summary")
+	assert.Exactly(p.EditableSummary, input.EditableSummary, "should match updated editable summary")
+	assert.Exactly(p.Depositor, input.Depositor, "should match updated depositor (he's gold)")
+	assert.ElementsMatch(p.Genes, sliceConverter(mocks.MockUpdatePlasmidAttributes.Genes), "should match existing genes list")
+	assert.ElementsMatch(p.Dbxrefs, sliceConverter(mocks.MockUpdatePlasmidAttributes.Dbxrefs), "should match existing dbxrefs")
+	assert.ElementsMatch(p.Publications, sliceConverter(mocks.MockUpdatePlasmidAttributes.Publications), "should match existing publications")
+	assert.Exactly(p.ImageMap, &mocks.MockUpdatePlasmidAttributes.ImageMap, "should match existing image map")
+	assert.Exactly(p.Sequence, &mocks.MockUpdatePlasmidAttributes.Sequence, "should match existing sequence")
+	assert.Exactly(p.Name, mocks.MockUpdatePlasmidAttributes.Name, "should match name")
 }
 
 func TestUpdateStrain(t *testing.T) {
@@ -213,14 +215,24 @@ func TestUpdateStrain(t *testing.T) {
 	}
 	p, err := m.UpdateStrain(context.Background(), "DBS123456", input)
 	assert.NoError(err, "expect no error from creating new strain")
-	assert.Exactly(p.Data.Attributes.UpdatedBy, input.UpdatedBy, "should match updated updated_by")
-	assert.Exactly(&p.Data.Attributes.Summary, input.Summary, "should match updated summary")
-	assert.Exactly(&p.Data.Attributes.EditableSummary, input.EditableSummary, "should match updated editable summary")
-	assert.Exactly(&p.Data.Attributes.Depositor, input.Depositor, "should match updated depositor (he's gold)")
-	assert.ElementsMatch(p.Data.Attributes.Genes, mocks.MockUpdateStrainAttributes.Genes, "should match existing genes list")
-	assert.ElementsMatch(p.Data.Attributes.Dbxrefs, mocks.MockUpdateStrainAttributes.Dbxrefs, "should match existing dbxrefs")
-	assert.ElementsMatch(p.Data.Attributes.Publications, mocks.MockUpdateStrainAttributes.Publications, "should match existing publications")
-	assert.Exactly(p.Data.Attributes.Label, mocks.MockUpdateStrainAttributes.Label, "should match existing label")
-	assert.Exactly(p.Data.Attributes.Species, mocks.MockUpdateStrainAttributes.Species, "should match existing species")
-	assert.Exactly(p.Data.Attributes.Plasmid, mocks.MockUpdateStrainAttributes.Plasmid, "should match plasmid")
+	assert.Exactly(p.UpdatedBy, input.UpdatedBy, "should match updated updated_by")
+	assert.Exactly(p.Summary, input.Summary, "should match updated summary")
+	assert.Exactly(p.EditableSummary, input.EditableSummary, "should match updated editable summary")
+	assert.Exactly(p.Depositor, input.Depositor, "should match updated depositor (he's gold)")
+	assert.ElementsMatch(p.Genes, sliceConverter(mocks.MockUpdateStrainAttributes.Genes), "should match existing genes list")
+	assert.ElementsMatch(p.Dbxrefs, sliceConverter(mocks.MockUpdateStrainAttributes.Dbxrefs), "should match existing dbxrefs")
+	assert.ElementsMatch(p.Publications, sliceConverter(mocks.MockUpdateStrainAttributes.Publications), "should match existing publications")
+	assert.Exactly(p.Label, mocks.MockUpdateStrainAttributes.Label, "should match existing label")
+	assert.Exactly(p.Species, mocks.MockUpdateStrainAttributes.Species, "should match existing species")
+	assert.Exactly(p.Plasmid, &mocks.MockUpdateStrainAttributes.Plasmid, "should match plasmid")
+}
+
+func sliceConverter(s []string) []*string {
+	c := []*string{}
+	// need to use for loop here, not range
+	// https://github.com/golang/go/issues/22791#issuecomment-345391395
+	for i := 0; i < len(s); i++ {
+		c = append(c, &s[i])
+	}
+	return c
 }

@@ -4,10 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
-	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/golang/protobuf/ptypes"
-
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks/clients"
 	"github.com/stretchr/testify/assert"
@@ -23,87 +19,7 @@ func plasmidResolver(annoClient *clients.TaggedAnnotationServiceClient) *Plasmid
 	}
 }
 
-var mockPlasmidInput = &models.Plasmid{
-	Data: &stock.Plasmid_Data{
-		Type:       "plasmid",
-		Id:         "DBP0000120",
-		Attributes: mocks.MockPlasmidAttributes,
-	},
-}
-
-func TestPlasmidID(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	p, err := r.ID(context.Background(), mockPlasmidInput)
-	assert.NoError(err, "expect no error from getting plasmid id")
-	assert.Exactly(p, mockPlasmidInput.Data.Id, "should match id")
-}
-
-func TestPlasmidCreatedAt(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	ca, err := r.CreatedAt(context.Background(), mockPlasmidInput)
-	timestamp, _ := ptypes.Timestamp(mockStrainInput.Data.Attributes.CreatedAt)
-	assert.NoError(err, "expect no error from getting created_at")
-	assert.Exactly(ca, &timestamp, "should match created_at")
-}
-
-func TestPlasmidUpdatedAt(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	ua, err := r.UpdatedAt(context.Background(), mockPlasmidInput)
-	timestamp, _ := ptypes.Timestamp(mockStrainInput.Data.Attributes.UpdatedAt)
-	assert.NoError(err, "expect no error from getting updated_at")
-	assert.Exactly(ua, &timestamp, "should match updated_at")
-}
-
-func TestPlasmidSummary(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	p, err := r.Summary(context.Background(), mockPlasmidInput)
-	assert.NoError(err, "expect no error from getting summary")
-	assert.Exactly(p, &mockPlasmidInput.Data.Attributes.Summary, "should match summary")
-}
-
-func TestPlasmidEditableSummary(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	p, err := r.EditableSummary(context.Background(), mockPlasmidInput)
-	assert.NoError(err, "expect no error from getting editable summary")
-	assert.Exactly(p, &mockPlasmidInput.Data.Attributes.EditableSummary, "should match editable summary")
-}
-
-func TestPlasmidDepositor(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	p, err := r.Depositor(context.Background(), mockPlasmidInput)
-	assert.NoError(err, "expect no error from getting depositor")
-	assert.Exactly(p, mockPlasmidInput.Data.Attributes.Depositor, "should match depositor")
-}
-
-func TestSequence(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	p, err := r.Sequence(context.Background(), mockPlasmidInput)
-	assert.NoError(err, "expect no error from getting plasmid sequence")
-	assert.Exactly(p, &mockPlasmidInput.Data.Attributes.Sequence, "should match sequence")
-}
-
-func TestName(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	r := plasmidResolver(mocks.MockedAnnotationClient())
-	p, err := r.Name(context.Background(), mockPlasmidInput)
-	assert.NoError(err, "expect no error from getting plasmid name")
-	assert.Exactly(p, mockPlasmidInput.Data.Attributes.Name, "should match name")
-}
+var mockPlasmidInput = ConvertToPlasmidModel("DBP0000120", mocks.MockPlasmidAttributes)
 
 func TestPlasmidInStock(t *testing.T) {
 	t.Parallel()
