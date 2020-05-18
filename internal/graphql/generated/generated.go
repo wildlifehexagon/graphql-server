@@ -449,21 +449,12 @@ type RoleResolver interface {
 	Permissions(ctx context.Context, obj *user.Role) ([]*user.Permission, error)
 }
 type StrainResolver interface {
-	ID(ctx context.Context, obj *models.Strain) (string, error)
-	CreatedAt(ctx context.Context, obj *models.Strain) (*time.Time, error)
-	UpdatedAt(ctx context.Context, obj *models.Strain) (*time.Time, error)
 	CreatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
 	UpdatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
-	Summary(ctx context.Context, obj *models.Strain) (*string, error)
-	EditableSummary(ctx context.Context, obj *models.Strain) (*string, error)
-	Depositor(ctx context.Context, obj *models.Strain) (string, error)
-	Genes(ctx context.Context, obj *models.Strain) ([]*string, error)
-	Dbxrefs(ctx context.Context, obj *models.Strain) ([]*string, error)
+
 	Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error)
 	SystematicName(ctx context.Context, obj *models.Strain) (string, error)
-	Label(ctx context.Context, obj *models.Strain) (string, error)
-	Species(ctx context.Context, obj *models.Strain) (string, error)
-	Plasmid(ctx context.Context, obj *models.Strain) (*string, error)
+
 	Parent(ctx context.Context, obj *models.Strain) (*models.Strain, error)
 	Names(ctx context.Context, obj *models.Strain) ([]*string, error)
 	InStock(ctx context.Context, obj *models.Strain) (bool, error)
@@ -8087,13 +8078,13 @@ func (ec *executionContext) _Strain_id(ctx context.Context, field graphql.Collec
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().ID(rctx, obj)
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8121,13 +8112,13 @@ func (ec *executionContext) _Strain_created_at(ctx context.Context, field graphq
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().CreatedAt(rctx, obj)
+		return obj.CreatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8139,9 +8130,9 @@ func (ec *executionContext) _Strain_created_at(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Strain_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.Strain) (ret graphql.Marshaler) {
@@ -8155,13 +8146,13 @@ func (ec *executionContext) _Strain_updated_at(ctx context.Context, field graphq
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().UpdatedAt(rctx, obj)
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8173,9 +8164,9 @@ func (ec *executionContext) _Strain_updated_at(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Strain_created_by(ctx context.Context, field graphql.CollectedField, obj *models.Strain) (ret graphql.Marshaler) {
@@ -8257,13 +8248,13 @@ func (ec *executionContext) _Strain_summary(ctx context.Context, field graphql.C
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Summary(rctx, obj)
+		return obj.Summary, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8288,13 +8279,13 @@ func (ec *executionContext) _Strain_editable_summary(ctx context.Context, field 
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().EditableSummary(rctx, obj)
+		return obj.EditableSummary, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8319,13 +8310,13 @@ func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Depositor(rctx, obj)
+		return obj.Depositor, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8337,9 +8328,9 @@ func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.CollectedField, obj *models.Strain) (ret graphql.Marshaler) {
@@ -8353,13 +8344,13 @@ func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.Col
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Genes(rctx, obj)
+		return obj.Genes, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8384,13 +8375,13 @@ func (ec *executionContext) _Strain_dbxrefs(ctx context.Context, field graphql.C
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Dbxrefs(rctx, obj)
+		return obj.Dbxrefs, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8480,13 +8471,13 @@ func (ec *executionContext) _Strain_label(ctx context.Context, field graphql.Col
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Label(rctx, obj)
+		return obj.Label, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8514,13 +8505,13 @@ func (ec *executionContext) _Strain_species(ctx context.Context, field graphql.C
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Species(rctx, obj)
+		return obj.Species, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8548,13 +8539,13 @@ func (ec *executionContext) _Strain_plasmid(ctx context.Context, field graphql.C
 		Object:   "Strain",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Strain().Plasmid(rctx, obj)
+		return obj.Plasmid, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13439,47 +13430,20 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Strain")
 		case "id":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Strain_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "created_at":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_created_at(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Strain_created_at(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "updated_at":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_updated_at(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Strain_updated_at(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "created_by":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -13509,63 +13473,18 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 				return res
 			})
 		case "summary":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_summary(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Strain_summary(ctx, field, obj)
 		case "editable_summary":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_editable_summary(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Strain_editable_summary(ctx, field, obj)
 		case "depositor":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_depositor(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Strain_depositor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "genes":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_genes(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Strain_genes(ctx, field, obj)
 		case "dbxrefs":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_dbxrefs(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Strain_dbxrefs(ctx, field, obj)
 		case "publications":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -13592,44 +13511,17 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 				return res
 			})
 		case "label":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_label(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Strain_label(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "species":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_species(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Strain_species(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "plasmid":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Strain_plasmid(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Strain_plasmid(ctx, field, obj)
 		case "parent":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -14574,6 +14466,24 @@ func (ec *executionContext) marshalNString2ᚕᚖstring(ctx context.Context, sel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalNString2string(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec.marshalNString2string(ctx, sel, *v)
 }
 
 func (ec *executionContext) unmarshalNTimestamp2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {

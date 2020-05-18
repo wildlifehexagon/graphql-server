@@ -6,6 +6,7 @@ import (
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/stock"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
@@ -30,11 +31,10 @@ func (m *MutationResolver) CreateStrain(ctx context.Context, input *models.Creat
 		m.Logger.Error(err)
 		return nil, err
 	}
+	strainID := n.Data.Id
 	// Note: InStock, Phenotypes, GeneticModification, MutagenesisMethod, Characteristics, SystematicName and Genotypes will need to be implemented later.
-	m.Logger.Debugf("successfully created new strain with ID %s", n.Data.Id)
-	return &models.Strain{
-		Data: n.Data,
-	}, nil
+	m.Logger.Debugf("successfully created new strain with ID %s", strainID)
+	return stock.ConvertToStrainModel(strainID, n.Data.Attributes), nil
 }
 
 func normalizeCreateStrainAttr(attr *models.CreateStrainInput) map[string]interface{} {
@@ -143,10 +143,9 @@ func (m *MutationResolver) UpdateStrain(ctx context.Context, id string, input *m
 		m.Logger.Error(err)
 		return nil, err
 	}
-	m.Logger.Debugf("successfully updated strain with ID %s", n.Data.Id)
-	return &models.Strain{
-		Data: n.Data,
-	}, nil
+	strainID := n.Data.Id
+	m.Logger.Debugf("successfully updated strain with ID %s", strainID)
+	return stock.ConvertToStrainModel(strainID, n.Data.Attributes), nil
 }
 
 func normalizeUpdateStrainAttr(attr *models.UpdateStrainInput) map[string]interface{} {
@@ -229,16 +228,15 @@ func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*models.Plasmid
 }
 
 func (q *QueryResolver) Strain(ctx context.Context, id string) (*models.Strain, error) {
-	strain, err := q.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
+	n, err := q.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
 		return nil, err
 	}
-	q.Logger.Debugf("successfully found strain with ID %s", id)
-	return &models.Strain{
-		Data: strain.Data,
-	}, nil
+	strainID := n.Data.Id
+	q.Logger.Debugf("successfully found strain with ID %s", strainID)
+	return stock.ConvertToStrainModel(strainID, n.Data.Attributes), nil
 }
 
 func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error) {
@@ -269,13 +267,7 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 
 	for _, n := range list.Data {
 		attr := n.Attributes
-		item := &models.Strain{
-			Data: &pb.Strain_Data{
-				Type:       n.Type,
-				Id:         n.Id,
-				Attributes: attr,
-			},
-		}
+		item := stock.ConvertToStrainModel(n.Id, attr)
 		strains = append(strains, item)
 	}
 	l := int(list.Meta.Limit)

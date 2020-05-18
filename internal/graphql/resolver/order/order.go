@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/stock"
+
 	"github.com/dictyBase/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/order"
-	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
+	stockPB "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
@@ -17,7 +19,7 @@ import (
 
 type OrderResolver struct {
 	Client      pb.OrderServiceClient
-	StockClient stock.StockServiceClient
+	StockClient stockPB.StockServiceClient
 	UserClient  user.UserServiceClient
 	Logger      *logrus.Entry
 }
@@ -107,19 +109,16 @@ func (r *OrderResolver) Items(ctx context.Context, obj *pb.Order) ([]models.Stoc
 	stocks := []models.Stock{}
 	for _, id := range obj.Data.Attributes.Items {
 		if id[:3] == "DBS" {
-			gs, err := r.StockClient.GetStrain(ctx, &stock.StockId{Id: id})
+			gs, err := r.StockClient.GetStrain(ctx, &stockPB.StockId{Id: id})
 			if err != nil {
 				errorutils.AddGQLError(ctx, err)
 				r.Logger.Error(err)
 				return stocks, err
 			}
-			st := &models.Strain{
-				Data: gs.Data,
-			}
-			stocks = append(stocks, st)
+			stocks = append(stocks, stock.ConvertToStrainModel(id, gs.Data.Attributes))
 		}
 		if id[:3] == "DBP" {
-			gp, err := r.StockClient.GetPlasmid(ctx, &stock.StockId{Id: id})
+			gp, err := r.StockClient.GetPlasmid(ctx, &stockPB.StockId{Id: id})
 			if err != nil {
 				errorutils.AddGQLError(ctx, err)
 				r.Logger.Error(err)

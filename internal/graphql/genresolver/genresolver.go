@@ -445,18 +445,6 @@ func (r *roleResolver) Permissions(ctx context.Context, obj *user.Role) ([]*user
 	panic("not implemented")
 }
 
-func (r *strainResolver) ID(ctx context.Context, obj *models.Strain) (string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) CreatedAt(ctx context.Context, obj *models.Strain) (*time.Time, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) UpdatedAt(ctx context.Context, obj *models.Strain) (*time.Time, error) {
-	panic("not implemented")
-}
-
 func (r *strainResolver) CreatedBy(ctx context.Context, obj *models.Strain) (*user.User, error) {
 	panic("not implemented")
 }
@@ -465,43 +453,11 @@ func (r *strainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*us
 	panic("not implemented")
 }
 
-func (r *strainResolver) Summary(ctx context.Context, obj *models.Strain) (*string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) EditableSummary(ctx context.Context, obj *models.Strain) (*string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) Depositor(ctx context.Context, obj *models.Strain) (string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) Genes(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) Dbxrefs(ctx context.Context, obj *models.Strain) ([]*string, error) {
-	panic("not implemented")
-}
-
 func (r *strainResolver) Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error) {
 	panic("not implemented")
 }
 
 func (r *strainResolver) SystematicName(ctx context.Context, obj *models.Strain) (string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) Label(ctx context.Context, obj *models.Strain) (string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) Species(ctx context.Context, obj *models.Strain) (string, error) {
-	panic("not implemented")
-}
-
-func (r *strainResolver) Plasmid(ctx context.Context, obj *models.Strain) (*string, error) {
 	panic("not implemented")
 }
 
