@@ -73,12 +73,15 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 
 func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*models.Strain, error) {
 	parent := obj.Parent
-	_, err := r.Client.GetStrain(ctx, &pb.StockId{Id: *parent})
-	if err != nil {
-		r.Logger.Debugf("could not find parent strain with ID %s", parent)
-		return nil, nil
+	if parent != nil {
+		n, err := r.Client.GetStrain(ctx, &pb.StockId{Id: *parent})
+		if err != nil {
+			r.Logger.Debugf("could not find parent strain with ID %s", *parent)
+			return nil, nil
+		}
+		r.Logger.Debugf("successfully found parent strain with ID %s", *parent)
+		return ConvertToStrainModel(*parent, n.Data.Attributes), nil
 	}
-	r.Logger.Debugf("successfully found parent strain with ID %s", parent)
 	return &models.Strain{}, nil
 }
 
@@ -302,9 +305,11 @@ func ConvertToStrainModel(id string, attr *pb.StrainAttributes) *models.Strain {
 		Depositor:       &attr.Depositor,
 		Genes:           sliceConverter(attr.Genes),
 		Dbxrefs:         sliceConverter(attr.Dbxrefs),
+		Publications:    sliceConverter(attr.Publications),
 		Label:           attr.Label,
 		Species:         attr.Species,
 		Plasmid:         &attr.Plasmid,
+		Names:           sliceConverter(attr.Names),
 	}
 }
 

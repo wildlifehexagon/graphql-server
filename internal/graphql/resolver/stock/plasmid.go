@@ -114,6 +114,7 @@ func ConvertToPlasmidModel(id string, attr *pb.PlasmidAttributes) *models.Plasmi
 		Depositor:       &attr.Depositor,
 		Genes:           sliceConverter(attr.Genes),
 		Dbxrefs:         sliceConverter(attr.Dbxrefs),
+		Publications:    sliceConverter(attr.Publications),
 		ImageMap:        &attr.ImageMap,
 		Sequence:        &attr.Sequence,
 		Name:            attr.Name,
