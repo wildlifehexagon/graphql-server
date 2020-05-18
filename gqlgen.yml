@@ -47,6 +47,13 @@ models:
         resolver: true
   Plasmid:
     model: github.com/dictyBase/graphql-server/internal/graphql/models.Plasmid
+    fields:
+      in_stock:
+        resolver: true
+      keywords:
+        resolver: true
+      genbank_accession:
+        resolver: true
   Order:
     model: github.com/dictyBase/go-genproto/dictybaseapis/order.Order
   Auth:

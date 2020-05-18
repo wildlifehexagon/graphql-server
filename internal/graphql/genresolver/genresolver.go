@@ -229,18 +229,6 @@ func (r *permissionResolver) Resource(ctx context.Context, obj *user.Permission)
 	panic("not implemented")
 }
 
-func (r *plasmidResolver) ID(ctx context.Context, obj *models.Plasmid) (string, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) CreatedAt(ctx context.Context, obj *models.Plasmid) (*time.Time, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) UpdatedAt(ctx context.Context, obj *models.Plasmid) (*time.Time, error) {
-	panic("not implemented")
-}
-
 func (r *plasmidResolver) CreatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error) {
 	panic("not implemented")
 }
@@ -249,39 +237,7 @@ func (r *plasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 	panic("not implemented")
 }
 
-func (r *plasmidResolver) Summary(ctx context.Context, obj *models.Plasmid) (*string, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) EditableSummary(ctx context.Context, obj *models.Plasmid) (*string, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) Depositor(ctx context.Context, obj *models.Plasmid) (string, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*string, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) Dbxrefs(ctx context.Context, obj *models.Plasmid) ([]*string, error) {
-	panic("not implemented")
-}
-
 func (r *plasmidResolver) Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) Name(ctx context.Context, obj *models.Plasmid) (string, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) ImageMap(ctx context.Context, obj *models.Plasmid) (*string, error) {
-	panic("not implemented")
-}
-
-func (r *plasmidResolver) Sequence(ctx context.Context, obj *models.Plasmid) (*string, error) {
 	panic("not implemented")
 }
 

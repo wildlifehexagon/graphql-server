@@ -86,11 +86,10 @@ func (m *MutationResolver) CreatePlasmid(ctx context.Context, input *models.Crea
 		m.Logger.Error(err)
 		return nil, err
 	}
+	plasmidID := n.Data.Id
 	// Note: InStock, Keywords and GenbankAccession will need to be implemented later.
-	m.Logger.Debugf("successfully created new plasmid with ID %s", n.Data.Id)
-	return &models.Plasmid{
-		Data: n.Data,
-	}, nil
+	m.Logger.Debugf("successfully created new plasmid with ID %s", plasmidID)
+	return stock.ConvertToPlasmidModel(plasmidID, n.Data.Attributes), nil
 }
 
 func normalizeCreatePlasmidAttr(attr *models.CreatePlasmidInput) map[string]interface{} {
@@ -185,10 +184,9 @@ func (m *MutationResolver) UpdatePlasmid(ctx context.Context, id string, input *
 		m.Logger.Error(err)
 		return nil, err
 	}
-	m.Logger.Debugf("successfully updated plasmid with ID %s", n.Data.Id)
-	return &models.Plasmid{
-		Data: n.Data,
-	}, nil
+	plasmidID := n.Data.Id
+	m.Logger.Debugf("successfully updated plasmid with ID %s", plasmidID)
+	return stock.ConvertToPlasmidModel(plasmidID, n.Data.Attributes), nil
 }
 
 func normalizeUpdatePlasmidAttr(attr *models.UpdatePlasmidInput) map[string]interface{} {
@@ -215,16 +213,15 @@ func (m *MutationResolver) DeleteStock(ctx context.Context, id string) (*models.
 }
 
 func (q *QueryResolver) Plasmid(ctx context.Context, id string) (*models.Plasmid, error) {
-	plasmid, err := q.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
+	n, err := q.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: id})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
 		return nil, err
 	}
-	q.Logger.Debugf("successfully found plasmid with ID %s", id)
-	return &models.Plasmid{
-		Data: plasmid.Data,
-	}, nil
+	plasmidID := n.Data.Id
+	q.Logger.Debugf("successfully found plasmid with ID %s", plasmidID)
+	return stock.ConvertToPlasmidModel(plasmidID, n.Data.Attributes), nil
 }
 
 func (q *QueryResolver) Strain(ctx context.Context, id string) (*models.Strain, error) {
@@ -308,13 +305,7 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	plasmids := []*models.Plasmid{}
 	for _, n := range list.Data {
 		attr := n.Attributes
-		item := &models.Plasmid{
-			Data: &pb.Plasmid_Data{
-				Type:       n.Type,
-				Id:         n.Id,
-				Attributes: attr,
-			},
-		}
+		item := stock.ConvertToPlasmidModel(n.Id, attr)
 		plasmids = append(plasmids, item)
 	}
 	l := int(list.Meta.Limit)

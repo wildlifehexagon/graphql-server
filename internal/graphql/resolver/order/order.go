@@ -124,10 +124,7 @@ func (r *OrderResolver) Items(ctx context.Context, obj *pb.Order) ([]models.Stoc
 				r.Logger.Error(err)
 				return stocks, err
 			}
-			st := &models.Plasmid{
-				Data: gp.Data,
-			}
-			stocks = append(stocks, st)
+			stocks = append(stocks, stock.ConvertToPlasmidModel(id, gp.Data.Attributes))
 		}
 	}
 	return stocks, nil

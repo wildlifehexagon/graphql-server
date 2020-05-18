@@ -387,20 +387,11 @@ type PermissionResolver interface {
 	Resource(ctx context.Context, obj *user.Permission) (*string, error)
 }
 type PlasmidResolver interface {
-	ID(ctx context.Context, obj *models.Plasmid) (string, error)
-	CreatedAt(ctx context.Context, obj *models.Plasmid) (*time.Time, error)
-	UpdatedAt(ctx context.Context, obj *models.Plasmid) (*time.Time, error)
 	CreatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
 	UpdatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
-	Summary(ctx context.Context, obj *models.Plasmid) (*string, error)
-	EditableSummary(ctx context.Context, obj *models.Plasmid) (*string, error)
-	Depositor(ctx context.Context, obj *models.Plasmid) (string, error)
-	Genes(ctx context.Context, obj *models.Plasmid) ([]*string, error)
-	Dbxrefs(ctx context.Context, obj *models.Plasmid) ([]*string, error)
+
 	Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error)
-	Name(ctx context.Context, obj *models.Plasmid) (string, error)
-	ImageMap(ctx context.Context, obj *models.Plasmid) (*string, error)
-	Sequence(ctx context.Context, obj *models.Plasmid) (*string, error)
+
 	InStock(ctx context.Context, obj *models.Plasmid) (bool, error)
 	Keywords(ctx context.Context, obj *models.Plasmid) ([]*string, error)
 	GenbankAccession(ctx context.Context, obj *models.Plasmid) (*string, error)
@@ -6021,13 +6012,13 @@ func (ec *executionContext) _Plasmid_id(ctx context.Context, field graphql.Colle
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().ID(rctx, obj)
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6055,13 +6046,13 @@ func (ec *executionContext) _Plasmid_created_at(ctx context.Context, field graph
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().CreatedAt(rctx, obj)
+		return obj.CreatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6073,9 +6064,9 @@ func (ec *executionContext) _Plasmid_created_at(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Plasmid_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) (ret graphql.Marshaler) {
@@ -6089,13 +6080,13 @@ func (ec *executionContext) _Plasmid_updated_at(ctx context.Context, field graph
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().UpdatedAt(rctx, obj)
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6107,9 +6098,9 @@ func (ec *executionContext) _Plasmid_updated_at(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNTimestamp2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Plasmid_created_by(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) (ret graphql.Marshaler) {
@@ -6191,13 +6182,13 @@ func (ec *executionContext) _Plasmid_summary(ctx context.Context, field graphql.
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().Summary(rctx, obj)
+		return obj.Summary, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6222,13 +6213,13 @@ func (ec *executionContext) _Plasmid_editable_summary(ctx context.Context, field
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().EditableSummary(rctx, obj)
+		return obj.EditableSummary, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6253,13 +6244,13 @@ func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphq
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().Depositor(rctx, obj)
+		return obj.Depositor, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6271,9 +6262,9 @@ func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) (ret graphql.Marshaler) {
@@ -6287,13 +6278,13 @@ func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.Co
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().Genes(rctx, obj)
+		return obj.Genes, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6318,13 +6309,13 @@ func (ec *executionContext) _Plasmid_dbxrefs(ctx context.Context, field graphql.
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().Dbxrefs(rctx, obj)
+		return obj.Dbxrefs, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6380,13 +6371,13 @@ func (ec *executionContext) _Plasmid_name(ctx context.Context, field graphql.Col
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().Name(rctx, obj)
+		return obj.Name, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6414,13 +6405,13 @@ func (ec *executionContext) _Plasmid_image_map(ctx context.Context, field graphq
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().ImageMap(rctx, obj)
+		return obj.ImageMap, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6445,13 +6436,13 @@ func (ec *executionContext) _Plasmid_sequence(ctx context.Context, field graphql
 		Object:   "Plasmid",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Plasmid().Sequence(rctx, obj)
+		return obj.Sequence, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12654,47 +12645,20 @@ func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Plasmid")
 		case "id":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Plasmid_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "created_at":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_created_at(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Plasmid_created_at(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "updated_at":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_updated_at(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Plasmid_updated_at(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "created_by":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -12724,63 +12688,18 @@ func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, 
 				return res
 			})
 		case "summary":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_summary(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Plasmid_summary(ctx, field, obj)
 		case "editable_summary":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_editable_summary(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Plasmid_editable_summary(ctx, field, obj)
 		case "depositor":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_depositor(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Plasmid_depositor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "genes":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_genes(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Plasmid_genes(ctx, field, obj)
 		case "dbxrefs":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_dbxrefs(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Plasmid_dbxrefs(ctx, field, obj)
 		case "publications":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -12793,41 +12712,14 @@ func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, 
 				return res
 			})
 		case "name":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_name(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Plasmid_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "image_map":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_image_map(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Plasmid_image_map(ctx, field, obj)
 		case "sequence":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Plasmid_sequence(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Plasmid_sequence(ctx, field, obj)
 		case "in_stock":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
