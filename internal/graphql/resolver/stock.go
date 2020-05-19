@@ -237,23 +237,9 @@ func (q *QueryResolver) Strain(ctx context.Context, id string) (*models.Strain, 
 }
 
 func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error) {
-	var cursor, limit int64
-	var filter string
-	if input.Cursor != nil {
-		cursor = int64(*input.Cursor)
-	} else {
-		cursor = 0
-	}
-	if input.Limit != nil {
-		limit = int64(*input.Limit)
-	} else {
-		limit = 10
-	}
-	if input.Filter != nil {
-		filter = *input.Filter
-	} else {
-		filter = ""
-	}
+	cursor := getCursor(input.Cursor)
+	limit := getLimit(input.Limit)
+	filter := getFilter(input.Filter)
 	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -261,7 +247,6 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 		return nil, err
 	}
 	strains := []*models.Strain{}
-
 	for _, n := range list.Data {
 		attr := n.Attributes
 		item := stock.ConvertToStrainModel(n.Id, attr)
@@ -279,23 +264,9 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 }
 
 func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStockInput) (*models.PlasmidListWithCursor, error) {
-	var cursor, limit int64
-	var filter string
-	if input.Cursor != nil {
-		cursor = int64(*input.Cursor)
-	} else {
-		cursor = 0
-	}
-	if input.Limit != nil {
-		limit = int64(*input.Limit)
-	} else {
-		limit = 10
-	}
-	if input.Filter != nil {
-		filter = *input.Filter
-	} else {
-		filter = ""
-	}
+	cursor := getCursor(input.Cursor)
+	limit := getLimit(input.Limit)
+	filter := getFilter(input.Filter)
 	list, err := q.GetStockClient(registry.STOCK).ListPlasmids(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -317,4 +288,34 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 		Limit:          &l,
 		TotalCount:     int(list.Meta.Total),
 	}, nil
+}
+
+func getCursor(c *int) int64 {
+	var cursor int64
+	if c != nil {
+		cursor = int64(*c)
+	} else {
+		cursor = 0
+	}
+	return cursor
+}
+
+func getLimit(l *int) int64 {
+	var limit int64
+	if l != nil {
+		limit = int64(*l)
+	} else {
+		limit = 10
+	}
+	return limit
+}
+
+func getFilter(f *string) string {
+	var filter string
+	if f != nil {
+		filter = *f
+	} else {
+		filter = ""
+	}
+	return filter
 }
