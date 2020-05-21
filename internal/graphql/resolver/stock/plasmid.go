@@ -58,7 +58,8 @@ func (r *PlasmidResolver) Publications(ctx context.Context, obj *models.Plasmid)
 		if len(*id) < 1 {
 			continue
 		}
-		p, err := utils.FetchPublication(ctx, r.Registry, *id)
+		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
+		p, err := utils.FetchPublication(ctx, endpoint, *id)
 		if err != nil {
 			errorutils.AddGQLError(ctx, err)
 			r.Logger.Error(err)

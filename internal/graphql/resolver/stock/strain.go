@@ -60,7 +60,8 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 		if len(*id) < 1 {
 			continue
 		}
-		p, err := utils.FetchPublication(ctx, r.Registry, *id)
+		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
+		p, err := utils.FetchPublication(ctx, endpoint, *id)
 		if err != nil {
 			errorutils.AddGQLError(ctx, err)
 			r.Logger.Error(err)
@@ -276,7 +277,8 @@ func getPhenotypes(ctx context.Context, r *StrainResolver, data []*annotation.Ta
 				m.Assay = &g.Attributes.Tag
 			case registry.DictyAnnoOntology:
 				if g.Attributes.Tag == registry.LiteratureTag {
-					pub, err := utils.FetchPublication(ctx, r.Registry, g.Attributes.Value)
+					endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
+					pub, err := utils.FetchPublication(ctx, endpoint, g.Attributes.Value)
 					if err != nil {
 						r.Logger.Error(err)
 						errorutils.AddGQLError(ctx, err)

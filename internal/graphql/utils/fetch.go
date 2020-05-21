@@ -10,7 +10,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/aphgrpc"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/publication"
-	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -56,9 +55,8 @@ type Author struct {
 	Initials  string `json:"initials"`
 }
 
-func FetchPublication(ctx context.Context, reg registry.Registry, id string) (*pb.Publication, error) {
+func FetchPublication(ctx context.Context, endpoint, id string) (*pb.Publication, error) {
 	logger := *logrus.New()
-	endpoint := reg.GetAPIEndpoint(registry.PUBLICATION)
 	url := endpoint + "/" + id
 	res, err := http.Get(url)
 	if err != nil {
