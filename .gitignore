@@ -1,3 +1,7 @@
 /graphql-server
 .vscode
 cover.out
+
+.draft-tasks.toml
+.draftignore
+draft.toml
