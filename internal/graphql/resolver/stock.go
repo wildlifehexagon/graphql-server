@@ -290,6 +290,18 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	}, nil
 }
 
+func (q *queryResolver) ListStrainsWithPhenotype(ctx context.Context, phenotype string) ([]*models.Strain, error) {
+	panic("not implemented")
+}
+
+func (q *queryResolver) ListStrainsWithCharacteristic(ctx context.Context, characteristic string) ([]*models.Strain, error) {
+	panic("not implemented")
+}
+
+func (q *queryResolver) ListStrainsWithAnno(ctx context.Context, anno string) ([]*models.Strain, error) {
+	panic("not implemented")
+}
+
 func getCursor(c *int) int64 {
 	var cursor int64
 	if c != nil {
