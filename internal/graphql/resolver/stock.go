@@ -292,52 +292,36 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 	}, nil
 }
 
-func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, phenotype string) ([]*models.Strain, error) {
-	s := []*models.Strain{}
-	ph, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotationGroups(ctx, &annotation.ListGroupParameters{
-		Filter: fmt.Sprintf("ontology==%s;tag==%s", registry.PhenoOntology, phenotype),
+func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, input *models.ListStrainsWithPhenotypeInput) (*models.StrainListWithCursor, error) {
+	strains := []*models.Strain{}
+	cursor := getCursor(input.Cursor)
+	limit := getLimit(input.Limit)
+	ph, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &annotation.ListParameters{
+		Cursor: cursor,
+		Limit:  limit,
+		Filter: fmt.Sprintf("ontology==%s;tag==%s", registry.PhenoOntology, input.Phenotype),
 	})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
 		return nil, err
 	}
-	p := ph.Data
-	for _, v := range p {
-		for _, ann := range v.Group.Data {
-			id := ann.Attributes.EntryId
-			found := findStrain(s, id)
-			if !found {
-				strain, err := q.Strain(ctx, id)
-				if err != nil {
-					errorutils.AddGQLError(ctx, err)
-					q.Logger.Error(err)
-					return nil, err
-				}
-				s = append(s, strain)
-			}
+	for _, v := range ph.Data {
+		strain, err := q.Strain(ctx, v.Attributes.EntryId)
+		if err != nil {
+			errorutils.AddGQLError(ctx, err)
+			q.Logger.Error(err)
+			return nil, err
 		}
+		strains = append(strains, strain)
 	}
-	return s, nil
-}
-
-func (q *QueryResolver) ListStrainsWithCharacteristic(ctx context.Context, characteristic string) ([]*models.Strain, error) {
-	panic("not implemented")
-}
-
-func (q *QueryResolver) ListStrainsWithAnno(ctx context.Context, anno string) ([]*models.Strain, error) {
-	panic("not implemented")
-}
-
-// findStrain takes a slice of strains and checks if a strain with
-// the given ID is already in it.
-func findStrain(slice []*models.Strain, id string) bool {
-	for _, item := range slice {
-		if item.ID == id {
-			return true
-		}
-	}
-	return false
+	l := int(ph.Meta.Limit)
+	return &models.StrainListWithCursor{Strains: strains,
+		NextCursor:     int(ph.Meta.NextCursor),
+		PreviousCursor: int(cursor),
+		Limit:          &l,
+		TotalCount:     len(ph.Data),
+	}, nil
 }
 
 func getCursor(c *int) int64 {
