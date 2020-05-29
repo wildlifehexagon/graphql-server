@@ -98,6 +98,38 @@ func MockPhenotypeAnno() *annotation.TaggedAnnotationGroupCollection {
 	}
 }
 
+// MockPhenoCollectionAnno is used to test the ListStrainsWithPhenotype method.
+func MockPhenoCollectionAnno(tag, id string) *annotation.TaggedAnnotationCollection_Data {
+	return &annotation.TaggedAnnotationCollection_Data{
+		Type: "annotation",
+		Id:   "99999999",
+		Attributes: &annotation.TaggedAnnotationAttributes{
+			Version:   1,
+			EntryId:   id,
+			CreatedBy: "art@vandelay.org",
+			CreatedAt: ptypes.TimestampNow(),
+			Ontology:  registry.PhenoOntology,
+			Tag:       tag,
+			Value:     registry.EmptyValue,
+		},
+	}
+}
+
+func MockPhenotypeListAnno() *annotation.TaggedAnnotationCollection {
+	cdata := []*annotation.TaggedAnnotationCollection_Data{}
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000001"))
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000002"))
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000003"))
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000004"))
+	return &annotation.TaggedAnnotationCollection{
+		Data: cdata,
+		Meta: &annotation.Meta{
+			NextCursor: 0,
+			Limit:      10,
+		},
+	}
+}
+
 var MockSysNameAnno = MockTagAnno("DBS0236922", registry.SysnameTag)
 var MockGenModAnno = MockTagAnno("exogenous mutation", registry.MuttypeTag)
 var MockMutMethodAnno = MockTagAnno("Random Insertion", registry.MutmethodTag)
@@ -106,6 +138,11 @@ var MockInStockAnno = MockTagAnno("DBS0236922", registry.SysnameTag)
 
 func MockedAnnotationClient() *clients.TaggedAnnotationServiceClient {
 	mockedAnnoClient := new(clients.TaggedAnnotationServiceClient)
+	mockedAnnoClient.On(
+		"ListAnnotations",
+		mock.Anything,
+		mock.AnythingOfType("*annotation.ListParameters"),
+	).Return(MockPhenotypeListAnno(), nil)
 	return mockedAnnoClient
 }
 

@@ -2,7 +2,6 @@ package resolver
 
 import (
 	"context"
-	"log"
 	"testing"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
@@ -43,7 +42,6 @@ func TestStrain(t *testing.T) {
 	}
 	strainID := "DBS123456"
 	p, err := q.Strain(context.Background(), strainID)
-	log.Printf("pubs %v", p.Publications)
 	assert.NoError(err, "expect no error from getting strain by ID")
 	assert.Exactly(p.ID, strainID, "should match strain ID")
 	assert.Exactly(p.CreatedBy, mocks.MockStrainAttributes.CreatedBy, "should match created_by")
@@ -104,6 +102,28 @@ func TestListStrains(t *testing.T) {
 	assert.Exactly(s.NextCursor, 10000, "should match next cursor")
 	assert.Exactly(s.TotalCount, 3, "should match total count (length) of items")
 	assert.Len(s.Strains, 3, "should have three strains")
+}
+
+func TestListStrainsWithPhenotype(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	q := &QueryResolver{
+		Registry: &mocks.MockRegistry{},
+		Logger:   mocks.TestLogger(),
+	}
+	cursor := 0
+	limit := 10
+	s, err := q.ListStrainsWithPhenotype(context.Background(), &models.ListStrainsWithPhenotypeInput{
+		Cursor:    &cursor,
+		Limit:     &limit,
+		Phenotype: "delayed culmination",
+	})
+	assert.NoError(err, "expect no error from getting list of strains")
+	assert.Exactly(s.Limit, &limit, "should match limit")
+	assert.Exactly(s.PreviousCursor, 0, "should match previous cursor")
+	assert.Exactly(s.NextCursor, 0, "should match next cursor")
+	assert.Exactly(s.TotalCount, 4, "should match total count (length) of items")
+	assert.Len(s.Strains, 4, "should have four strains")
 }
 
 func TestCreatePlasmid(t *testing.T) {
