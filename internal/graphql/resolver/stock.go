@@ -315,8 +315,13 @@ func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, input *mod
 		}
 		strains = append(strains, strain)
 	}
+	/**
+	  Some phenotypes list the same strain ID more than once. Consider a new approach
+	  to de-duping this list while also keeping the Meta data from the annotations list.
+	*/
 	l := int(ph.Meta.Limit)
-	return &models.StrainListWithCursor{Strains: strains,
+	return &models.StrainListWithCursor{
+		Strains:        strains,
 		NextCursor:     int(ph.Meta.NextCursor),
 		PreviousCursor: int(cursor),
 		Limit:          &l,
