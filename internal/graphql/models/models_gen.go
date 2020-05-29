@@ -145,6 +145,12 @@ type ListStockInput struct {
 	Filter *string `json:"filter"`
 }
 
+type ListStrainsWithPhenotypeInput struct {
+	Cursor    *int   `json:"cursor"`
+	Limit     *int   `json:"limit"`
+	Phenotype string `json:"phenotype"`
+}
+
 type LoginInput struct {
 	ClientID    string `json:"client_id"`
 	State       string `json:"state"`
