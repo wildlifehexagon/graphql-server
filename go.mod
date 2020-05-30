@@ -19,7 +19,7 @@ require (
 	github.com/mwitkow/go-proto-validators v0.3.0 // indirect
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/objx v0.1.1 // indirect
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.0
 	github.com/urfave/cli v1.22.4
 	github.com/vektah/gqlparser/v2 v2.0.1
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
