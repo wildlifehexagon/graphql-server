@@ -22,7 +22,7 @@ const (
 	StrainInvOnto       = "strain_inventory"
 	PlasmidInvOnto      = "plasmid_inventory"
 	StrainInvTag        = "strain_inventory"
-	PlasmidInvTag       = "plasmid_inventory"
+	PlasmidInvTag       = "plasmid inventory"
 	InvLocationTag      = "location"
 	LiteratureTag       = "pubmed id"
 	NoteTag             = "public note"
