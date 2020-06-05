@@ -98,9 +98,8 @@ func mockStrainCollection() *stock.StrainCollection {
 	return &stock.StrainCollection{
 		Data: strains,
 		Meta: &stock.Meta{
-			NextCursor: 10000,
-			Limit:      10,
-			Total:      int64(len(strains)),
+			Limit: 10,
+			Total: int64(len(strains)),
 		},
 	}
 }
@@ -111,9 +110,8 @@ func mockPlasmidCollection() *stock.PlasmidCollection {
 	return &stock.PlasmidCollection{
 		Data: plasmids,
 		Meta: &stock.Meta{
-			NextCursor: 10000,
-			Limit:      10,
-			Total:      int64(len(plasmids)),
+			Limit: 10,
+			Total: int64(len(plasmids)),
 		},
 	}
 }

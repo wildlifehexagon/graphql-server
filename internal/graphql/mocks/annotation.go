@@ -124,8 +124,7 @@ func MockPhenotypeListAnno() *annotation.TaggedAnnotationCollection {
 	return &annotation.TaggedAnnotationCollection{
 		Data: cdata,
 		Meta: &annotation.Meta{
-			NextCursor: 0,
-			Limit:      10,
+			Limit: 10,
 		},
 	}
 }

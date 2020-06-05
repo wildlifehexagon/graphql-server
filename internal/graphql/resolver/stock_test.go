@@ -75,8 +75,8 @@ func TestListPlasmids(t *testing.T) {
 	})
 	assert.NoError(err, "expect no error from getting list of strains")
 	assert.Exactly(p.Limit, &limit, "should match limit")
-	assert.Exactly(p.PreviousCursor, 0, "should match previous cursor")
-	assert.Exactly(p.NextCursor, 10000, "should match next cursor")
+	assert.Exactly(p.PreviousCursor, cursor, "should match previous cursor")
+	assert.Exactly(p.NextCursor, 0, "should not have value for next cursor since less results than limit")
 	assert.Exactly(p.TotalCount, 3, "should match total count (length) of items")
 	assert.Len(p.Plasmids, 3, "should have three plasmids")
 }
@@ -98,8 +98,8 @@ func TestListStrains(t *testing.T) {
 	})
 	assert.NoError(err, "expect no error from getting list of strains")
 	assert.Exactly(s.Limit, &limit, "should match limit")
-	assert.Exactly(s.PreviousCursor, 0, "should match previous cursor")
-	assert.Exactly(s.NextCursor, 10000, "should match next cursor")
+	assert.Exactly(s.PreviousCursor, cursor, "should match previous cursor")
+	assert.Exactly(s.NextCursor, 0, "should not have value for next cursor since less results than limit")
 	assert.Exactly(s.TotalCount, 3, "should match total count (length) of items")
 	assert.Len(s.Strains, 3, "should have three strains")
 }
@@ -120,8 +120,8 @@ func TestListStrainsWithPhenotype(t *testing.T) {
 	})
 	assert.NoError(err, "expect no error from getting list of strains")
 	assert.Exactly(s.Limit, &limit, "should match limit")
-	assert.Exactly(s.PreviousCursor, 0, "should match previous cursor")
-	assert.Exactly(s.NextCursor, 0, "should match next cursor")
+	assert.Exactly(s.PreviousCursor, cursor, "should match previous cursor")
+	assert.Exactly(s.NextCursor, 0, "should not have value for next cursor since less results than limit")
 	assert.Exactly(s.TotalCount, 4, "should match total count (length) of items")
 	assert.Len(s.Strains, 4, "should have four strains")
 }
