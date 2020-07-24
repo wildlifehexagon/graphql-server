@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// constants used with modware-annotation
 const (
 	PhenoOntology       = "Dicty Phenotypes"
 	EnvOntology         = "Dicty Environment"

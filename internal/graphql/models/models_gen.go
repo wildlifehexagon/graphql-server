@@ -124,6 +124,32 @@ type DeleteUser struct {
 	Success bool `json:"success"`
 }
 
+type Extension struct {
+	ID       string `json:"id"`
+	Db       string `json:"db"`
+	Relation string `json:"relation"`
+	Name     string `json:"name"`
+}
+
+type GOAnnotation struct {
+	ID           string       `json:"id"`
+	Type         string       `json:"type"`
+	Date         string       `json:"date"`
+	EvidenceCode string       `json:"evidence_code"`
+	GoTerm       string       `json:"go_term"`
+	Qualifier    string       `json:"qualifier"`
+	Publication  string       `json:"publication"`
+	With         []*With      `json:"with"`
+	Extensions   []*Extension `json:"extensions"`
+	AssignedBy   string       `json:"assigned_by"`
+}
+
+type Gene struct {
+	ID   string          `json:"id"`
+	Name string          `json:"name"`
+	Goas []*GOAnnotation `json:"goas"`
+}
+
 type Identity struct {
 	ID         string    `json:"id"`
 	Identifier string    `json:"identifier"`
@@ -281,6 +307,11 @@ type UserList struct {
 	PageNum    *string      `json:"pageNum"`
 	PageSize   *string      `json:"pageSize"`
 	TotalCount int          `json:"totalCount"`
+}
+
+type With struct {
+	ID string `json:"id"`
+	Db string `json:"db"`
 }
 
 type StatusEnum string
