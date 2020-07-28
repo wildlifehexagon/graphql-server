@@ -5,6 +5,7 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/auth"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/content"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/gene"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/order"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/publication"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/stock"
@@ -114,5 +115,11 @@ func (r *Resolver) Auth() generated.AuthResolver {
 		UserClient:     r.GetUserClient(registry.USER),
 		IdentityClient: r.GetIdentityClient(registry.IDENTITY),
 		Logger:         r.Logger,
+	}
+}
+
+func (r *Resolver) Gene() generated.GeneResolver {
+	return &gene.GeneResolver{
+		Logger: r.Logger,
 	}
 }

@@ -45,6 +45,7 @@ type ResolverRoot interface {
 	Auth() AuthResolver
 	Author() AuthorResolver
 	Content() ContentResolver
+	Gene() GeneResolver
 	Mutation() MutationResolver
 	Order() OrderResolver
 	Permission() PermissionResolver
@@ -372,6 +373,9 @@ type ContentResolver interface {
 	UpdatedAt(ctx context.Context, obj *content.Content) (*time.Time, error)
 	Content(ctx context.Context, obj *content.Content) (string, error)
 	Namespace(ctx context.Context, obj *content.Content) (string, error)
+}
+type GeneResolver interface {
+	Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error)
 }
 type MutationResolver interface {
 	Login(ctx context.Context, input *models.LoginInput) (*auth.Auth, error)
@@ -4809,13 +4813,13 @@ func (ec *executionContext) _Gene_goas(ctx context.Context, field graphql.Collec
 		Object:   "Gene",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Goas, nil
+		return ec.resolvers.Gene().Goas(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13362,15 +13366,24 @@ func (ec *executionContext) _Gene(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 			out.Values[i] = ec._Gene_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Gene_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "goas":
-			out.Values[i] = ec._Gene_goas(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Gene_goas(ctx, field, obj)
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

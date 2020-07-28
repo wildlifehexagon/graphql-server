@@ -61,6 +61,10 @@ func (r *contentResolver) Namespace(ctx context.Context, obj *content.Content) (
 	panic("not implemented")
 }
 
+func (r *geneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
+	panic("not implemented")
+}
+
 func (r *mutationResolver) Login(ctx context.Context, input *models.LoginInput) (*auth.Auth, error) {
 	panic("not implemented")
 }
@@ -538,6 +542,9 @@ func (r *Resolver) Author() generated.AuthorResolver { return &authorResolver{r}
 // Content returns generated.ContentResolver implementation.
 func (r *Resolver) Content() generated.ContentResolver { return &contentResolver{r} }
 
+// Gene returns generated.GeneResolver implementation.
+func (r *Resolver) Gene() generated.GeneResolver { return &geneResolver{r} }
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -568,6 +575,7 @@ func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 type authResolver struct{ *Resolver }
 type authorResolver struct{ *Resolver }
 type contentResolver struct{ *Resolver }
+type geneResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type orderResolver struct{ *Resolver }
 type permissionResolver struct{ *Resolver }

@@ -58,3 +58,7 @@ models:
     model: github.com/dictyBase/go-genproto/dictybaseapis/order.Order
   Auth:
     model: github.com/dictyBase/go-genproto/dictybaseapis/auth.Auth
+  Gene:
+    fields:
+      goas:
+        resolver: true
