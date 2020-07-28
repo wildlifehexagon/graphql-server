@@ -41,6 +41,7 @@ func main() {
 func getServerFlags() []cli.Flag {
 	var f []cli.Flag
 	f = append(f, userFlags()...)
+	f = append(f, redisFlags()...)
 	f = append(f, dscFlags()...)
 	f = append(f, contentFlags()...)
 	f = append(f, nonGRPCFlags()...)
@@ -85,6 +86,26 @@ func userFlags() []cli.Flag {
 			EnvVar:   "PERMISSION_API_SERVICE_PORT",
 			Usage:    "permission grpc port",
 			Required: true,
+		},
+	}
+}
+
+func redisFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:   "redis-master-service-host",
+			EnvVar: "REDIS_MASTER_SERVICE_HOST",
+			Usage:  "redis master grpc host",
+		},
+		cli.StringFlag{
+			Name:   "redis-master-service-port",
+			EnvVar: "REDIS_MASTER_SERVICE_PORT",
+			Usage:  "redis master grpc port",
+		},
+		cli.IntFlag{
+			Name:  "cache-expiration-days",
+			Usage: "number of days to store redis cache",
+			Value: 7,
 		},
 	}
 }
