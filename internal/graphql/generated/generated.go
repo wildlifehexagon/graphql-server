@@ -350,8 +350,9 @@ type ComplexityRoot struct {
 	}
 
 	With struct {
-		Db func(childComplexity int) int
-		ID func(childComplexity int) int
+		Db   func(childComplexity int) int
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 }
 
@@ -2197,6 +2198,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.With.ID(childComplexity), true
 
+	case "With.name":
+		if e.complexity.With.Name == nil {
+			break
+		}
+
+		return e.complexity.With.Name(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -2339,6 +2347,7 @@ type GOAnnotation {
 type With {
   id: String!
   db: String!
+  name: String
 }
 
 type Extension {
@@ -10690,6 +10699,37 @@ func (ec *executionContext) _With_db(ctx context.Context, field graphql.Collecte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _With_name(ctx context.Context, field graphql.CollectedField, obj *models.With) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "With",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -15096,6 +15136,8 @@ func (ec *executionContext) _With(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "name":
+			out.Values[i] = ec._With_name(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
