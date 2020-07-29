@@ -6,7 +6,11 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 )
 
-const genePrefix = "genelookup:"
+const (
+	genePrefix      = "genelookup:"
+	geneCacheKey    = "GENE2NAME/geneids"
+	uniprotCacheKey = "UNIPROT2NAME/uniprot"
+)
 
 func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, error) {
 	g := &models.Gene{
