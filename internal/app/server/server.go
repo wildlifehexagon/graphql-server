@@ -26,7 +26,6 @@ import (
 func RunGraphQLServer(c *cli.Context) error {
 	log := getLogger(c)
 	r := chi.NewRouter()
-	// generate new (empty) hashmap
 	nr := registry.NewRegistry()
 	for k, v := range registry.ServiceMap {
 		host := c.String(fmt.Sprintf("%s-grpc-host", k))
@@ -44,8 +43,7 @@ func RunGraphQLServer(c *cli.Context) error {
 		// add api clients to hashmap
 		nr.AddAPIConnection(v, conn)
 	}
-	// verify if publication api endpoint is running
-	// need to use Get method here because Head returns 405 status
+	// test publication api endpoint, need to use Get method here because Head returns 405 status
 	res, err := http.Get(c.String("publication-api") + "/" + "30048658")
 	if err != nil {
 		return cli.NewExitError(
@@ -72,13 +70,7 @@ func RunGraphQLServer(c *cli.Context) error {
 	}
 	nr.AddStorage("redis", cache)
 	s := resolver.NewResolver(nr, log)
-
-	crs := cors.New(cors.Options{
-		AllowedOrigins:   c.StringSlice("allowed-origin"),
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowCredentials: true,
-		AllowedHeaders:   []string{"*"},
-	})
+	crs := getCORS(c.StringSlice("allowed-origin"))
 	r.Use(crs.Handler)
 	r.Use(middleware.AuthMiddleWare)
 	execSchema := generated.NewExecutableSchema(generated.Config{Resolvers: s})
@@ -88,6 +80,15 @@ func RunGraphQLServer(c *cli.Context) error {
 	log.Debugf("connect to port 8080 for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", r))
 	return nil
+}
+
+func getCORS(origins []string) *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins:   origins,
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"*"},
+	})
 }
 
 func getLogger(c *cli.Context) *logrus.Entry {
