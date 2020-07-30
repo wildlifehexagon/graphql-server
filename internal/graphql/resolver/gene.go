@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 )
 
@@ -18,8 +19,9 @@ func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, 
 	cache := q.GetRedisRepository(key)
 	name, err := cache.HGet(geneHash, id)
 	if err != nil {
-		q.Logger.Errorf("could not retrieve from hash %s", err)
-		return g, err
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("retrieved %s for %s from cache", name, id)
 	g.ID = id
@@ -32,8 +34,9 @@ func (q *QueryResolver) GeneByName(ctx context.Context, name string) (*models.Ge
 	cache := q.GetRedisRepository(key)
 	id, err := cache.HGet(geneHash, name)
 	if err != nil {
-		q.Logger.Errorf("could not retrieve from hash %s", err)
-		return g, err
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
 	}
 	q.Logger.Debugf("retrieved %s for %s from cache", id, name)
 	g.ID = id
