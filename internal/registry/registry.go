@@ -8,7 +8,7 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
-	"github.com/dictyBase/graphql-server/internal/storage/redis"
+	"github.com/dictyBase/graphql-server/internal/storage"
 	"github.com/emirpasic/gods/maps/hashmap"
 	"google.golang.org/grpc"
 )
@@ -68,7 +68,7 @@ type collection struct {
 type Registry interface {
 	AddAPIEndpoint(key, endpoint string)
 	AddAPIConnection(key string, conn *grpc.ClientConn)
-	AddStorage(key string, client *redis.Cache)
+	AddStorage(key string, st storage.Storage)
 	GetAPIConnection(key string) (conn *grpc.ClientConn)
 	GetAPIEndpoint(key string) string
 	GetUserClient(key string) user.UserServiceClient
@@ -80,7 +80,7 @@ type Registry interface {
 	GetAnnotationClient(key string) annotation.TaggedAnnotationServiceClient
 	GetAuthClient(key string) auth.AuthServiceClient
 	GetIdentityClient(key string) identity.IdentityServiceClient
-	GetRedisStorage(key string) redis.Cache
+	GetRedisStorage(key string) storage.Storage
 }
 
 // NewRegistry constructs a hashmap for our grpc clients
@@ -100,8 +100,8 @@ func (c *collection) AddAPIConnection(key string, conn *grpc.ClientConn) {
 }
 
 // AddStorage adds a new storage client to the hashmap
-func (c *collection) AddStorage(key string, client *redis.Cache) {
-	c.connMap.Put(key, client)
+func (c *collection) AddStorage(key string, st storage.Storage) {
+	c.connMap.Put(key, st)
 }
 
 // GetAPIClient looks up a client in the hashmap
@@ -151,19 +151,13 @@ func (c *collection) GetIdentityClient(key string) identity.IdentityServiceClien
 }
 
 func (c *collection) GetAPIEndpoint(key string) string {
-	v, ok := c.connMap.Get(key)
-	if !ok {
-		panic("could not get api endpoint")
-	}
+	v, _ := c.connMap.Get(key)
 	endpoint, _ := v.(string)
 	return endpoint
 }
 
-func (c *collection) GetRedisStorage(key string) redis.Cache {
-	v, ok := c.connMap.Get(key)
-	if !ok {
-		panic("could not get api endpoint")
-	}
-	cache, _ := v.(redis.Cache)
-	return cache
+func (c *collection) GetRedisStorage(key string) storage.Storage {
+	v, _ := c.connMap.Get(key)
+	st, _ := v.(storage.Storage)
+	return st
 }

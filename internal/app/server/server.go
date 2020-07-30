@@ -51,7 +51,7 @@ func RunGraphQLServer(c *cli.Context) error {
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
 	// add redis to registry
 	radd := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
-	cache, err := redis.NewCache(radd, 24*time.Hour)
+	cache, err := redis.NewCache(radd)
 	if err != nil {
 		return cli.NewExitError(
 			fmt.Sprintf("cannot create redis cache: %v", err),

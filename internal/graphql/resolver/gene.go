@@ -7,48 +7,34 @@ import (
 )
 
 const (
-	genePrefix      = "genelookup:"
-	geneCacheKey    = "GENE2NAME/geneids"
-	uniprotCacheKey = "UNIPROT2NAME/uniprot"
+	key         = "redis"
+	genePrefix  = "genelookup:"
+	geneHash    = "GENE2NAME/geneids"
+	uniprotHash = "UNIPROT2NAME/uniprot"
 )
 
 func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, error) {
-	g := &models.Gene{
-		ID: id,
-		// Name: "test1",
+	g := &models.Gene{}
+	cache := q.GetRedisStorage(key)
+	name, err := cache.HGet(geneHash, id)
+	if err != nil {
+		q.Logger.Errorf("could not retrieve from hash %s", err)
+		return g, err
 	}
+	q.Logger.Debugf("retrieved %s for %s", name, id)
+	g.ID = id
+	g.Name = name
 	return g, nil
 }
 
 func (q *QueryResolver) GeneByName(ctx context.Context, name string) (*models.Gene, error) {
-	goas := []*models.GOAnnotation{}
-	goas = append(goas, &models.GOAnnotation{
-		ID:           "GO:987654",
-		Type:         "cellular_component",
-		Date:         "20181129",
-		EvidenceCode: "IDA",
-		GoTerm:       "cell cortex",
-		Qualifier:    "colocalizes_with",
-		Publication:  "PMID:12499361",
-		AssignedBy:   "dictyBase",
-	})
-	goas = append(goas, &models.GOAnnotation{
-		ID:           "GO:123456",
-		Type:         "molecular_function",
-		Date:         "20200718",
-		EvidenceCode: "IEA",
-		GoTerm:       "guanyl-nucleotide exchange factor activity",
-		Qualifier:    "enables",
-		Publication:  "GO_REF:0000043",
-		AssignedBy:   "UniProt",
-	})
-	g := &models.Gene{
-		ID:   "DDB_G123456",
-		Name: "test1",
-		Goas: goas,
+	g := &models.Gene{}
+	cache := q.GetRedisStorage(key)
+	id, err := cache.HGet(geneHash, name)
+	if err != nil {
+		q.Logger.Errorf("could not retrieve from hash %s", err)
+		return g, err
 	}
-
-	// 1. check if in cache first
-	// 2. return cached value OR issue fetch request
+	q.Logger.Debugf("retrieved %s for %s", id, name)
 	return g, nil
 }
