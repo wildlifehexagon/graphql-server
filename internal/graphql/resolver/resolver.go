@@ -120,6 +120,7 @@ func (r *Resolver) Auth() generated.AuthResolver {
 
 func (r *Resolver) Gene() generated.GeneResolver {
 	return &gene.GeneResolver{
+		Redis:  r.GetRedisRepository("redis"),
 		Logger: r.Logger,
 	}
 }

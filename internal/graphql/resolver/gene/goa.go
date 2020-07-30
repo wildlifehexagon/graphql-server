@@ -11,12 +11,20 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
+	"github.com/dictyBase/graphql-server/internal/repository"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
+const (
+	geneHash    = "GENE2NAME/geneids"
+	goHash      = "GO2NAME/goids"
+	uniprotHash = "UNIPROT2NAME/uniprot"
+)
+
 type GeneResolver struct {
 	Logger *logrus.Entry
+	Redis  repository.Repository
 }
 
 type quickGo struct {
@@ -128,6 +136,40 @@ func fetchGOAs(ctx context.Context, id string) (*quickGo, error) {
 	return goa, nil
 }
 
+func getNameFromDB(db, id string, cache repository.Repository) string {
+	switch db {
+	case "DDB":
+		exists, _ := cache.HExists(geneHash, id)
+		if exists {
+			name, _ := cache.HGet(geneHash, id)
+			return name
+		}
+	case "GO":
+		key := fmt.Sprintf("%s:%s", db, id)
+		exists, _ := cache.HExists(goHash, key)
+		if exists {
+			name, _ := cache.HGet(goHash, key)
+			return name
+		}
+	case "UniProtKB":
+		exists, _ := cache.HExists(uniprotHash, id)
+		if exists {
+			name, _ := cache.HGet(uniprotHash, id)
+			if strings.HasPrefix(name, "DDB") {
+				dexists, _ := cache.HExists(geneHash, name)
+				if dexists {
+					gname, _ := cache.HGet(geneHash, name)
+					return gname
+				}
+			}
+			return name
+		}
+	default:
+		return ""
+	}
+	return ""
+}
+
 func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
 	goas := []*models.GOAnnotation{}
 	id, err := fetchUniprotID(ctx, obj.ID)
@@ -143,10 +185,11 @@ func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GO
 		ext := []*models.Extension{}
 		if val.WithFrom != nil {
 			for _, v := range val.WithFrom[0].ConnectedXRefs {
+				n := getNameFromDB(v.DB, v.ID, g.Redis)
 				with = append(with, &models.With{
-					ID: v.ID,
-					Db: v.DB,
-					// Name?
+					ID:   v.ID,
+					Db:   v.DB,
+					Name: &n,
 				})
 			}
 		}
@@ -156,7 +199,7 @@ func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GO
 					ID:       v.ID,
 					Db:       v.DB,
 					Relation: v.Relation,
-					// Name?
+					Name:     getNameFromDB(v.DB, v.ID, g.Redis),
 				})
 			}
 		}

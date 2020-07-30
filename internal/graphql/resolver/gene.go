@@ -3,16 +3,18 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
+	"github.com/vektah/gqlparser/gqlerror"
 )
 
 const (
-	key         = "redis"
-	genePrefix  = "genelookup:"
-	geneHash    = "GENE2NAME/geneids"
-	uniprotHash = "UNIPROT2NAME/uniprot"
+	key        = "redis"
+	genePrefix = "genelookup:"
+	geneHash   = "GENE2NAME/geneids"
 )
 
 func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, error) {
@@ -27,7 +29,13 @@ func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, 
 	}
 	if !exists {
 		nferr := fmt.Errorf("gene id %s does not exist", id)
-		errorutils.AddGQLError(ctx, nferr)
+		graphql.AddError(ctx, &gqlerror.Error{
+			Message: "gene name does not exist",
+			Extensions: map[string]interface{}{
+				"code":      "NotFound",
+				"timestamp": time.Now(),
+			},
+		})
 		q.Logger.Error(nferr)
 		return nil, nferr
 	}
@@ -54,8 +62,14 @@ func (q *QueryResolver) GeneByName(ctx context.Context, name string) (*models.Ge
 		return nil, err
 	}
 	if !exists {
-		nferr := fmt.Errorf("gene name %s does not exist", id)
-		errorutils.AddGQLError(ctx, nferr)
+		nferr := fmt.Errorf("gene name %s does not exist", name)
+		graphql.AddError(ctx, &gqlerror.Error{
+			Message: "gene name does not exist",
+			Extensions: map[string]interface{}{
+				"code":      "NotFound",
+				"timestamp": time.Now(),
+			},
+		})
 		q.Logger.Error(nferr)
 		return nil, nferr
 	}
