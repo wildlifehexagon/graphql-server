@@ -43,19 +43,9 @@ func RunGraphQLServer(c *cli.Context) error {
 		// add api clients to hashmap
 		nr.AddAPIConnection(v, conn)
 	}
-	// test publication api endpoint, need to use Get method here because Head returns 405 status
-	res, err := http.Get(c.String("publication-api") + "/" + "30048658")
-	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot reach publication api endpoint %s", err),
-			2,
-		)
-	}
-	if res.StatusCode != http.StatusOK {
-		return cli.NewExitError(
-			fmt.Sprintf("did not get ok status from publication api endpoint, got %v instead", res.StatusCode),
-			2,
-		)
+	// test publication api endpoint
+	if err := checkEndpoint((c.String("publication-api") + "/" + "30048658")); err != nil {
+		return err
 	}
 	// publication api status is fine, so add it to registry
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
@@ -79,6 +69,23 @@ func RunGraphQLServer(c *cli.Context) error {
 	r.Handle("/graphql", srv)
 	log.Debugf("connect to port 8080 for GraphQL playground")
 	log.Fatal(http.ListenAndServe(":8080", r))
+	return nil
+}
+
+func checkEndpoint(url string) error {
+	res, err := http.Get(url)
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot reach api endpoint %s", err),
+			2,
+		)
+	}
+	if res.StatusCode != http.StatusOK {
+		return cli.NewExitError(
+			fmt.Sprintf("did not get ok status from api endpoint, got %v instead", res.StatusCode),
+			2,
+		)
+	}
 	return nil
 }
 
