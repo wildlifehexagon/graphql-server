@@ -72,7 +72,14 @@ type pageInfo struct {
 	Total          int `json:"total"`
 }
 
-func fetchUniprotIDs(ctx context.Context, id string) (string, error) {
+type dictyExtension struct {
+	DB       string `json:"db"`
+	ID       string `json:"id"`
+	Relation string `json:"relation"`
+	Name     string `json:"name"`
+}
+
+func fetchUniprotID(ctx context.Context, id string) (string, error) {
 	url := fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", id)
 	res, err := http.Get(url)
 	if err != nil {
@@ -123,7 +130,7 @@ func fetchGOAs(ctx context.Context, id string) (*quickGo, error) {
 
 func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
 	goas := []*models.GOAnnotation{}
-	id, err := fetchUniprotIDs(ctx, obj.ID)
+	id, err := fetchUniprotID(ctx, obj.ID)
 	if err != nil {
 		return goas, err
 	}

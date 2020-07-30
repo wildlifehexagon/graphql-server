@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
@@ -16,8 +17,21 @@ const (
 
 func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, error) {
 	g := &models.Gene{}
+	var name string
 	cache := q.GetRedisRepository(key)
-	name, err := cache.HGet(geneHash, id)
+	exists, err := cache.HExists(geneHash, id)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
+	}
+	if !exists {
+		nferr := fmt.Errorf("gene id %s does not exist", id)
+		errorutils.AddGQLError(ctx, nferr)
+		q.Logger.Error(nferr)
+		return nil, nferr
+	}
+	id, err = cache.HGet(geneHash, id)
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
@@ -31,8 +45,21 @@ func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, 
 
 func (q *QueryResolver) GeneByName(ctx context.Context, name string) (*models.Gene, error) {
 	g := &models.Gene{}
+	var id string
 	cache := q.GetRedisRepository(key)
-	id, err := cache.HGet(geneHash, name)
+	exists, err := cache.HExists(geneHash, name)
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
+	}
+	if !exists {
+		nferr := fmt.Errorf("gene name %s does not exist", id)
+		errorutils.AddGQLError(ctx, nferr)
+		q.Logger.Error(nferr)
+		return nil, nferr
+	}
+	id, err = cache.HGet(geneHash, name)
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
