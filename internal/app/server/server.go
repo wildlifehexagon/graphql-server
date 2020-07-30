@@ -11,6 +11,7 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/dictyBase/graphql-server/internal/registry"
+	"github.com/dictyBase/graphql-server/internal/storage/redis"
 	"github.com/go-chi/cors"
 	"google.golang.org/grpc"
 
@@ -60,6 +61,16 @@ func RunGraphQLServer(c *cli.Context) error {
 	}
 	// publication api status is fine, so add it to registry
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
+	// add redis to registry
+	radd := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
+	cache, err := redis.NewCache(radd, 24*time.Hour)
+	if err != nil {
+		return cli.NewExitError(
+			fmt.Sprintf("cannot create redis cache: %v", err),
+			2,
+		)
+	}
+	nr.AddStorage("redis", cache)
 	s := resolver.NewResolver(nr, log)
 
 	crs := cors.New(cors.Options{
