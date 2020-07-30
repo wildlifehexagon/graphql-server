@@ -8,8 +8,8 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
-	"github.com/dictyBase/graphql-server/internal/storage"
-	"github.com/dictyBase/graphql-server/internal/storage/redis"
+	"github.com/dictyBase/graphql-server/internal/repository"
+	"github.com/dictyBase/graphql-server/internal/repository/redis"
 	"google.golang.org/grpc"
 )
 
@@ -21,7 +21,7 @@ func (mr *MockRegistry) AddAPIEndpoint(key, endpoint string) {
 func (mr *MockRegistry) AddAPIConnection(key string, conn *grpc.ClientConn) {
 }
 
-func (mr *MockRegistry) AddStorage(key string, st storage.Storage) {
+func (mr *MockRegistry) AddRepository(key string, st repository.Repository) {
 }
 
 // GetAPIClient looks up a client in the hashmap
@@ -69,6 +69,6 @@ func (mr MockRegistry) GetAPIEndpoint(key string) string {
 	return key
 }
 
-func (mr MockRegistry) GetRedisStorage(key string) storage.Storage {
+func (mr MockRegistry) GetRedisRepository(key string) repository.Repository {
 	return &redis.RedisStorage{}
 }

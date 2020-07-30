@@ -8,7 +8,7 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/order"
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
-	"github.com/dictyBase/graphql-server/internal/storage"
+	"github.com/dictyBase/graphql-server/internal/repository"
 	"github.com/emirpasic/gods/maps/hashmap"
 	"google.golang.org/grpc"
 )
@@ -68,7 +68,7 @@ type collection struct {
 type Registry interface {
 	AddAPIEndpoint(key, endpoint string)
 	AddAPIConnection(key string, conn *grpc.ClientConn)
-	AddStorage(key string, st storage.Storage)
+	AddRepository(key string, st repository.Repository)
 	GetAPIConnection(key string) (conn *grpc.ClientConn)
 	GetAPIEndpoint(key string) string
 	GetUserClient(key string) user.UserServiceClient
@@ -80,7 +80,7 @@ type Registry interface {
 	GetAnnotationClient(key string) annotation.TaggedAnnotationServiceClient
 	GetAuthClient(key string) auth.AuthServiceClient
 	GetIdentityClient(key string) identity.IdentityServiceClient
-	GetRedisStorage(key string) storage.Storage
+	GetRedisRepository(key string) repository.Repository
 }
 
 // NewRegistry constructs a hashmap for our grpc clients
@@ -99,8 +99,8 @@ func (c *collection) AddAPIConnection(key string, conn *grpc.ClientConn) {
 	c.connMap.Put(key, conn)
 }
 
-// AddStorage adds a new storage client to the hashmap
-func (c *collection) AddStorage(key string, st storage.Storage) {
+// AddRepository adds a new repository client to the hashmap
+func (c *collection) AddRepository(key string, st repository.Repository) {
 	c.connMap.Put(key, st)
 }
 
@@ -156,8 +156,8 @@ func (c *collection) GetAPIEndpoint(key string) string {
 	return endpoint
 }
 
-func (c *collection) GetRedisStorage(key string) storage.Storage {
+func (c *collection) GetRedisRepository(key string) repository.Repository {
 	v, _ := c.connMap.Get(key)
-	st, _ := v.(storage.Storage)
+	st, _ := v.(repository.Repository)
 	return st
 }

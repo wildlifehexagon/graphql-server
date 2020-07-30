@@ -11,7 +11,7 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/dictyBase/graphql-server/internal/registry"
-	"github.com/dictyBase/graphql-server/internal/storage/redis"
+	"github.com/dictyBase/graphql-server/internal/repository/redis"
 	"github.com/go-chi/cors"
 	"google.golang.org/grpc"
 
@@ -58,7 +58,7 @@ func RunGraphQLServer(c *cli.Context) error {
 			2,
 		)
 	}
-	nr.AddStorage("redis", cache)
+	nr.AddRepository("redis", cache)
 	s := resolver.NewResolver(nr, log)
 	crs := getCORS(c.StringSlice("allowed-origin"))
 	r.Use(crs.Handler)

@@ -99,7 +99,6 @@ func fetchUniprotIDs(ctx context.Context, id string) (string, error) {
 
 func fetchGOAs(ctx context.Context, id string) (*quickGo, error) {
 	url := fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", id)
-	fmt.Println(url)
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("error in http get request %s", err)

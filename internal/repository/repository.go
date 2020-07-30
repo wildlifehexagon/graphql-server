@@ -1,6 +1,6 @@
-package storage
+package repository
 
-type Storage interface {
+type Repository interface {
 	Get(string) (string, error)
 	Set(string, string) error
 	Exists(string) (bool, error)

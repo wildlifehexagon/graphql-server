@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dictyBase/graphql-server/internal/storage"
+	"github.com/dictyBase/graphql-server/internal/repository"
 	r "github.com/go-redis/redis/v7"
 )
 
@@ -12,7 +12,7 @@ type RedisStorage struct {
 	client *r.Client
 }
 
-func NewCache(addr string) (storage.Storage, error) {
+func NewCache(addr string) (repository.Repository, error) {
 	client := r.NewClient(&r.Options{
 		Addr: addr,
 	})
