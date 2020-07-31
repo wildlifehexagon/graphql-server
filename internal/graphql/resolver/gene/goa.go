@@ -80,24 +80,34 @@ type pageInfo struct {
 	Total          int `json:"total"`
 }
 
-func fetchUniprotID(ctx context.Context, id string) (string, error) {
-	url := fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", id)
+func getResp(ctx context.Context, url string) (*http.Response, error) {
 	res, err := http.Get(url)
 	if err != nil {
-		return "", fmt.Errorf("error in uniprot http get request %s", err)
+		return res, fmt.Errorf("error in http get request with %s", err)
 	}
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
+	if res.StatusCode == 404 {
 		graphql.AddError(ctx, &gqlerror.Error{
-			Message: "error fetching uniprot with this ID",
+			Message: "404 error fetching data",
 			Extensions: map[string]interface{}{
 				"code":      "NotFound",
 				"timestamp": time.Now(),
 			},
 		})
-		return "", fmt.Errorf("error fetching uniprot with this id %s", err)
+		return res, fmt.Errorf("404 error fetching data %s", err)
 	}
+	if res.StatusCode != 200 {
+		return res, fmt.Errorf("error fetching data with status code %d", res.StatusCode)
+	}
+	return res, nil
+}
 
+func fetchUniprotID(ctx context.Context, id string) (string, error) {
+	url := fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", id)
+	res, err := getResp(ctx, url)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
 	r, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return "", fmt.Errorf("could not read response body %s", err)
@@ -106,23 +116,13 @@ func fetchUniprotID(ctx context.Context, id string) (string, error) {
 }
 
 func fetchGOAs(ctx context.Context, id string) (*quickGo, error) {
+	goa := new(quickGo)
 	url := fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", id)
-	res, err := http.Get(url)
+	res, err := getResp(ctx, url)
 	if err != nil {
-		return nil, fmt.Errorf("error in http get request %s", err)
-	}
-	if res.StatusCode != 200 {
-		graphql.AddError(ctx, &gqlerror.Error{
-			Message: "error fetching go annotations",
-			Extensions: map[string]interface{}{
-				"code":      "NotFound",
-				"timestamp": time.Now(),
-			},
-		})
-		return nil, err
+		return goa, err
 	}
 	defer res.Body.Close()
-	goa := new(quickGo)
 	if err := json.NewDecoder(res.Body).Decode(goa); err != nil {
 		return nil, fmt.Errorf("error in decoding json %s", err)
 	}
