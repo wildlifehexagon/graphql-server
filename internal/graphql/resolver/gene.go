@@ -39,7 +39,7 @@ func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, 
 		q.Logger.Error(nferr)
 		return nil, nferr
 	}
-	id, err = cache.HGet(geneHash, id)
+	name, err = cache.HGet(geneHash, id)
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
