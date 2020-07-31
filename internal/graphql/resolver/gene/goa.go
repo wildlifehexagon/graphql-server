@@ -154,6 +154,35 @@ func getNameFromDB(db, id string, cache repository.Repository) string {
 	return ""
 }
 
+func getWith(with []with, repo repository.Repository) []*models.With {
+	wm := []*models.With{}
+	for _, v := range with {
+		for _, w := range v.ConnectedXRefs {
+			wm = append(wm, &models.With{
+				ID:   w.ID,
+				Db:   w.DB,
+				Name: getNameFromDB(w.DB, w.ID, repo),
+			})
+		}
+	}
+	return wm
+}
+
+func getExtensions(extensions []extension, repo repository.Repository) []*models.Extension {
+	ext := []*models.Extension{}
+	for _, v := range extensions {
+		for _, e := range v.ConnectedXRefs {
+			ext = append(ext, &models.Extension{
+				ID:       e.ID,
+				Db:       e.DB,
+				Relation: e.Relation,
+				Name:     getNameFromDB(e.DB, e.ID, repo),
+			})
+		}
+	}
+	return ext
+}
+
 func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
 	goas := []*models.GOAnnotation{}
 	id, err := fetchUniprotID(ctx, obj.ID)
@@ -168,27 +197,10 @@ func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GO
 		with := []*models.With{}
 		ext := []*models.Extension{}
 		if val.WithFrom != nil {
-			for _, v := range val.WithFrom {
-				for _, w := range v.ConnectedXRefs {
-					with = append(with, &models.With{
-						ID:   w.ID,
-						Db:   w.DB,
-						Name: getNameFromDB(w.DB, w.ID, g.Redis),
-					})
-				}
-			}
+			with = getWith(val.WithFrom, g.Redis)
 		}
 		if val.Extensions != nil {
-			for _, v := range val.Extensions {
-				for _, e := range v.ConnectedXRefs {
-					ext = append(ext, &models.Extension{
-						ID:       e.ID,
-						Db:       e.DB,
-						Relation: e.Relation,
-						Name:     getNameFromDB(e.DB, e.ID, g.Redis),
-					})
-				}
-			}
+			ext = getExtensions(val.Extensions, g.Redis)
 		}
 		goas = append(goas, &models.GOAnnotation{
 			ID:           val.ID,
