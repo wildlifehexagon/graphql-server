@@ -3,19 +3,26 @@ on: [pull_request]
 jobs:
   test:
     runs-on: ubuntu-18.04
+    services:
+      redis:
+        image: redis:5.0.9-alpine
+        ports:
+          - 6379/tcp
     steps:
       - name: set up golang
         uses: actions/setup-go@v2-beta
         with:
-            go-version: 1.13.9
+          go-version: 1.13.9
       - name: check out code
         uses: actions/checkout@v2
       - name: unit test
         run: go test -covermode=atomic -coverprofile=profile.cov -v ./...
         env:
+          REDIS_MASTER_SERVICE_HOST: localhost
+          REDIS_MASTER_SERVICE_PORT: ${{ job.services.redis.ports[6379] }}
           GOPROXY: https://proxy.golang.org
       - name: upload coverage to codecov
         uses: codecov/codecov-action@v1.0.6
         with:
-            file: ./profile.cov
-            token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./profile.cov
+          token: ${{ secrets.CODECOV_TOKEN }}
