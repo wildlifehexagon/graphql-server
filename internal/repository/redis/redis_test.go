@@ -12,6 +12,10 @@ import (
 
 var redisAddr = fmt.Sprintf("%s:%s", os.Getenv("REDIS_MASTER_SERVICE_HOST"), os.Getenv("REDIS_MASTER_SERVICE_PORT"))
 
+const (
+	testHash = "testHash"
+)
+
 // CheckRedisEnv checks for the presence of the following
 // environment variables
 //   REDIS_MASTER_SERVICE_HOST
@@ -58,34 +62,73 @@ func TestMain(m *testing.M) {
 }
 
 func TestSet(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	repo, err := NewCache(redisAddr)
 	assert.NoError(err, "error connecting to redis")
 	err = repo.Set("art", "vandelay")
-	assert.NoError(err, "error in setting token")
+	assert.NoError(err, "error in setting key")
 }
 
 func TestGet(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	repo, err := NewCache(redisAddr)
 	assert.NoError(err, "error connecting to redis")
 	err = repo.Set("art", "vandelay")
-	assert.NoError(err, "error in setting token")
-	token, err := repo.Get("art")
-	assert.NoError(err, "error getting token")
-	assert.Equal(token, "vandelay", "should retrieve correct value")
+	assert.NoError(err, "error in setting key")
+	key, err := repo.Get("art")
+	assert.NoError(err, "error getting key")
+	assert.Equal(key, "vandelay", "should retrieve correct value")
 }
 
 func TestExists(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	repo, err := NewCache(redisAddr)
 	assert.NoError(err, "error connecting to redis")
 	err = repo.Set("art", "vandelay")
-	assert.NoError(err, "error in setting token")
+	assert.NoError(err, "error in setting key")
 	lookup, err := repo.Exists("art")
-	assert.NoError(err, "error finding token")
-	assert.True(lookup, "should find previously set token")
+	assert.NoError(err, "error finding key")
+	assert.True(lookup, "should find previously set key")
 	badLookup, err := repo.Exists("obrien-murphy")
-	assert.NoError(err, "error finding token ")
-	assert.False(badLookup, "should not find random token")
+	assert.NoError(err, "error finding key")
+	assert.False(badLookup, "should not find random key")
+}
+
+func TestHSet(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	repo, err := NewCache(redisAddr)
+	assert.NoError(err, "error connecting to redis")
+	err = repo.HSet(testHash, "art", "vandelay")
+	assert.NoError(err, "error in setting key")
+}
+
+func TestHGet(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	repo, err := NewCache(redisAddr)
+	assert.NoError(err, "error connecting to redis")
+	err = repo.HSet(testHash, "art", "vandelay")
+	assert.NoError(err, "error in setting key")
+	key, err := repo.HGet(testHash, "art")
+	assert.NoError(err, "error getting key")
+	assert.Equal(key, "vandelay", "should retrieve correct value")
+}
+
+func TestHExists(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	repo, err := NewCache(redisAddr)
+	assert.NoError(err, "error connecting to redis")
+	err = repo.HSet(testHash, "art", "vandelay")
+	assert.NoError(err, "error in setting key")
+	lookup, err := repo.HExists(testHash, "art")
+	assert.NoError(err, "error finding key")
+	assert.True(lookup, "should find previously set key")
+	badLookup, err := repo.HExists(testHash, "obrien-murphy")
+	assert.NoError(err, "error finding key")
+	assert.False(badLookup, "should not find random key")
 }
