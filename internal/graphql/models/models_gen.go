@@ -310,9 +310,9 @@ type UserList struct {
 }
 
 type With struct {
-	ID   string  `json:"id"`
-	Db   string  `json:"db"`
-	Name *string `json:"name"`
+	ID   string `json:"id"`
+	Db   string `json:"db"`
+	Name string `json:"name"`
 }
 
 type StatusEnum string
