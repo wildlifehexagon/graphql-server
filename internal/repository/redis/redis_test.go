@@ -80,6 +80,8 @@ func TestGet(t *testing.T) {
 	key, err := repo.Get("art")
 	assert.NoError(err, "error getting key")
 	assert.Equal(key, "vandelay", "should retrieve correct value")
+	_, err = repo.Get("newman")
+	assert.Error(err, "should return error when key doesn't exist")
 }
 
 func TestExists(t *testing.T) {
@@ -116,6 +118,8 @@ func TestHGet(t *testing.T) {
 	key, err := repo.HGet(testHash, "art")
 	assert.NoError(err, "error getting key")
 	assert.Equal(key, "vandelay", "should retrieve correct value")
+	_, err = repo.HGet("fakeHash", "banana")
+	assert.Error(err, "should return error when hash doesn't exist")
 }
 
 func TestHExists(t *testing.T) {
