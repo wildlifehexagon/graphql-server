@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
+	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/dictyBase/graphql-server/internal/repository"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -24,8 +25,9 @@ const (
 )
 
 type GeneResolver struct {
-	Logger *logrus.Entry
-	Redis  repository.Repository
+	Registry registry.Registry
+	Logger   *logrus.Entry
+	Redis    repository.Repository
 }
 
 type quickGo struct {
@@ -98,7 +100,6 @@ func getResp(ctx context.Context, url string) (*http.Response, error) {
 		return res, fmt.Errorf("404 error fetching data %s", err)
 	}
 	if res.StatusCode != 200 {
-		errorutils.AddGQLError(ctx, err)
 		return res, fmt.Errorf("error fetching data with status code %d", res.StatusCode)
 	}
 	return res, nil
