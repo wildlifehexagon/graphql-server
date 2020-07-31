@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/repository"
 	"github.com/sirupsen/logrus"
@@ -83,6 +84,7 @@ type pageInfo struct {
 func getResp(ctx context.Context, url string) (*http.Response, error) {
 	res, err := http.Get(url)
 	if err != nil {
+		errorutils.AddGQLError(ctx, err)
 		return res, fmt.Errorf("error in http get request with %s", err)
 	}
 	if res.StatusCode == 404 {
@@ -96,6 +98,7 @@ func getResp(ctx context.Context, url string) (*http.Response, error) {
 		return res, fmt.Errorf("404 error fetching data %s", err)
 	}
 	if res.StatusCode != 200 {
+		errorutils.AddGQLError(ctx, err)
 		return res, fmt.Errorf("error fetching data with status code %d", res.StatusCode)
 	}
 	return res, nil
@@ -129,36 +132,24 @@ func fetchGOAs(ctx context.Context, id string) (*quickGo, error) {
 	return goa, nil
 }
 
+func getValFromHash(hash, key string, cache repository.Repository) string {
+	exists, _ := cache.HExists(hash, key)
+	if exists {
+		name, _ := cache.HGet(hash, key)
+		return name
+	}
+	return ""
+}
+
 func getNameFromDB(db, id string, cache repository.Repository) string {
 	switch db {
-	case "DDB":
-		exists, _ := cache.HExists(geneHash, id)
-		if exists {
-			name, _ := cache.HGet(geneHash, id)
-			return name
-		}
+	case "dictyBase":
+		return getValFromHash(geneHash, id, cache)
 	case "GO":
 		key := fmt.Sprintf("%s:%s", db, id)
-		exists, _ := cache.HExists(goHash, key)
-		if exists {
-			name, _ := cache.HGet(goHash, key)
-			return name
-		}
+		return getValFromHash(goHash, key, cache)
 	case "UniProtKB":
-		exists, _ := cache.HExists(uniprotHash, id)
-		if exists {
-			name, _ := cache.HGet(uniprotHash, id)
-			if strings.HasPrefix(name, "DDB") {
-				dexists, _ := cache.HExists(geneHash, name)
-				if dexists {
-					gname, _ := cache.HGet(geneHash, name)
-					return gname
-				}
-			}
-			return name
-		}
-	default:
-		return ""
+		return getValFromHash(uniprotHash, id, cache)
 	}
 	return ""
 }
@@ -177,23 +168,26 @@ func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GO
 		with := []*models.With{}
 		ext := []*models.Extension{}
 		if val.WithFrom != nil {
-			for _, v := range val.WithFrom[0].ConnectedXRefs {
-				n := getNameFromDB(v.DB, v.ID, g.Redis)
-				with = append(with, &models.With{
-					ID:   v.ID,
-					Db:   v.DB,
-					Name: &n,
-				})
+			for _, v := range val.WithFrom {
+				for _, w := range v.ConnectedXRefs {
+					with = append(with, &models.With{
+						ID:   w.ID,
+						Db:   w.DB,
+						Name: getNameFromDB(w.DB, w.ID, g.Redis),
+					})
+				}
 			}
 		}
 		if val.Extensions != nil {
-			for _, v := range val.Extensions[0].ConnectedXRefs {
-				ext = append(ext, &models.Extension{
-					ID:       v.ID,
-					Db:       v.DB,
-					Relation: v.Relation,
-					Name:     getNameFromDB(v.DB, v.ID, g.Redis),
-				})
+			for _, v := range val.Extensions {
+				for _, e := range v.ConnectedXRefs {
+					ext = append(ext, &models.Extension{
+						ID:       e.ID,
+						Db:       e.DB,
+						Relation: e.Relation,
+						Name:     getNameFromDB(e.DB, e.ID, g.Redis),
+					})
+				}
 			}
 		}
 		goas = append(goas, &models.GOAnnotation{
