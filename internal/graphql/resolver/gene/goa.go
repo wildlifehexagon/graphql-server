@@ -105,8 +105,7 @@ func getResp(ctx context.Context, url string) (*http.Response, error) {
 	return res, nil
 }
 
-func fetchUniprotID(ctx context.Context, id string) (string, error) {
-	url := fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", id)
+func fetchUniprotID(ctx context.Context, url string) (string, error) {
 	res, err := getResp(ctx, url)
 	if err != nil {
 		return "", err
@@ -119,16 +118,15 @@ func fetchUniprotID(ctx context.Context, id string) (string, error) {
 	return strings.TrimSpace(string(r)), nil
 }
 
-func fetchGOAs(ctx context.Context, id string) (*quickGo, error) {
+func fetchGOAs(ctx context.Context, url string) (*quickGo, error) {
 	goa := new(quickGo)
-	url := fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", id)
 	res, err := getResp(ctx, url)
 	if err != nil {
 		return goa, err
 	}
 	defer res.Body.Close()
 	if err := json.NewDecoder(res.Body).Decode(goa); err != nil {
-		return nil, fmt.Errorf("error in decoding json %s", err)
+		return goa, fmt.Errorf("error in decoding json %s", err)
 	}
 	return goa, nil
 }
@@ -186,11 +184,13 @@ func getExtensions(extensions []extension, repo repository.Repository) []*models
 
 func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
 	goas := []*models.GOAnnotation{}
-	id, err := fetchUniprotID(ctx, obj.ID)
+	uniprotURL := fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", obj.ID)
+	id, err := fetchUniprotID(ctx, uniprotURL)
 	if err != nil {
 		return goas, err
 	}
-	gn, err := fetchGOAs(ctx, id)
+	goasURL := fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", id)
+	gn, err := fetchGOAs(ctx, goasURL)
 	if err != nil {
 		return goas, err
 	}
