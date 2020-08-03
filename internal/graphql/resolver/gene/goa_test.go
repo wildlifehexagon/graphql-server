@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
+	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/repository/redis"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,7 +27,13 @@ const (
 	mockGoHash      = "GO2NAME/mockids"
 	mockUniprotHash = "UNIPROT2NAME/mock"
 	mockValue       = "buzz"
+	mockGeneName    = "test1"
 )
+
+var mockGeneModel = &models.Gene{
+	ID:   mockGeneID,
+	Name: mockGeneName,
+}
 
 func goaTestData() ([]byte, error) {
 	dir, err := os.Getwd()
@@ -56,6 +64,27 @@ func uniprotHandler(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte(mockUniprotID)); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func TestGoas(t *testing.T) {
+	t.Parallel()
+	u := httptest.NewServer(http.HandlerFunc(uniprotHandler))
+	defer u.Close()
+	g := httptest.NewServer(http.HandlerFunc(goasHandler))
+	defer g.Close()
+	assert := assert.New(t)
+	repo, err := redis.NewCache(redisAddr)
+	assert.NoError(err, "error connecting to redis")
+	gr := &GeneResolver{
+		Registry:   &mocks.MockRegistry{},
+		Logger:     mocks.TestLogger(),
+		Redis:      repo,
+		GoasURL:    g.URL,
+		UniprotURL: u.URL,
+	}
+	goas, err := gr.Goas(context.Background(), mockGeneModel)
+	assert.NoError(err, "should be no error calling goas resolver")
+	assert.Equal(len(goas), 19, "should match amount of annotations")
 }
 
 func TestGetResp(t *testing.T) {
@@ -100,27 +129,4 @@ func TestGetValFromHash(t *testing.T) {
 	assert.Equal(v, mockValue, "should match value from hash")
 	nv := getValFromHash(mockGeneHash, "wrongID", repo)
 	assert.Equal(nv, "", "should have empty string if value is missing")
-}
-
-func TestGetNameFromDB(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	repo, err := redis.NewCache(redisAddr)
-	assert.NoError(err, "error connecting to redis")
-	// set up all of our hashes
-	err = repo.HSet(geneHash, mockGeneID, mockValue)
-	assert.NoError(err, "error in setting key")
-	err = repo.HSet(goHash, mockGoID, mockValue)
-	assert.NoError(err, "error in setting key")
-	err = repo.HSet(uniprotHash, mockUniprotID, mockValue)
-	assert.NoError(err, "error in setting key")
-	// verify names returned
-	gene := getNameFromDB("dictyBase", mockGeneID, repo)
-	assert.Equal(gene, mockValue, "should match expected value")
-	goa := getNameFromDB("GO", mockGoID, repo)
-	assert.Equal(goa, mockValue, "should match expected value")
-	uniprot := getNameFromDB("UniProtKB", mockUniprotID, repo)
-	assert.Equal(uniprot, mockValue, "should match expected value")
-	none := getNameFromDB("noDB", "misc", repo)
-	assert.Equal(none, "", "should return empty string if wrong DB")
 }
