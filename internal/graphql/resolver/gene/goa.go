@@ -184,7 +184,7 @@ func getExtensions(extensions []extension, repo repository.Repository) []*models
 
 func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
 	goas := []*models.GOAnnotation{}
-	uniprotURL := fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", obj.ID)
+	uniprotURL := fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", obj.ID)
 	id, err := fetchUniprotID(ctx, uniprotURL)
 	if err != nil {
 		return goas, err
