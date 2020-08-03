@@ -108,11 +108,11 @@ func TestGetNameFromDB(t *testing.T) {
 	repo, err := redis.NewCache(redisAddr)
 	assert.NoError(err, "error connecting to redis")
 	// set up all of our hashes
-	err = repo.HSet(mockGeneHash, mockGeneID, mockValue)
+	err = repo.HSet(geneHash, mockGeneID, mockValue)
 	assert.NoError(err, "error in setting key")
-	err = repo.HSet(mockGoHash, mockGoID, mockValue)
+	err = repo.HSet(goHash, mockGoID, mockValue)
 	assert.NoError(err, "error in setting key")
-	err = repo.HSet(mockUniprotHash, mockUniprotID, mockValue)
+	err = repo.HSet(uniprotHash, mockUniprotID, mockValue)
 	assert.NoError(err, "error in setting key")
 	// verify names returned
 	gene := getNameFromDB("dictyBase", mockGeneID, repo)
