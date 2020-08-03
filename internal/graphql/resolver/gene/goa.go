@@ -25,9 +25,11 @@ const (
 )
 
 type GeneResolver struct {
-	Registry registry.Registry
-	Logger   *logrus.Entry
-	Redis    repository.Repository
+	Registry   registry.Registry
+	Logger     *logrus.Entry
+	Redis      repository.Repository
+	GoasURL    string
+	UniprotURL string
 }
 
 type quickGo struct {
@@ -184,13 +186,13 @@ func getExtensions(extensions []extension, repo repository.Repository) []*models
 
 func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
 	goas := []*models.GOAnnotation{}
-	uniprotURL := fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", obj.ID)
-	id, err := fetchUniprotID(ctx, uniprotURL)
+	g.UniprotURL = fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", obj.ID)
+	id, err := fetchUniprotID(ctx, g.UniprotURL)
 	if err != nil {
 		return goas, err
 	}
-	goasURL := fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", id)
-	gn, err := fetchGOAs(ctx, goasURL)
+	g.GoasURL = fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", id)
+	gn, err := fetchGOAs(ctx, g.GoasURL)
 	if err != nil {
 		return goas, err
 	}
