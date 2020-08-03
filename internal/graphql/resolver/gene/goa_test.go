@@ -84,7 +84,7 @@ func TestGoas(t *testing.T) {
 	}
 	goas, err := gr.Goas(context.Background(), mockGeneModel)
 	assert.NoError(err, "should be no error calling goas resolver")
-	assert.Equal(len(goas), 19, "should match amount of annotations")
+	assert.Equal(len(goas), 21, "should match amount of annotations")
 }
 
 func TestGetResp(t *testing.T) {
@@ -114,8 +114,8 @@ func TestFetchGOAs(t *testing.T) {
 	assert := assert.New(t)
 	g, err := fetchGOAs(context.Background(), ts.URL)
 	assert.NoError(err, "should not have error when getting http response")
-	assert.Equal(g.NumberOfHits, 19, "should match number of hits")
-	assert.Equal(len(g.Results), 19, "should match number of results in slice")
+	assert.Equal(g.NumberOfHits, 21, "should match number of hits")
+	assert.Equal(len(g.Results), 21, "should match number of results in slice")
 }
 
 func TestGetValFromHash(t *testing.T) {

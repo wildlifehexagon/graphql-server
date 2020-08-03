@@ -1,5 +1,5 @@
 {
-    "numberOfHits": 19,
+    "numberOfHits": 21,
     "results": [
         {
             "id": "UniProtKB:Q8I7T3!118751970",
@@ -480,6 +480,88 @@
             "targetSets": null,
             "symbol": "sadA",
             "date": "20200718",
+            "synonyms": null,
+            "name": null
+        },
+        {
+            "id": "UniProtKB:P08799!416642933",
+            "geneProductId": "UniProtKB:P08799",
+            "qualifier": "is_active_in",
+            "goId": "GO:0045179",
+            "goName": "apical cortex",
+            "goEvidence": "IDA",
+            "goAspect": "cellular_component",
+            "evidenceCode": "ECO:0000314",
+            "reference": "PMID:22902739",
+            "withFrom": null,
+            "taxonId": 44689,
+            "taxonName": null,
+            "assignedBy": "dictyBase",
+            "extensions": [
+                {
+                    "connectedXrefs": [
+                        {
+                            "db": "GO",
+                            "id": "0031150",
+                            "relation": "exists_during"
+                        },
+                        {
+                            "db": "GO",
+                            "id": "0003382",
+                            "relation": "exists_during"
+                        }
+                    ]
+                }
+            ],
+            "targetSets": null,
+            "symbol": "mhcA",
+            "date": "20191107",
+            "synonyms": null,
+            "name": null
+        },
+        {
+            "id": "UniProtKB:Q54L90!337971813",
+            "geneProductId": "UniProtKB:Q54L90",
+            "qualifier": "enables",
+            "goId": "GO:0017048",
+            "goName": "Rho GTPase binding",
+            "goEvidence": "IPI",
+            "goAspect": "molecular_function",
+            "evidenceCode": "ECO:0000353",
+            "reference": "PMID:27009206",
+            "withFrom": [
+                {
+                    "connectedXrefs": [
+                        {
+                            "db": "dictyBase",
+                            "id": "DDB_G0277869"
+                        }
+                    ]
+                },
+                {
+                    "connectedXrefs": [
+                        {
+                            "db": "dictyBase",
+                            "id": "DDB_G0279605"
+                        }
+                    ]
+                },
+                {
+                    "connectedXrefs": [
+                        {
+                            "db": "dictyBase",
+                            "id": "DDB_G0280975"
+                        }
+                    ]
+                }
+            ],
+            "taxonId": 44689,
+            "taxonName": null,
+            "assignedBy": "dictyBase",
+            "extensions": null,
+            "targetSets": null,
+            "symbol": "gflB",
+            "date": "20190110",
             "synonyms": null,
             "name": null
         }
