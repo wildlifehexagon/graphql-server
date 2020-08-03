@@ -11,11 +11,20 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/dictyBase/graphql-server/internal/repository/redis"
 	"github.com/stretchr/testify/assert"
 )
 
+var redisAddr = fmt.Sprintf("%s:%s", os.Getenv("REDIS_MASTER_SERVICE_HOST"), os.Getenv("REDIS_MASTER_SERVICE_PORT"))
+
 const (
-	mockUniprotID = "A1XDC0"
+	mockGeneID      = "DDB_G123456"
+	mockGoID        = "GO:123456"
+	mockUniprotID   = "U123456"
+	mockGeneHash    = "GENE2NAME/mockids"
+	mockGoHash      = "GO2NAME/mockids"
+	mockUniprotHash = "UNIPROT2NAME/mock"
+	mockValue       = "buzz"
 )
 
 func goaTestData() ([]byte, error) {
@@ -78,4 +87,40 @@ func TestFetchGOAs(t *testing.T) {
 	assert.NoError(err, "should not have error when getting http response")
 	assert.Equal(g.NumberOfHits, 19, "should match number of hits")
 	assert.Equal(len(g.Results), 19, "should match number of results in slice")
+}
+
+func TestGetValFromHash(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	repo, err := redis.NewCache(redisAddr)
+	assert.NoError(err, "error connecting to redis")
+	err = repo.HSet(mockGeneHash, mockGeneID, mockValue)
+	assert.NoError(err, "error in setting key")
+	v := getValFromHash(mockGeneHash, mockGeneID, repo)
+	assert.Equal(v, mockValue, "should match value from hash")
+	nv := getValFromHash(mockGeneHash, "wrongID", repo)
+	assert.Equal(nv, "", "should have empty string if value is missing")
+}
+
+func TestGetNameFromDB(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	repo, err := redis.NewCache(redisAddr)
+	assert.NoError(err, "error connecting to redis")
+	// set up all of our hashes
+	err = repo.HSet(mockGeneHash, mockGeneID, "gene123")
+	assert.NoError(err, "error in setting key")
+	err = repo.HSet(mockGoHash, mockGoID, "go123")
+	assert.NoError(err, "error in setting key")
+	err = repo.HSet(mockUniprotHash, mockUniprotID, "u123")
+	assert.NoError(err, "error in setting key")
+	// verify names returned
+	gene := getNameFromDB("dictyBase", mockGeneID, repo)
+	assert.Equal(gene, mockValue, "should match expected value")
+	goa := getNameFromDB("GO", mockGoID, repo)
+	assert.Equal(goa, mockValue, "should match expected value")
+	uniprot := getNameFromDB("UniProtKB", mockUniprotID, repo)
+	assert.Equal(uniprot, mockValue, "should match expected value")
+	none := getNameFromDB("noDB", "misc", repo)
+	assert.Equal(none, "", "should return empty string if wrong DB")
 }
