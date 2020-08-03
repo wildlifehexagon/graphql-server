@@ -41,5 +41,5 @@ run:
   skip-dirs:
     - internal/graphql/generated
     - internal/graphql/genresolver
-  skip-files:
-    - *_test.go
+  # skip-files:
+  #   - *_test.go
