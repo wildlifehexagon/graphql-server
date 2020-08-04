@@ -325,11 +325,7 @@ func (r *queryResolver) ContentBySlug(ctx context.Context, slug string) (*conten
 	panic("not implemented")
 }
 
-func (r *queryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, error) {
-	panic("not implemented")
-}
-
-func (r *queryResolver) GeneByName(ctx context.Context, name string) (*models.Gene, error) {
+func (r *queryResolver) Gene(ctx context.Context, gene string) (*models.Gene, error) {
 	panic("not implemented")
 }
 

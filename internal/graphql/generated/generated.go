@@ -260,8 +260,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Content                  func(childComplexity int, id string) int
 		ContentBySlug            func(childComplexity int, slug string) int
-		GeneByID                 func(childComplexity int, id string) int
-		GeneByName               func(childComplexity int, name string) int
+		Gene                     func(childComplexity int, gene string) int
 		GetRefreshToken          func(childComplexity int, token string) int
 		ListOrders               func(childComplexity int, input *models.ListOrderInput) int
 		ListPermissions          func(childComplexity int) int
@@ -455,8 +454,7 @@ type QueryResolver interface {
 	GetRefreshToken(ctx context.Context, token string) (*auth.Auth, error)
 	Content(ctx context.Context, id string) (*content.Content, error)
 	ContentBySlug(ctx context.Context, slug string) (*content.Content, error)
-	GeneByID(ctx context.Context, id string) (*models.Gene, error)
-	GeneByName(ctx context.Context, name string) (*models.Gene, error)
+	Gene(ctx context.Context, gene string) (*models.Gene, error)
 	Order(ctx context.Context, id string) (*order.Order, error)
 	ListOrders(ctx context.Context, input *models.ListOrderInput) (*models.OrderListWithCursor, error)
 	Publication(ctx context.Context, id string) (*publication.Publication, error)
@@ -1597,29 +1595,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ContentBySlug(childComplexity, args["slug"].(string)), true
 
-	case "Query.geneByID":
-		if e.complexity.Query.GeneByID == nil {
+	case "Query.gene":
+		if e.complexity.Query.Gene == nil {
 			break
 		}
 
-		args, err := ec.field_Query_geneByID_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_gene_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GeneByID(childComplexity, args["id"].(string)), true
-
-	case "Query.geneByName":
-		if e.complexity.Query.GeneByName == nil {
-			break
-		}
-
-		args, err := ec.field_Query_geneByName_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GeneByName(childComplexity, args["name"].(string)), true
+		return e.complexity.Query.Gene(childComplexity, args["gene"].(string)), true
 
 	case "Query.getRefreshToken":
 		if e.complexity.Query.GetRefreshToken == nil {
@@ -2535,8 +2521,7 @@ type Author {
   content(id: ID!): Content
   contentBySlug(slug: String!): Content
   # Gene queries
-  geneByID(id: ID!): Gene
-  geneByName(name: String!): Gene
+  gene(gene: String!): Gene
   # Order queries
   order(id: ID!): Order
   listOrders(input: ListOrderInput): OrderListWithCursor
@@ -3286,31 +3271,17 @@ func (ec *executionContext) field_Query_content_args(ctx context.Context, rawArg
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_geneByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_gene_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_geneByName_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
+	if tmp, ok := rawArgs["gene"]; ok {
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["name"] = arg0
+	args["gene"] = arg0
 	return args, nil
 }
 
@@ -8145,7 +8116,7 @@ func (ec *executionContext) _Query_contentBySlug(ctx context.Context, field grap
 	return ec.marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_geneByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_gene(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -8161,7 +8132,7 @@ func (ec *executionContext) _Query_geneByID(ctx context.Context, field graphql.C
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_geneByID_args(ctx, rawArgs)
+	args, err := ec.field_Query_gene_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -8169,45 +8140,7 @@ func (ec *executionContext) _Query_geneByID(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GeneByID(rctx, args["id"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*models.Gene)
-	fc.Result = res
-	return ec.marshalOGene2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_geneByName(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Query",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_geneByName_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GeneByName(rctx, args["name"].(string))
+		return ec.resolvers.Query().Gene(rctx, args["gene"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14310,7 +14243,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_contentBySlug(ctx, field)
 				return res
 			})
-		case "geneByID":
+		case "gene":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -14318,18 +14251,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_geneByID(ctx, field)
-				return res
-			})
-		case "geneByName":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_geneByName(ctx, field)
+				res = ec._Query_gene(ctx, field)
 				return res
 			})
 		case "order":

@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -17,20 +18,20 @@ const (
 	geneHash   = "GENE2NAME/geneids"
 )
 
-func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, error) {
+func (q *QueryResolver) Gene(ctx context.Context, gene string) (*models.Gene, error) {
 	g := &models.Gene{}
-	var name string
+	var id, name string
 	cache := q.GetRedisRepository(key)
-	exists, err := cache.HExists(geneHash, id)
+	exists, err := cache.HExists(geneHash, gene)
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
 		return nil, err
 	}
 	if !exists {
-		nferr := fmt.Errorf("gene id %s does not exist", id)
+		nferr := fmt.Errorf("gene %s does not exist", gene)
 		graphql.AddError(ctx, &gqlerror.Error{
-			Message: "gene name does not exist",
+			Message: "gene does not exist",
 			Extensions: map[string]interface{}{
 				"code":      "NotFound",
 				"timestamp": time.Now(),
@@ -39,47 +40,20 @@ func (q *QueryResolver) GeneByID(ctx context.Context, id string) (*models.Gene, 
 		q.Logger.Error(nferr)
 		return nil, nferr
 	}
-	name, err = cache.HGet(geneHash, id)
+	val, err := cache.HGet(geneHash, gene)
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
 		return nil, err
 	}
-	q.Logger.Debugf("retrieved %s for %s from cache", name, id)
-	g.ID = id
-	g.Name = name
-	return g, nil
-}
-
-func (q *QueryResolver) GeneByName(ctx context.Context, name string) (*models.Gene, error) {
-	g := &models.Gene{}
-	var id string
-	cache := q.GetRedisRepository(key)
-	exists, err := cache.HExists(geneHash, name)
-	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		q.Logger.Error(err)
-		return nil, err
+	if strings.HasPrefix(gene, "DDB_G") {
+		id = gene
+		name = val
+	} else {
+		name = gene
+		id = val
 	}
-	if !exists {
-		nferr := fmt.Errorf("gene name %s does not exist", name)
-		graphql.AddError(ctx, &gqlerror.Error{
-			Message: "gene name does not exist",
-			Extensions: map[string]interface{}{
-				"code":      "NotFound",
-				"timestamp": time.Now(),
-			},
-		})
-		q.Logger.Error(nferr)
-		return nil, nferr
-	}
-	id, err = cache.HGet(geneHash, name)
-	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		q.Logger.Error(err)
-		return nil, err
-	}
-	q.Logger.Debugf("retrieved %s for %s from cache", id, name)
+	q.Logger.Debugf("retrieved %s for %s from cache", gene, val)
 	g.ID = id
 	g.Name = name
 	return g, nil
