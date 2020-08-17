@@ -87,16 +87,6 @@ func TestGoas(t *testing.T) {
 	assert.Equal(len(goas), 21, "should match amount of annotations")
 }
 
-func TestGetResp(t *testing.T) {
-	t.Parallel()
-	ts := httptest.NewServer(http.HandlerFunc(goasHandler))
-	defer ts.Close()
-	assert := assert.New(t)
-	g, err := getResp(context.Background(), ts.URL)
-	assert.NoError(err, "should not have error when getting http response")
-	assert.Equal(g.StatusCode, 200, "should have ok status code")
-}
-
 func TestFetchUniprotID(t *testing.T) {
 	t.Parallel()
 	ts := httptest.NewServer(http.HandlerFunc(uniprotHandler))

@@ -4,13 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"time"
 
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/dictyBase/graphql-server/internal/graphql/utils"
 )
 
 type organisms struct {
@@ -56,31 +52,9 @@ type downloadsItem struct {
 	URL   string `json:"url"`
 }
 
-func getResp(ctx context.Context, url string) (*http.Response, error) {
-	res, err := http.Get(url)
-	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		return res, fmt.Errorf("error in http get request with %s", err)
-	}
-	if res.StatusCode == 404 {
-		graphql.AddError(ctx, &gqlerror.Error{
-			Message: "404 error fetching data",
-			Extensions: map[string]interface{}{
-				"code":      "NotFound",
-				"timestamp": time.Now(),
-			},
-		})
-		return res, fmt.Errorf("404 error fetching data %s", err)
-	}
-	if res.StatusCode != 200 {
-		return res, fmt.Errorf("error fetching data with status code %d", res.StatusCode)
-	}
-	return res, nil
-}
-
 func fetchOrganisms(ctx context.Context, url string) (*organisms, error) {
 	o := new(organisms)
-	res, err := getResp(ctx, url)
+	res, err := utils.GetResp(ctx, url)
 	if err != nil {
 		return o, err
 	}
