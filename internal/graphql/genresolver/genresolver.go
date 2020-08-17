@@ -209,10 +209,6 @@ func (r *orderResolver) Items(ctx context.Context, obj *order.Order) ([]models.S
 	panic("not implemented")
 }
 
-func (r *organismResolver) Citations(ctx context.Context, obj *models.Organism) ([]*models.Citation, error) {
-	panic("not implemented")
-}
-
 func (r *organismResolver) Downloads(ctx context.Context, obj *models.Organism) ([]*models.Download, error) {
 	panic("not implemented")
 }

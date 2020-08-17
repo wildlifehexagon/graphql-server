@@ -215,6 +215,13 @@ type OrderListWithCursor struct {
 	TotalCount     int            `json:"totalCount"`
 }
 
+type Organism struct {
+	TaxonID        string      `json:"taxon_id"`
+	ScientificName string      `json:"scientific_name"`
+	Citations      []*Citation `json:"citations"`
+	Downloads      []*Download `json:"downloads"`
+}
+
 type Phenotype struct {
 	Phenotype   string                   `json:"phenotype"`
 	Note        *string                  `json:"note"`

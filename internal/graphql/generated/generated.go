@@ -443,7 +443,6 @@ type OrderResolver interface {
 	Items(ctx context.Context, obj *order.Order) ([]models.Stock, error)
 }
 type OrganismResolver interface {
-	Citations(ctx context.Context, obj *models.Organism) ([]*models.Citation, error)
 	Downloads(ctx context.Context, obj *models.Organism) ([]*models.Download, error)
 }
 type PermissionResolver interface {
@@ -7059,13 +7058,13 @@ func (ec *executionContext) _Organism_citations(ctx context.Context, field graph
 		Object:   "Organism",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Organism().Citations(rctx, obj)
+		return obj.Citations, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14774,19 +14773,10 @@ func (ec *executionContext) _Organism(ctx context.Context, sel ast.SelectionSet,
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "citations":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Organism_citations(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Organism_citations(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "downloads":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {

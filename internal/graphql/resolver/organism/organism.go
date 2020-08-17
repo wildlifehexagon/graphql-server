@@ -47,10 +47,6 @@ func fetchDownloads(ctx context.Context, url string) (*downloads, error) {
 	return d, nil
 }
 
-func (r *OrganismResolver) Citations(ctx context.Context, obj *models.Organism) ([]*models.Citation, error) {
-	panic("not implemented")
-}
-
 func (r *OrganismResolver) Downloads(ctx context.Context, obj *models.Organism) ([]*models.Download, error) {
 	ds := []*models.Download{}
 	items := []*models.DownloadItem{}
