@@ -32,26 +32,6 @@ type citation struct {
 	Link    string `json:"link"`
 }
 
-type downloads struct {
-	Data []downloadsData `json:"data"`
-}
-
-type downloadsData struct {
-	Type       string              `json:"type"`
-	ID         string              `json:"id"`
-	Attributes downloadsAttributes `json:"attributes"`
-}
-
-type downloadsAttributes struct {
-	Title string          `json:"title"`
-	Items []downloadsItem `json:"items"`
-}
-
-type downloadsItem struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
-}
-
 func fetchOrganisms(ctx context.Context, url string) (*organisms, error) {
 	o := new(organisms)
 	res, err := utils.GetResp(ctx, url)
