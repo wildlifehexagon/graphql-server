@@ -48,6 +48,7 @@ type ResolverRoot interface {
 	Gene() GeneResolver
 	Mutation() MutationResolver
 	Order() OrderResolver
+	Organism() OrganismResolver
 	Permission() PermissionResolver
 	Plasmid() PlasmidResolver
 	Publication() PublicationResolver
@@ -72,6 +73,13 @@ type ComplexityRoot struct {
 		Initials  func(childComplexity int) int
 		LastName  func(childComplexity int) int
 		Rank      func(childComplexity int) int
+	}
+
+	Citation struct {
+		Authors  func(childComplexity int) int
+		Journal  func(childComplexity int) int
+		PubmedID func(childComplexity int) int
+		Title    func(childComplexity int) int
 	}
 
 	Content struct {
@@ -104,6 +112,16 @@ type ComplexityRoot struct {
 
 	DeleteUser struct {
 		Success func(childComplexity int) int
+	}
+
+	Download struct {
+		Items func(childComplexity int) int
+		Title func(childComplexity int) int
+	}
+
+	DownloadItem struct {
+		Title func(childComplexity int) int
+		URL   func(childComplexity int) int
 	}
 
 	Extension struct {
@@ -195,6 +213,13 @@ type ComplexityRoot struct {
 		TotalCount     func(childComplexity int) int
 	}
 
+	Organism struct {
+		Citations      func(childComplexity int) int
+		Downloads      func(childComplexity int) int
+		ScientificName func(childComplexity int) int
+		TaxonID        func(childComplexity int) int
+	}
+
 	Permission struct {
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
@@ -270,6 +295,7 @@ type ComplexityRoot struct {
 		ListStrainsWithPhenotype func(childComplexity int, input *models.ListStrainsWithPhenotypeInput) int
 		ListUsers                func(childComplexity int, pagenum string, pagesize string, filter string) int
 		Order                    func(childComplexity int, id string) int
+		Organism                 func(childComplexity int, taxonID string) int
 		Permission               func(childComplexity int, id string) int
 		Plasmid                  func(childComplexity int, id string) int
 		Publication              func(childComplexity int, id string) int
@@ -416,6 +442,10 @@ type OrderResolver interface {
 	Purchaser(ctx context.Context, obj *order.Order) (*user.User, error)
 	Items(ctx context.Context, obj *order.Order) ([]models.Stock, error)
 }
+type OrganismResolver interface {
+	Citations(ctx context.Context, obj *models.Organism) ([]*models.Citation, error)
+	Downloads(ctx context.Context, obj *models.Organism) ([]*models.Download, error)
+}
 type PermissionResolver interface {
 	ID(ctx context.Context, obj *user.Permission) (string, error)
 	Permission(ctx context.Context, obj *user.Permission) (string, error)
@@ -454,6 +484,7 @@ type QueryResolver interface {
 	GetRefreshToken(ctx context.Context, token string) (*auth.Auth, error)
 	Content(ctx context.Context, id string) (*content.Content, error)
 	ContentBySlug(ctx context.Context, slug string) (*content.Content, error)
+	Organism(ctx context.Context, taxonID string) (*models.Organism, error)
 	Gene(ctx context.Context, gene string) (*models.Gene, error)
 	Order(ctx context.Context, id string) (*order.Order, error)
 	ListOrders(ctx context.Context, input *models.ListOrderInput) (*models.OrderListWithCursor, error)
@@ -579,6 +610,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Author.Rank(childComplexity), true
 
+	case "Citation.authors":
+		if e.complexity.Citation.Authors == nil {
+			break
+		}
+
+		return e.complexity.Citation.Authors(childComplexity), true
+
+	case "Citation.journal":
+		if e.complexity.Citation.Journal == nil {
+			break
+		}
+
+		return e.complexity.Citation.Journal(childComplexity), true
+
+	case "Citation.pubmed_id":
+		if e.complexity.Citation.PubmedID == nil {
+			break
+		}
+
+		return e.complexity.Citation.PubmedID(childComplexity), true
+
+	case "Citation.title":
+		if e.complexity.Citation.Title == nil {
+			break
+		}
+
+		return e.complexity.Citation.Title(childComplexity), true
+
 	case "Content.content":
 		if e.complexity.Content.Content == nil {
 			break
@@ -676,6 +735,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteUser.Success(childComplexity), true
+
+	case "Download.items":
+		if e.complexity.Download.Items == nil {
+			break
+		}
+
+		return e.complexity.Download.Items(childComplexity), true
+
+	case "Download.title":
+		if e.complexity.Download.Title == nil {
+			break
+		}
+
+		return e.complexity.Download.Title(childComplexity), true
+
+	case "DownloadItem.title":
+		if e.complexity.DownloadItem.Title == nil {
+			break
+		}
+
+		return e.complexity.DownloadItem.Title(childComplexity), true
+
+	case "DownloadItem.url":
+		if e.complexity.DownloadItem.URL == nil {
+			break
+		}
+
+		return e.complexity.DownloadItem.URL(childComplexity), true
 
 	case "Extension.db":
 		if e.complexity.Extension.Db == nil {
@@ -1242,6 +1329,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderListWithCursor.TotalCount(childComplexity), true
 
+	case "Organism.citations":
+		if e.complexity.Organism.Citations == nil {
+			break
+		}
+
+		return e.complexity.Organism.Citations(childComplexity), true
+
+	case "Organism.downloads":
+		if e.complexity.Organism.Downloads == nil {
+			break
+		}
+
+		return e.complexity.Organism.Downloads(childComplexity), true
+
+	case "Organism.scientific_name":
+		if e.complexity.Organism.ScientificName == nil {
+			break
+		}
+
+		return e.complexity.Organism.ScientificName(childComplexity), true
+
+	case "Organism.taxon_id":
+		if e.complexity.Organism.TaxonID == nil {
+			break
+		}
+
+		return e.complexity.Organism.TaxonID(childComplexity), true
+
 	case "Permission.created_at":
 		if e.complexity.Permission.CreatedAt == nil {
 			break
@@ -1704,6 +1819,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Order(childComplexity, args["id"].(string)), true
+
+	case "Query.organism":
+		if e.complexity.Query.Organism == nil {
+			break
+		}
+
+		args, err := ec.field_Query_organism_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Organism(childComplexity, args["taxon_id"].(string)), true
 
 	case "Query.permission":
 		if e.complexity.Query.Permission == nil {
@@ -2259,7 +2386,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	&ast.Source{Name: "api/auth.graphql", Input: `input LoginInput {
+	{Name: "api/auth.graphql", Input: `input LoginInput {
   client_id: String!
   state: String!
   code: String!
@@ -2287,7 +2414,7 @@ type Logout {
   success: Boolean!
 }
 `, BuiltIn: false},
-	&ast.Source{Name: "api/content.graphql", Input: `type Content {
+	{Name: "api/content.graphql", Input: `type Content {
   id: ID!
   name: String!
   slug: String!
@@ -2315,7 +2442,31 @@ input UpdateContentInput {
 type DeleteContent {
   success: Boolean!
 }`, BuiltIn: false},
-	&ast.Source{Name: "api/gene.graphql", Input: `type Gene {
+	{Name: "api/download.graphql", Input: `type Organism {
+  taxon_id: String!
+  scientific_name: String!
+  citations: [Citation!]!
+  downloads: [Download!]!
+}
+
+type Citation {
+  authors: String!
+  title: String!
+  journal: String!
+  pubmed_id: String!
+}
+
+type Download {
+  title: String!
+  items: [DownloadItem!]!
+}
+
+type DownloadItem {
+  title: String!
+  url: String!
+}
+`, BuiltIn: false},
+	{Name: "api/gene.graphql", Input: `type Gene {
   id: String!
   name: String!
   goas: [GOAnnotation]
@@ -2347,7 +2498,7 @@ type Extension {
   name: String!
 }
 `, BuiltIn: false},
-	&ast.Source{Name: "api/mutation.graphql", Input: `type Mutation {
+	{Name: "api/mutation.graphql", Input: `type Mutation {
   # Auth mutations
   login(input: LoginInput): Auth
   logout: Logout
@@ -2378,7 +2529,7 @@ type Extension {
   deletePermission(id: ID!): DeletePermission
 }
 `, BuiltIn: false},
-	&ast.Source{Name: "api/order.graphql", Input: `type Order {
+	{Name: "api/order.graphql", Input: `type Order {
   id: ID!
   created_at: Timestamp!
   updated_at: Timestamp!
@@ -2438,7 +2589,7 @@ input ListOrderInput {
   filter: String
 }
 `, BuiltIn: false},
-	&ast.Source{Name: "api/publication.graphql", Input: `type Publication {
+	{Name: "api/publication.graphql", Input: `type Publication {
   id: ID!
   doi: String
   title: String
@@ -2514,12 +2665,14 @@ type Author {
 #   success: Boolean!
 # }
 `, BuiltIn: false},
-	&ast.Source{Name: "api/query.graphql", Input: `type Query {
+	{Name: "api/query.graphql", Input: `type Query {
   # Auth queries
   getRefreshToken(token: String!): Auth
   # Content queries
   content(id: ID!): Content
   contentBySlug(slug: String!): Content
+  # Download page queries
+  organism(taxon_id: String!): Organism
   # Gene queries
   gene(gene: String!): Gene
   # Order queries
@@ -2547,9 +2700,9 @@ type Author {
   listPermissions: [Permission!]
 }
 `, BuiltIn: false},
-	&ast.Source{Name: "api/scalar.graphql", Input: `scalar Timestamp
+	{Name: "api/scalar.graphql", Input: `scalar Timestamp
 `, BuiltIn: false},
-	&ast.Source{Name: "api/stock.graphql", Input: `interface Stock {
+	{Name: "api/stock.graphql", Input: `interface Stock {
   id: ID!
   created_at: Timestamp!
   updated_at: Timestamp!
@@ -2740,7 +2893,7 @@ input ListStrainsWithPhenotypeInput {
   phenotype: String!
 }
 `, BuiltIn: false},
-	&ast.Source{Name: "api/user.graphql", Input: `type Permission {
+	{Name: "api/user.graphql", Input: `type Permission {
   id: ID!
   permission: String!
   description: String!
@@ -2862,6 +3015,7 @@ func (ec *executionContext) field_Mutation_createContent_args(ctx context.Contex
 	args := map[string]interface{}{}
 	var arg0 *models.CreateContentInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOCreateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2876,6 +3030,7 @@ func (ec *executionContext) field_Mutation_createOrder_args(ctx context.Context,
 	args := map[string]interface{}{}
 	var arg0 *models.CreateOrderInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOCreateOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateOrderInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2890,6 +3045,7 @@ func (ec *executionContext) field_Mutation_createPermission_args(ctx context.Con
 	args := map[string]interface{}{}
 	var arg0 *models.CreatePermissionInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOCreatePermissionInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePermissionInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2904,6 +3060,7 @@ func (ec *executionContext) field_Mutation_createPlasmid_args(ctx context.Contex
 	args := map[string]interface{}{}
 	var arg0 *models.CreatePlasmidInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOCreatePlasmidInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePlasmidInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2918,6 +3075,7 @@ func (ec *executionContext) field_Mutation_createRolePermissionRelationship_args
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["roleId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("roleId"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2926,6 +3084,7 @@ func (ec *executionContext) field_Mutation_createRolePermissionRelationship_args
 	args["roleId"] = arg0
 	var arg1 string
 	if tmp, ok := rawArgs["permissionId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("permissionId"))
 		arg1, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2940,6 +3099,7 @@ func (ec *executionContext) field_Mutation_createRole_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 *models.CreateRoleInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOCreateRoleInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateRoleInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2954,6 +3114,7 @@ func (ec *executionContext) field_Mutation_createStrain_args(ctx context.Context
 	args := map[string]interface{}{}
 	var arg0 *models.CreateStrainInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOCreateStrainInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateStrainInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2968,6 +3129,7 @@ func (ec *executionContext) field_Mutation_createUserRoleRelationship_args(ctx c
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("userId"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2976,6 +3138,7 @@ func (ec *executionContext) field_Mutation_createUserRoleRelationship_args(ctx c
 	args["userId"] = arg0
 	var arg1 string
 	if tmp, ok := rawArgs["roleId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("roleId"))
 		arg1, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -2990,6 +3153,7 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 *models.CreateUserInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOCreateUserInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3004,6 +3168,7 @@ func (ec *executionContext) field_Mutation_deleteContent_args(ctx context.Contex
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3018,6 +3183,7 @@ func (ec *executionContext) field_Mutation_deletePermission_args(ctx context.Con
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3032,6 +3198,7 @@ func (ec *executionContext) field_Mutation_deleteRole_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3046,6 +3213,7 @@ func (ec *executionContext) field_Mutation_deleteStock_args(ctx context.Context,
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3060,6 +3228,7 @@ func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3074,6 +3243,7 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	args := map[string]interface{}{}
 	var arg0 *models.LoginInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOLoginInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLoginInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3088,6 +3258,7 @@ func (ec *executionContext) field_Mutation_updateContent_args(ctx context.Contex
 	args := map[string]interface{}{}
 	var arg0 *models.UpdateContentInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOUpdateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3102,6 +3273,7 @@ func (ec *executionContext) field_Mutation_updateOrder_args(ctx context.Context,
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3110,6 +3282,7 @@ func (ec *executionContext) field_Mutation_updateOrder_args(ctx context.Context,
 	args["id"] = arg0
 	var arg1 *models.UpdateOrderInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg1, err = ec.unmarshalOUpdateOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateOrderInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3124,6 +3297,7 @@ func (ec *executionContext) field_Mutation_updatePermission_args(ctx context.Con
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3132,6 +3306,7 @@ func (ec *executionContext) field_Mutation_updatePermission_args(ctx context.Con
 	args["id"] = arg0
 	var arg1 *models.UpdatePermissionInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg1, err = ec.unmarshalOUpdatePermissionInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePermissionInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3146,6 +3321,7 @@ func (ec *executionContext) field_Mutation_updatePlasmid_args(ctx context.Contex
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3154,6 +3330,7 @@ func (ec *executionContext) field_Mutation_updatePlasmid_args(ctx context.Contex
 	args["id"] = arg0
 	var arg1 *models.UpdatePlasmidInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg1, err = ec.unmarshalOUpdatePlasmidInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePlasmidInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3168,6 +3345,7 @@ func (ec *executionContext) field_Mutation_updateRole_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3176,6 +3354,7 @@ func (ec *executionContext) field_Mutation_updateRole_args(ctx context.Context, 
 	args["id"] = arg0
 	var arg1 *models.UpdateRoleInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg1, err = ec.unmarshalOUpdateRoleInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateRoleInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3190,6 +3369,7 @@ func (ec *executionContext) field_Mutation_updateStrain_args(ctx context.Context
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3198,6 +3378,7 @@ func (ec *executionContext) field_Mutation_updateStrain_args(ctx context.Context
 	args["id"] = arg0
 	var arg1 *models.UpdateStrainInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg1, err = ec.unmarshalOUpdateStrainInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateStrainInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3212,6 +3393,7 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3220,6 +3402,7 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 	args["id"] = arg0
 	var arg1 *models.UpdateUserInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg1, err = ec.unmarshalOUpdateUserInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3234,6 +3417,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("name"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3248,6 +3432,7 @@ func (ec *executionContext) field_Query_contentBySlug_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["slug"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("slug"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3262,6 +3447,7 @@ func (ec *executionContext) field_Query_content_args(ctx context.Context, rawArg
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3276,6 +3462,7 @@ func (ec *executionContext) field_Query_gene_args(ctx context.Context, rawArgs m
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["gene"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("gene"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3290,6 +3477,7 @@ func (ec *executionContext) field_Query_getRefreshToken_args(ctx context.Context
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["token"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("token"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3304,6 +3492,7 @@ func (ec *executionContext) field_Query_listOrders_args(ctx context.Context, raw
 	args := map[string]interface{}{}
 	var arg0 *models.ListOrderInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOListOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListOrderInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3318,6 +3507,7 @@ func (ec *executionContext) field_Query_listPlasmids_args(ctx context.Context, r
 	args := map[string]interface{}{}
 	var arg0 *models.ListStockInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOListStockInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3332,6 +3522,7 @@ func (ec *executionContext) field_Query_listStrainsWithPhenotype_args(ctx contex
 	args := map[string]interface{}{}
 	var arg0 *models.ListStrainsWithPhenotypeInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOListStrainsWithPhenotypeInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStrainsWithPhenotypeInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3346,6 +3537,7 @@ func (ec *executionContext) field_Query_listStrains_args(ctx context.Context, ra
 	args := map[string]interface{}{}
 	var arg0 *models.ListStockInput
 	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
 		arg0, err = ec.unmarshalOListStockInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3360,6 +3552,7 @@ func (ec *executionContext) field_Query_listUsers_args(ctx context.Context, rawA
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["pagenum"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("pagenum"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3368,6 +3561,7 @@ func (ec *executionContext) field_Query_listUsers_args(ctx context.Context, rawA
 	args["pagenum"] = arg0
 	var arg1 string
 	if tmp, ok := rawArgs["pagesize"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("pagesize"))
 		arg1, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3376,6 +3570,7 @@ func (ec *executionContext) field_Query_listUsers_args(ctx context.Context, rawA
 	args["pagesize"] = arg1
 	var arg2 string
 	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
 		arg2, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3390,6 +3585,7 @@ func (ec *executionContext) field_Query_order_args(ctx context.Context, rawArgs 
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3399,11 +3595,27 @@ func (ec *executionContext) field_Query_order_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_organism_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["taxon_id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("taxon_id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["taxon_id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_permission_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3418,6 +3630,7 @@ func (ec *executionContext) field_Query_plasmid_args(ctx context.Context, rawArg
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3432,6 +3645,7 @@ func (ec *executionContext) field_Query_publication_args(ctx context.Context, ra
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3446,6 +3660,7 @@ func (ec *executionContext) field_Query_role_args(ctx context.Context, rawArgs m
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3460,6 +3675,7 @@ func (ec *executionContext) field_Query_strain_args(ctx context.Context, rawArgs
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3474,6 +3690,7 @@ func (ec *executionContext) field_Query_userByEmail_args(ctx context.Context, ra
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("email"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3488,6 +3705,7 @@ func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs m
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3502,6 +3720,7 @@ func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, ra
 	args := map[string]interface{}{}
 	var arg0 bool
 	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("includeDeprecated"))
 		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3516,6 +3735,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 	args := map[string]interface{}{}
 	var arg0 bool
 	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("includeDeprecated"))
 		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -3757,6 +3977,142 @@ func (ec *executionContext) _Author_rank(ctx context.Context, field graphql.Coll
 	res := resTmp.(*string)
 	fc.Result = res
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Citation_authors(ctx context.Context, field graphql.CollectedField, obj *models.Citation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Citation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Authors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Citation_title(ctx context.Context, field graphql.CollectedField, obj *models.Citation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Citation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Citation_journal(ctx context.Context, field graphql.CollectedField, obj *models.Citation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Citation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Journal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Citation_pubmed_id(ctx context.Context, field graphql.CollectedField, obj *models.Citation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Citation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PubmedID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Content_id(ctx context.Context, field graphql.CollectedField, obj *content.Content) (ret graphql.Marshaler) {
@@ -4233,6 +4589,142 @@ func (ec *executionContext) _DeleteUser_success(ctx context.Context, field graph
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Download_title(ctx context.Context, field graphql.CollectedField, obj *models.Download) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Download",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Download_items(ctx context.Context, field graphql.CollectedField, obj *models.Download) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Download",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.DownloadItem)
+	fc.Result = res
+	return ec.marshalNDownloadItem2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownloadItemᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _DownloadItem_title(ctx context.Context, field graphql.CollectedField, obj *models.DownloadItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "DownloadItem",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _DownloadItem_url(ctx context.Context, field graphql.CollectedField, obj *models.DownloadItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "DownloadItem",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Extension_id(ctx context.Context, field graphql.CollectedField, obj *models.Extension) (ret graphql.Marshaler) {
@@ -6488,6 +6980,142 @@ func (ec *executionContext) _OrderListWithCursor_totalCount(ctx context.Context,
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Organism_taxon_id(ctx context.Context, field graphql.CollectedField, obj *models.Organism) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Organism",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TaxonID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Organism_scientific_name(ctx context.Context, field graphql.CollectedField, obj *models.Organism) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Organism",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ScientificName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Organism_citations(ctx context.Context, field graphql.CollectedField, obj *models.Organism) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Organism",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Organism().Citations(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Citation)
+	fc.Result = res
+	return ec.marshalNCitation2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCitationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Organism_downloads(ctx context.Context, field graphql.CollectedField, obj *models.Organism) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Organism",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Organism().Downloads(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Download)
+	fc.Result = res
+	return ec.marshalNDownload2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownloadᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Permission_id(ctx context.Context, field graphql.CollectedField, obj *user.Permission) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8114,6 +8742,44 @@ func (ec *executionContext) _Query_contentBySlug(ctx context.Context, field grap
 	res := resTmp.(*content.Content)
 	fc.Result = res
 	return ec.marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_organism(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_organism_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Organism(rctx, args["taxon_id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Organism)
+	fc.Result = res
+	return ec.marshalOOrganism2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganism(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_gene(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -11733,24 +12399,32 @@ func (ec *executionContext) unmarshalInputCreateContentInput(ctx context.Context
 		switch k {
 		case "name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "created_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("created_by"))
 			it.CreatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "content":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("content"))
 			it.Content, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "namespace":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("namespace"))
 			it.Namespace, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -11769,60 +12443,80 @@ func (ec *executionContext) unmarshalInputCreateOrderInput(ctx context.Context, 
 		switch k {
 		case "courier":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courier"))
 			it.Courier, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "courier_account":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courier_account"))
 			it.CourierAccount, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "comments":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("comments"))
 			it.Comments, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "payment":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("payment"))
 			it.Payment, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "purchase_order_num":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("purchase_order_num"))
 			it.PurchaseOrderNum, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "status":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("status"))
 			it.Status, err = ec.unmarshalNStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "consumer":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("consumer"))
 			it.Consumer, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "payer":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("payer"))
 			it.Payer, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "purchaser":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("purchaser"))
 			it.Purchaser, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "items":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("items"))
 			it.Items, err = ec.unmarshalNString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -11841,18 +12535,24 @@ func (ec *executionContext) unmarshalInputCreatePermissionInput(ctx context.Cont
 		switch k {
 		case "permission":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("permission"))
 			it.Permission, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "description":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("description"))
 			it.Description, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "resource":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("resource"))
 			it.Resource, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -11871,84 +12571,112 @@ func (ec *executionContext) unmarshalInputCreatePlasmidInput(ctx context.Context
 		switch k {
 		case "created_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("created_by"))
 			it.CreatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "updated_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("updated_by"))
 			it.UpdatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("summary"))
 			it.Summary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "editable_summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("editable_summary"))
 			it.EditableSummary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "depositor":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("depositor"))
 			it.Depositor, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genes"))
 			it.Genes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "dbxrefs":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("dbxrefs"))
 			it.Dbxrefs, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "publications":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("publications"))
 			it.Publications, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "image_map":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("image_map"))
 			it.ImageMap, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "sequence":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("sequence"))
 			it.Sequence, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "in_stock":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("in_stock"))
 			it.InStock, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "keywords":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("keywords"))
 			it.Keywords, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genbank_accession":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genbank_accession"))
 			it.GenbankAccession, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -11967,12 +12695,16 @@ func (ec *executionContext) unmarshalInputCreateRoleInput(ctx context.Context, o
 		switch k {
 		case "role":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("role"))
 			it.Role, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "description":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("description"))
 			it.Description, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -11991,120 +12723,160 @@ func (ec *executionContext) unmarshalInputCreateStrainInput(ctx context.Context,
 		switch k {
 		case "created_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("created_by"))
 			it.CreatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "updated_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("updated_by"))
 			it.UpdatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("summary"))
 			it.Summary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "editable_summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("editable_summary"))
 			it.EditableSummary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "depositor":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("depositor"))
 			it.Depositor, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genes"))
 			it.Genes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "dbxrefs":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("dbxrefs"))
 			it.Dbxrefs, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "publications":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("publications"))
 			it.Publications, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "systematic_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("systematic_name"))
 			it.SystematicName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "label":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("label"))
 			it.Label, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "species":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("species"))
 			it.Species, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "plasmid":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("plasmid"))
 			it.Plasmid, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "parent":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("parent"))
 			it.Parent, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "names":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("names"))
 			it.Names, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "in_stock":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("in_stock"))
 			it.InStock, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "phenotypes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phenotypes"))
 			it.Phenotypes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genetic_modification":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genetic_modification"))
 			it.GeneticModification, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "mutagenesis_method":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("mutagenesis_method"))
 			it.MutagenesisMethod, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "characteristics":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("characteristics"))
 			it.Characteristics, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genotypes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genotypes"))
 			it.Genotypes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -12123,78 +12895,104 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		switch k {
 		case "first_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("first_name"))
 			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "last_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("last_name"))
 			it.LastName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "email":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("email"))
 			it.Email, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "organization":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("organization"))
 			it.Organization, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "group_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("group_name"))
 			it.GroupName, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "first_address":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("first_address"))
 			it.FirstAddress, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "second_address":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("second_address"))
 			it.SecondAddress, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "city":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("city"))
 			it.City, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "state":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("state"))
 			it.State, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "zipcode":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("zipcode"))
 			it.Zipcode, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "country":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("country"))
 			it.Country, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "phone":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phone"))
 			it.Phone, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "is_active":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("is_active"))
 			it.IsActive, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
@@ -12213,18 +13011,24 @@ func (ec *executionContext) unmarshalInputListOrderInput(ctx context.Context, ob
 		switch k {
 		case "cursor":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
 			it.Cursor, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "limit":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
 			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "filter":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
 			it.Filter, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -12243,18 +13047,24 @@ func (ec *executionContext) unmarshalInputListStockInput(ctx context.Context, ob
 		switch k {
 		case "cursor":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
 			it.Cursor, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "limit":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
 			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "filter":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
 			it.Filter, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -12273,18 +13083,24 @@ func (ec *executionContext) unmarshalInputListStrainsWithPhenotypeInput(ctx cont
 		switch k {
 		case "cursor":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
 			it.Cursor, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "limit":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
 			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "phenotype":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phenotype"))
 			it.Phenotype, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -12303,36 +13119,48 @@ func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj in
 		switch k {
 		case "client_id":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("client_id"))
 			it.ClientID, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "state":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("state"))
 			it.State, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "code":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("code"))
 			it.Code, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "scopes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("scopes"))
 			it.Scopes, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "provider":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("provider"))
 			it.Provider, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "redirect_url":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("redirect_url"))
 			it.RedirectURL, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -12351,18 +13179,24 @@ func (ec *executionContext) unmarshalInputUpdateContentInput(ctx context.Context
 		switch k {
 		case "id":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 			it.ID, err = ec.unmarshalNID2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "updated_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("updated_by"))
 			it.UpdatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "content":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("content"))
 			it.Content, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -12381,42 +13215,56 @@ func (ec *executionContext) unmarshalInputUpdateOrderInput(ctx context.Context, 
 		switch k {
 		case "courier":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courier"))
 			it.Courier, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "courier_account":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courier_account"))
 			it.CourierAccount, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "comments":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("comments"))
 			it.Comments, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "payment":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("payment"))
 			it.Payment, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "purchase_order_num":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("purchase_order_num"))
 			it.PurchaseOrderNum, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "status":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("status"))
 			it.Status, err = ec.unmarshalOStatusEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "items":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("items"))
 			it.Items, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -12435,18 +13283,24 @@ func (ec *executionContext) unmarshalInputUpdatePermissionInput(ctx context.Cont
 		switch k {
 		case "permission":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("permission"))
 			it.Permission, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "description":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("description"))
 			it.Description, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "resource":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("resource"))
 			it.Resource, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -12465,78 +13319,104 @@ func (ec *executionContext) unmarshalInputUpdatePlasmidInput(ctx context.Context
 		switch k {
 		case "updated_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("updated_by"))
 			it.UpdatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("summary"))
 			it.Summary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "editable_summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("editable_summary"))
 			it.EditableSummary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "depositor":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("depositor"))
 			it.Depositor, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genes"))
 			it.Genes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "dbxrefs":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("dbxrefs"))
 			it.Dbxrefs, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "publications":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("publications"))
 			it.Publications, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("name"))
 			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "image_map":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("image_map"))
 			it.ImageMap, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "sequence":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("sequence"))
 			it.Sequence, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "in_stock":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("in_stock"))
 			it.InStock, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "keywords":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("keywords"))
 			it.Keywords, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genbank_accession":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genbank_accession"))
 			it.GenbankAccession, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -12555,12 +13435,16 @@ func (ec *executionContext) unmarshalInputUpdateRoleInput(ctx context.Context, o
 		switch k {
 		case "role":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("role"))
 			it.Role, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "description":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("description"))
 			it.Description, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -12579,114 +13463,152 @@ func (ec *executionContext) unmarshalInputUpdateStrainInput(ctx context.Context,
 		switch k {
 		case "updated_by":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("updated_by"))
 			it.UpdatedBy, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("summary"))
 			it.Summary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "editable_summary":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("editable_summary"))
 			it.EditableSummary, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "depositor":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("depositor"))
 			it.Depositor, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genes"))
 			it.Genes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "dbxrefs":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("dbxrefs"))
 			it.Dbxrefs, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "publications":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("publications"))
 			it.Publications, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "systematic_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("systematic_name"))
 			it.SystematicName, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "label":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("label"))
 			it.Label, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "species":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("species"))
 			it.Species, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "plasmid":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("plasmid"))
 			it.Plasmid, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "parent":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("parent"))
 			it.Parent, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "names":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("names"))
 			it.Names, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "in_stock":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("in_stock"))
 			it.InStock, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "phenotypes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phenotypes"))
 			it.Phenotypes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genetic_modification":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genetic_modification"))
 			it.GeneticModification, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "mutagenesis_method":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("mutagenesis_method"))
 			it.MutagenesisMethod, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "characteristics":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("characteristics"))
 			it.Characteristics, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "genotypes":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("genotypes"))
 			it.Genotypes, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -12705,72 +13627,96 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		switch k {
 		case "first_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("first_name"))
 			it.FirstName, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "last_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("last_name"))
 			it.LastName, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "organization":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("organization"))
 			it.Organization, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "group_name":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("group_name"))
 			it.GroupName, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "first_address":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("first_address"))
 			it.FirstAddress, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "second_address":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("second_address"))
 			it.SecondAddress, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "city":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("city"))
 			it.City, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "state":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("state"))
 			it.State, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "zipcode":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("zipcode"))
 			it.Zipcode, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "country":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("country"))
 			it.Country, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "phone":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phone"))
 			it.Phone, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "is_active":
 			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("is_active"))
 			it.IsActive, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
@@ -12886,6 +13832,48 @@ func (ec *executionContext) _Author(ctx context.Context, sel ast.SelectionSet, o
 				res = ec._Author_rank(ctx, field, obj)
 				return res
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var citationImplementors = []string{"Citation"}
+
+func (ec *executionContext) _Citation(ctx context.Context, sel ast.SelectionSet, obj *models.Citation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, citationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Citation")
+		case "authors":
+			out.Values[i] = ec._Citation_authors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._Citation_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "journal":
+			out.Values[i] = ec._Citation_journal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "pubmed_id":
+			out.Values[i] = ec._Citation_pubmed_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13166,6 +14154,70 @@ func (ec *executionContext) _DeleteUser(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = graphql.MarshalString("DeleteUser")
 		case "success":
 			out.Values[i] = ec._DeleteUser_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var downloadImplementors = []string{"Download"}
+
+func (ec *executionContext) _Download(ctx context.Context, sel ast.SelectionSet, obj *models.Download) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, downloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Download")
+		case "title":
+			out.Values[i] = ec._Download_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "items":
+			out.Values[i] = ec._Download_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var downloadItemImplementors = []string{"DownloadItem"}
+
+func (ec *executionContext) _DownloadItem(ctx context.Context, sel ast.SelectionSet, obj *models.DownloadItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, downloadItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DownloadItem")
+		case "title":
+			out.Values[i] = ec._DownloadItem_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "url":
+			out.Values[i] = ec._DownloadItem_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -13689,6 +14741,66 @@ func (ec *executionContext) _OrderListWithCursor(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var organismImplementors = []string{"Organism"}
+
+func (ec *executionContext) _Organism(ctx context.Context, sel ast.SelectionSet, obj *models.Organism) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, organismImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Organism")
+		case "taxon_id":
+			out.Values[i] = ec._Organism_taxon_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "scientific_name":
+			out.Values[i] = ec._Organism_scientific_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "citations":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Organism_citations(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "downloads":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Organism_downloads(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14241,6 +15353,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_contentBySlug(ctx, field)
+				return res
+			})
+		case "organism":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_organism(ctx, field)
 				return res
 			})
 		case "gene":
@@ -15336,7 +16459,8 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // region    ***************************** type.gotpl *****************************
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
-	return graphql.UnmarshalBoolean(v)
+	res, err := graphql.UnmarshalBoolean(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
@@ -15349,8 +16473,145 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNExtension2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐExtension(ctx context.Context, sel ast.SelectionSet, v models.Extension) graphql.Marshaler {
-	return ec._Extension(ctx, sel, &v)
+func (ec *executionContext) marshalNCitation2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCitationᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Citation) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCitation2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCitation(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNCitation2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCitation(ctx context.Context, sel ast.SelectionSet, v *models.Citation) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Citation(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDownload2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownloadᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Download) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDownload2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownload(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNDownload2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownload(ctx context.Context, sel ast.SelectionSet, v *models.Download) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Download(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDownloadItem2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownloadItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.DownloadItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDownloadItem2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownloadItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNDownloadItem2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDownloadItem(ctx context.Context, sel ast.SelectionSet, v *models.DownloadItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._DownloadItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNExtension2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐExtension(ctx context.Context, sel ast.SelectionSet, v *models.Extension) graphql.Marshaler {
@@ -15364,7 +16625,8 @@ func (ec *executionContext) marshalNExtension2ᚖgithubᚗcomᚋdictyBaseᚋgrap
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	return graphql.UnmarshalID(v)
+	res, err := graphql.UnmarshalID(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -15392,7 +16654,8 @@ func (ec *executionContext) marshalNIdentity2ᚖgithubᚗcomᚋdictyBaseᚋgraph
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
-	return graphql.UnmarshalInt(v)
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
@@ -15403,10 +16666,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNOrder2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋorderᚐOrder(ctx context.Context, sel ast.SelectionSet, v order.Order) graphql.Marshaler {
-	return ec._Order(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNOrder2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋorderᚐOrderᚄ(ctx context.Context, sel ast.SelectionSet, v []*order.Order) graphql.Marshaler {
@@ -15456,10 +16715,6 @@ func (ec *executionContext) marshalNOrder2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgen
 	return ec._Order(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPermission2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐPermission(ctx context.Context, sel ast.SelectionSet, v user.Permission) graphql.Marshaler {
-	return ec._Permission(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNPermission2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐPermission(ctx context.Context, sel ast.SelectionSet, v *user.Permission) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -15468,10 +16723,6 @@ func (ec *executionContext) marshalNPermission2ᚖgithubᚗcomᚋdictyBaseᚋgo�
 		return graphql.Null
 	}
 	return ec._Permission(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNPlasmid2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v models.Plasmid) graphql.Marshaler {
-	return ec._Plasmid(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNPlasmid2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmidᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Plasmid) graphql.Marshaler {
@@ -15521,10 +16772,6 @@ func (ec *executionContext) marshalNPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgraphq
 	return ec._Plasmid(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRole2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐRole(ctx context.Context, sel ast.SelectionSet, v user.Role) graphql.Marshaler {
-	return ec._Role(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐRole(ctx context.Context, sel ast.SelectionSet, v *user.Role) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -15537,15 +16784,12 @@ func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenp
 
 func (ec *executionContext) unmarshalNStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, v interface{}) (models.StatusEnum, error) {
 	var res models.StatusEnum
-	return res, res.UnmarshalGQL(v)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, sel ast.SelectionSet, v models.StatusEnum) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNStrain2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v models.Strain) graphql.Marshaler {
-	return ec._Strain(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNStrain2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Strain) graphql.Marshaler {
@@ -15596,7 +16840,8 @@ func (ec *executionContext) marshalNStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphql
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
-	return graphql.UnmarshalString(v)
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -15621,9 +16866,10 @@ func (ec *executionContext) unmarshalNString2ᚕᚖstring(ctx context.Context, v
 	var err error
 	res := make([]*string, len(vSlice))
 	for i := range vSlice {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithIndex(i))
 		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
 		if err != nil {
-			return nil, err
+			return nil, graphql.WrapErrorWithInputPath(ctx, err)
 		}
 	}
 	return res, nil
@@ -15639,11 +16885,8 @@ func (ec *executionContext) marshalNString2ᚕᚖstring(ctx context.Context, sel
 }
 
 func (ec *executionContext) unmarshalNString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNString2string(ctx, v)
-	return &res, err
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
@@ -15653,11 +16896,18 @@ func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel as
 		}
 		return graphql.Null
 	}
-	return ec.marshalNString2string(ctx, sel, *v)
+	res := graphql.MarshalString(*v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNTimestamp2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	return models.UnmarshalTimestamp(v)
+	res, err := models.UnmarshalTimestamp(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNTimestamp2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
@@ -15671,11 +16921,8 @@ func (ec *executionContext) marshalNTimestamp2timeᚐTime(ctx context.Context, s
 }
 
 func (ec *executionContext) unmarshalNTimestamp2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNTimestamp2timeᚐTime(ctx, v)
-	return &res, err
+	res, err := models.UnmarshalTimestamp(v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNTimestamp2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
@@ -15685,7 +16932,13 @@ func (ec *executionContext) marshalNTimestamp2ᚖtimeᚐTime(ctx context.Context
 		}
 		return graphql.Null
 	}
-	return ec.marshalNTimestamp2timeᚐTime(ctx, sel, *v)
+	res := models.MarshalTimestamp(*v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v user.User) graphql.Marshaler {
@@ -15737,10 +16990,6 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenp
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNWith2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐWith(ctx context.Context, sel ast.SelectionSet, v models.With) graphql.Marshaler {
-	return ec._With(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNWith2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐWith(ctx context.Context, sel ast.SelectionSet, v *models.With) graphql.Marshaler {
@@ -15795,7 +17044,8 @@ func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgq
 }
 
 func (ec *executionContext) unmarshalN__DirectiveLocation2string(ctx context.Context, v interface{}) (string, error) {
-	return graphql.UnmarshalString(v)
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -15820,9 +17070,10 @@ func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx conte
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithIndex(i))
 		res[i], err = ec.unmarshalN__DirectiveLocation2string(ctx, vSlice[i])
 		if err != nil {
-			return nil, err
+			return nil, graphql.WrapErrorWithInputPath(ctx, err)
 		}
 	}
 	return res, nil
@@ -15966,7 +17217,8 @@ func (ec *executionContext) marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 }
 
 func (ec *executionContext) unmarshalN__TypeKind2string(ctx context.Context, v interface{}) (string, error) {
-	return graphql.UnmarshalString(v)
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -15979,19 +17231,11 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOAuth2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋauthᚐAuth(ctx context.Context, sel ast.SelectionSet, v auth.Auth) graphql.Marshaler {
-	return ec._Auth(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOAuth2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋauthᚐAuth(ctx context.Context, sel ast.SelectionSet, v *auth.Auth) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Auth(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOAuthor2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐAuthor(ctx context.Context, sel ast.SelectionSet, v publication.Author) graphql.Marshaler {
-	return ec._Author(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOAuthor2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐAuthor(ctx context.Context, sel ast.SelectionSet, v []*publication.Author) graphql.Marshaler {
@@ -16042,7 +17286,8 @@ func (ec *executionContext) marshalOAuthor2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑge
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
-	return graphql.UnmarshalBoolean(v)
+	res, err := graphql.UnmarshalBoolean(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
@@ -16053,19 +17298,15 @@ func (ec *executionContext) unmarshalOBoolean2ᚖbool(ctx context.Context, v int
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOBoolean2bool(ctx, v)
-	return &res, err
+	res, err := graphql.UnmarshalBoolean(v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast.SelectionSet, v *bool) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec.marshalOBoolean2bool(ctx, sel, *v)
-}
-
-func (ec *executionContext) marshalOContent2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx context.Context, sel ast.SelectionSet, v content.Content) graphql.Marshaler {
-	return ec._Content(ctx, sel, &v)
+	return graphql.MarshalBoolean(*v)
 }
 
 func (ec *executionContext) marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋcontentᚐContent(ctx context.Context, sel ast.SelectionSet, v *content.Content) graphql.Marshaler {
@@ -16075,92 +17316,60 @@ func (ec *executionContext) marshalOContent2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑg
 	return ec._Content(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCreateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx context.Context, v interface{}) (models.CreateContentInput, error) {
-	return ec.unmarshalInputCreateContentInput(ctx, v)
-}
-
 func (ec *executionContext) unmarshalOCreateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx context.Context, v interface{}) (*models.CreateContentInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOCreateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateContentInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOCreateOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateOrderInput(ctx context.Context, v interface{}) (models.CreateOrderInput, error) {
-	return ec.unmarshalInputCreateOrderInput(ctx, v)
+	res, err := ec.unmarshalInputCreateContentInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOCreateOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateOrderInput(ctx context.Context, v interface{}) (*models.CreateOrderInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOCreateOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateOrderInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOCreatePermissionInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePermissionInput(ctx context.Context, v interface{}) (models.CreatePermissionInput, error) {
-	return ec.unmarshalInputCreatePermissionInput(ctx, v)
+	res, err := ec.unmarshalInputCreateOrderInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOCreatePermissionInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePermissionInput(ctx context.Context, v interface{}) (*models.CreatePermissionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOCreatePermissionInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePermissionInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOCreatePlasmidInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePlasmidInput(ctx context.Context, v interface{}) (models.CreatePlasmidInput, error) {
-	return ec.unmarshalInputCreatePlasmidInput(ctx, v)
+	res, err := ec.unmarshalInputCreatePermissionInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOCreatePlasmidInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePlasmidInput(ctx context.Context, v interface{}) (*models.CreatePlasmidInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOCreatePlasmidInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreatePlasmidInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOCreateRoleInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateRoleInput(ctx context.Context, v interface{}) (models.CreateRoleInput, error) {
-	return ec.unmarshalInputCreateRoleInput(ctx, v)
+	res, err := ec.unmarshalInputCreatePlasmidInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOCreateRoleInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateRoleInput(ctx context.Context, v interface{}) (*models.CreateRoleInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOCreateRoleInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateRoleInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOCreateStrainInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateStrainInput(ctx context.Context, v interface{}) (models.CreateStrainInput, error) {
-	return ec.unmarshalInputCreateStrainInput(ctx, v)
+	res, err := ec.unmarshalInputCreateRoleInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOCreateStrainInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateStrainInput(ctx context.Context, v interface{}) (*models.CreateStrainInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOCreateStrainInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateStrainInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOCreateUserInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateUserInput(ctx context.Context, v interface{}) (models.CreateUserInput, error) {
-	return ec.unmarshalInputCreateUserInput(ctx, v)
+	res, err := ec.unmarshalInputCreateStrainInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOCreateUserInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateUserInput(ctx context.Context, v interface{}) (*models.CreateUserInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOCreateUserInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐCreateUserInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalODeleteContent2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteContent(ctx context.Context, sel ast.SelectionSet, v models.DeleteContent) graphql.Marshaler {
-	return ec._DeleteContent(ctx, sel, &v)
+	res, err := ec.unmarshalInputCreateUserInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalODeleteContent2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteContent(ctx context.Context, sel ast.SelectionSet, v *models.DeleteContent) graphql.Marshaler {
@@ -16170,19 +17379,11 @@ func (ec *executionContext) marshalODeleteContent2ᚖgithubᚗcomᚋdictyBaseᚋ
 	return ec._DeleteContent(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalODeletePermission2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeletePermission(ctx context.Context, sel ast.SelectionSet, v models.DeletePermission) graphql.Marshaler {
-	return ec._DeletePermission(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalODeletePermission2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeletePermission(ctx context.Context, sel ast.SelectionSet, v *models.DeletePermission) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._DeletePermission(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalODeleteRole2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteRole(ctx context.Context, sel ast.SelectionSet, v models.DeleteRole) graphql.Marshaler {
-	return ec._DeleteRole(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalODeleteRole2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteRole(ctx context.Context, sel ast.SelectionSet, v *models.DeleteRole) graphql.Marshaler {
@@ -16192,19 +17393,11 @@ func (ec *executionContext) marshalODeleteRole2ᚖgithubᚗcomᚋdictyBaseᚋgra
 	return ec._DeleteRole(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalODeleteStock2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteStock(ctx context.Context, sel ast.SelectionSet, v models.DeleteStock) graphql.Marshaler {
-	return ec._DeleteStock(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalODeleteStock2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteStock(ctx context.Context, sel ast.SelectionSet, v *models.DeleteStock) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._DeleteStock(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalODeleteUser2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteUser(ctx context.Context, sel ast.SelectionSet, v models.DeleteUser) graphql.Marshaler {
-	return ec._DeleteUser(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalODeleteUser2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐDeleteUser(ctx context.Context, sel ast.SelectionSet, v *models.DeleteUser) graphql.Marshaler {
@@ -16254,10 +17447,6 @@ func (ec *executionContext) marshalOExtension2ᚕᚖgithubᚗcomᚋdictyBaseᚋg
 	return ret
 }
 
-func (ec *executionContext) marshalOGOAnnotation2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGOAnnotation(ctx context.Context, sel ast.SelectionSet, v models.GOAnnotation) graphql.Marshaler {
-	return ec._GOAnnotation(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOGOAnnotation2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGOAnnotation(ctx context.Context, sel ast.SelectionSet, v []*models.GOAnnotation) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -16305,10 +17494,6 @@ func (ec *executionContext) marshalOGOAnnotation2ᚖgithubᚗcomᚋdictyBaseᚋg
 	return ec._GOAnnotation(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOGene2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx context.Context, sel ast.SelectionSet, v models.Gene) graphql.Marshaler {
-	return ec._Gene(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOGene2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx context.Context, sel ast.SelectionSet, v *models.Gene) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -16316,79 +17501,51 @@ func (ec *executionContext) marshalOGene2ᚖgithubᚗcomᚋdictyBaseᚋgraphql�
 	return ec._Gene(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
-	return graphql.UnmarshalInt(v)
-}
-
-func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	return graphql.MarshalInt(v)
-}
-
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOInt2int(ctx, v)
-	return &res, err
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec.marshalOInt2int(ctx, sel, *v)
-}
-
-func (ec *executionContext) unmarshalOListOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListOrderInput(ctx context.Context, v interface{}) (models.ListOrderInput, error) {
-	return ec.unmarshalInputListOrderInput(ctx, v)
+	return graphql.MarshalInt(*v)
 }
 
 func (ec *executionContext) unmarshalOListOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListOrderInput(ctx context.Context, v interface{}) (*models.ListOrderInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOListOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListOrderInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOListStockInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx context.Context, v interface{}) (models.ListStockInput, error) {
-	return ec.unmarshalInputListStockInput(ctx, v)
+	res, err := ec.unmarshalInputListOrderInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOListStockInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx context.Context, v interface{}) (*models.ListStockInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOListStockInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOListStrainsWithPhenotypeInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStrainsWithPhenotypeInput(ctx context.Context, v interface{}) (models.ListStrainsWithPhenotypeInput, error) {
-	return ec.unmarshalInputListStrainsWithPhenotypeInput(ctx, v)
+	res, err := ec.unmarshalInputListStockInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOListStrainsWithPhenotypeInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStrainsWithPhenotypeInput(ctx context.Context, v interface{}) (*models.ListStrainsWithPhenotypeInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOListStrainsWithPhenotypeInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStrainsWithPhenotypeInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOLoginInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (models.LoginInput, error) {
-	return ec.unmarshalInputLoginInput(ctx, v)
+	res, err := ec.unmarshalInputListStrainsWithPhenotypeInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOLoginInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (*models.LoginInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOLoginInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLoginInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalOLogout2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLogout(ctx context.Context, sel ast.SelectionSet, v models.Logout) graphql.Marshaler {
-	return ec._Logout(ctx, sel, &v)
+	res, err := ec.unmarshalInputLoginInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOLogout2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLogout(ctx context.Context, sel ast.SelectionSet, v *models.Logout) graphql.Marshaler {
@@ -16398,19 +17555,11 @@ func (ec *executionContext) marshalOLogout2ᚖgithubᚗcomᚋdictyBaseᚋgraphql
 	return ec._Logout(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOOrder2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋorderᚐOrder(ctx context.Context, sel ast.SelectionSet, v order.Order) graphql.Marshaler {
-	return ec._Order(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOOrder2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋorderᚐOrder(ctx context.Context, sel ast.SelectionSet, v *order.Order) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Order(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOOrderListWithCursor2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrderListWithCursor(ctx context.Context, sel ast.SelectionSet, v models.OrderListWithCursor) graphql.Marshaler {
-	return ec._OrderListWithCursor(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOOrderListWithCursor2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrderListWithCursor(ctx context.Context, sel ast.SelectionSet, v *models.OrderListWithCursor) graphql.Marshaler {
@@ -16420,8 +17569,11 @@ func (ec *executionContext) marshalOOrderListWithCursor2ᚖgithubᚗcomᚋdictyB
 	return ec._OrderListWithCursor(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOPermission2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐPermission(ctx context.Context, sel ast.SelectionSet, v user.Permission) graphql.Marshaler {
-	return ec._Permission(ctx, sel, &v)
+func (ec *executionContext) marshalOOrganism2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganism(ctx context.Context, sel ast.SelectionSet, v *models.Organism) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Organism(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPermission2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐPermissionᚄ(ctx context.Context, sel ast.SelectionSet, v []*user.Permission) graphql.Marshaler {
@@ -16471,10 +17623,6 @@ func (ec *executionContext) marshalOPermission2ᚖgithubᚗcomᚋdictyBaseᚋgo�
 	return ec._Permission(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOPhenotype2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPhenotype(ctx context.Context, sel ast.SelectionSet, v models.Phenotype) graphql.Marshaler {
-	return ec._Phenotype(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOPhenotype2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPhenotype(ctx context.Context, sel ast.SelectionSet, v []*models.Phenotype) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -16522,10 +17670,6 @@ func (ec *executionContext) marshalOPhenotype2ᚖgithubᚗcomᚋdictyBaseᚋgrap
 	return ec._Phenotype(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOPlasmid2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v models.Plasmid) graphql.Marshaler {
-	return ec._Plasmid(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmid(ctx context.Context, sel ast.SelectionSet, v *models.Plasmid) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -16533,19 +17677,11 @@ func (ec *executionContext) marshalOPlasmid2ᚖgithubᚗcomᚋdictyBaseᚋgraphq
 	return ec._Plasmid(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOPlasmidListWithCursor2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmidListWithCursor(ctx context.Context, sel ast.SelectionSet, v models.PlasmidListWithCursor) graphql.Marshaler {
-	return ec._PlasmidListWithCursor(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOPlasmidListWithCursor2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmidListWithCursor(ctx context.Context, sel ast.SelectionSet, v *models.PlasmidListWithCursor) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._PlasmidListWithCursor(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOPublication2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx context.Context, sel ast.SelectionSet, v publication.Publication) graphql.Marshaler {
-	return ec._Publication(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOPublication2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋpublicationᚐPublication(ctx context.Context, sel ast.SelectionSet, v []*publication.Publication) graphql.Marshaler {
@@ -16595,10 +17731,6 @@ func (ec *executionContext) marshalOPublication2ᚖgithubᚗcomᚋdictyBaseᚋgo
 	return ec._Publication(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalORole2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐRole(ctx context.Context, sel ast.SelectionSet, v user.Role) graphql.Marshaler {
-	return ec._Role(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalORole2ᚕᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*user.Role) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -16646,21 +17778,13 @@ func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenp
 	return ec._Role(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, v interface{}) (models.StatusEnum, error) {
-	var res models.StatusEnum
-	return res, res.UnmarshalGQL(v)
-}
-
-func (ec *executionContext) marshalOStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, sel ast.SelectionSet, v models.StatusEnum) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalOStatusEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, v interface{}) (*models.StatusEnum, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOStatusEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx, v)
-	return &res, err
+	var res = new(models.StatusEnum)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOStatusEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStatusEnum(ctx context.Context, sel ast.SelectionSet, v *models.StatusEnum) graphql.Marshaler {
@@ -16717,19 +17841,11 @@ func (ec *executionContext) marshalOStock2ᚕgithubᚗcomᚋdictyBaseᚋgraphql�
 	return ret
 }
 
-func (ec *executionContext) marshalOStrain2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v models.Strain) graphql.Marshaler {
-	return ec._Strain(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrain(ctx context.Context, sel ast.SelectionSet, v *models.Strain) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Strain(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOStrainListWithCursor2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainListWithCursor(ctx context.Context, sel ast.SelectionSet, v models.StrainListWithCursor) graphql.Marshaler {
-	return ec._StrainListWithCursor(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOStrainListWithCursor2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainListWithCursor(ctx context.Context, sel ast.SelectionSet, v *models.StrainListWithCursor) graphql.Marshaler {
@@ -16740,7 +17856,8 @@ func (ec *executionContext) marshalOStrainListWithCursor2ᚖgithubᚗcomᚋdicty
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
-	return graphql.UnmarshalString(v)
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -16748,6 +17865,9 @@ func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.S
 }
 
 func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
+	if v == nil {
+		return nil, nil
+	}
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -16759,9 +17879,10 @@ func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v
 	var err error
 	res := make([]*string, len(vSlice))
 	for i := range vSlice {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithIndex(i))
 		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
 		if err != nil {
-			return nil, err
+			return nil, graphql.WrapErrorWithInputPath(ctx, err)
 		}
 	}
 	return res, nil
@@ -16783,126 +17904,86 @@ func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v in
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOString2string(ctx, v)
-	return &res, err
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec.marshalOString2string(ctx, sel, *v)
-}
-
-func (ec *executionContext) unmarshalOTimestamp2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	return models.UnmarshalTimestamp(v)
-}
-
-func (ec *executionContext) marshalOTimestamp2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	return models.MarshalTimestamp(v)
+	return graphql.MarshalString(*v)
 }
 
 func (ec *executionContext) unmarshalOTimestamp2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOTimestamp2timeᚐTime(ctx, v)
-	return &res, err
+	res, err := models.UnmarshalTimestamp(v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOTimestamp2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec.marshalOTimestamp2timeᚐTime(ctx, sel, *v)
-}
-
-func (ec *executionContext) unmarshalOUpdateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx context.Context, v interface{}) (models.UpdateContentInput, error) {
-	return ec.unmarshalInputUpdateContentInput(ctx, v)
+	return models.MarshalTimestamp(*v)
 }
 
 func (ec *executionContext) unmarshalOUpdateContentInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx context.Context, v interface{}) (*models.UpdateContentInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOUpdateContentInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateContentInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOUpdateOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateOrderInput(ctx context.Context, v interface{}) (models.UpdateOrderInput, error) {
-	return ec.unmarshalInputUpdateOrderInput(ctx, v)
+	res, err := ec.unmarshalInputUpdateContentInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdateOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateOrderInput(ctx context.Context, v interface{}) (*models.UpdateOrderInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOUpdateOrderInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateOrderInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOUpdatePermissionInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePermissionInput(ctx context.Context, v interface{}) (models.UpdatePermissionInput, error) {
-	return ec.unmarshalInputUpdatePermissionInput(ctx, v)
+	res, err := ec.unmarshalInputUpdateOrderInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdatePermissionInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePermissionInput(ctx context.Context, v interface{}) (*models.UpdatePermissionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOUpdatePermissionInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePermissionInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOUpdatePlasmidInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePlasmidInput(ctx context.Context, v interface{}) (models.UpdatePlasmidInput, error) {
-	return ec.unmarshalInputUpdatePlasmidInput(ctx, v)
+	res, err := ec.unmarshalInputUpdatePermissionInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdatePlasmidInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePlasmidInput(ctx context.Context, v interface{}) (*models.UpdatePlasmidInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOUpdatePlasmidInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdatePlasmidInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOUpdateRoleInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateRoleInput(ctx context.Context, v interface{}) (models.UpdateRoleInput, error) {
-	return ec.unmarshalInputUpdateRoleInput(ctx, v)
+	res, err := ec.unmarshalInputUpdatePlasmidInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdateRoleInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateRoleInput(ctx context.Context, v interface{}) (*models.UpdateRoleInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOUpdateRoleInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateRoleInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOUpdateStrainInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateStrainInput(ctx context.Context, v interface{}) (models.UpdateStrainInput, error) {
-	return ec.unmarshalInputUpdateStrainInput(ctx, v)
+	res, err := ec.unmarshalInputUpdateRoleInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdateStrainInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateStrainInput(ctx context.Context, v interface{}) (*models.UpdateStrainInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOUpdateStrainInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateStrainInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOUpdateUserInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateUserInput(ctx context.Context, v interface{}) (models.UpdateUserInput, error) {
-	return ec.unmarshalInputUpdateUserInput(ctx, v)
+	res, err := ec.unmarshalInputUpdateStrainInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdateUserInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateUserInput(ctx context.Context, v interface{}) (*models.UpdateUserInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOUpdateUserInput2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUpdateUserInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalOUser2githubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v user.User) graphql.Marshaler {
-	return ec._User(ctx, sel, &v)
+	res, err := ec.unmarshalInputUpdateUserInput(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v *user.User) graphql.Marshaler {
@@ -16910,10 +17991,6 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenp
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOUserList2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUserList(ctx context.Context, sel ast.SelectionSet, v models.UserList) graphql.Marshaler {
-	return ec._UserList(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOUserList2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐUserList(ctx context.Context, sel ast.SelectionSet, v *models.UserList) graphql.Marshaler {
@@ -17083,19 +18160,11 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 	return ret
 }
 
-func (ec *executionContext) marshalO__Schema2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v introspection.Schema) graphql.Marshaler {
-	return ec.___Schema(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v *introspection.Schema) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec.___Schema(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalO__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v introspection.Type) graphql.Marshaler {
-	return ec.___Type(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {

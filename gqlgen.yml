@@ -62,3 +62,8 @@ models:
     fields:
       goas:
         resolver: true
+  Organism:
+    model: github.com/dictyBase/graphql-server/internal/graphql/models.Organism
+    fields:
+      downloads:
+        resolver: true

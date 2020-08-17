@@ -7,6 +7,7 @@ import (
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/content"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/gene"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/order"
+	"github.com/dictyBase/graphql-server/internal/graphql/resolver/organism"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/publication"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/stock"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/user"
@@ -121,6 +122,12 @@ func (r *Resolver) Auth() generated.AuthResolver {
 func (r *Resolver) Gene() generated.GeneResolver {
 	return &gene.GeneResolver{
 		Redis:  r.GetRedisRepository("redis"),
+		Logger: r.Logger,
+	}
+}
+
+func (r *Resolver) Organism() generated.OrganismResolver {
+	return &organism.OrganismResolver{
 		Logger: r.Logger,
 	}
 }

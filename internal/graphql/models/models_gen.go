@@ -17,6 +17,13 @@ type Stock interface {
 	IsStock()
 }
 
+type Citation struct {
+	Authors  string `json:"authors"`
+	Title    string `json:"title"`
+	Journal  string `json:"journal"`
+	PubmedID string `json:"pubmed_id"`
+}
+
 type CreateContentInput struct {
 	Name      string `json:"name"`
 	CreatedBy string `json:"created_by"`
@@ -122,6 +129,16 @@ type DeleteStock struct {
 
 type DeleteUser struct {
 	Success bool `json:"success"`
+}
+
+type Download struct {
+	Title string          `json:"title"`
+	Items []*DownloadItem `json:"items"`
+}
+
+type DownloadItem struct {
+	Title string `json:"title"`
+	URL   string `json:"url"`
 }
 
 type Extension struct {

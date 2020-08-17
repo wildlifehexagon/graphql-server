@@ -209,6 +209,14 @@ func (r *orderResolver) Items(ctx context.Context, obj *order.Order) ([]models.S
 	panic("not implemented")
 }
 
+func (r *organismResolver) Citations(ctx context.Context, obj *models.Organism) ([]*models.Citation, error) {
+	panic("not implemented")
+}
+
+func (r *organismResolver) Downloads(ctx context.Context, obj *models.Organism) ([]*models.Download, error) {
+	panic("not implemented")
+}
+
 func (r *permissionResolver) ID(ctx context.Context, obj *user.Permission) (string, error) {
 	panic("not implemented")
 }
@@ -322,6 +330,10 @@ func (r *queryResolver) Content(ctx context.Context, id string) (*content.Conten
 }
 
 func (r *queryResolver) ContentBySlug(ctx context.Context, slug string) (*content.Content, error) {
+	panic("not implemented")
+}
+
+func (r *queryResolver) Organism(ctx context.Context, taxonID string) (*models.Organism, error) {
 	panic("not implemented")
 }
 
@@ -547,6 +559,9 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Order returns generated.OrderResolver implementation.
 func (r *Resolver) Order() generated.OrderResolver { return &orderResolver{r} }
 
+// Organism returns generated.OrganismResolver implementation.
+func (r *Resolver) Organism() generated.OrganismResolver { return &organismResolver{r} }
+
 // Permission returns generated.PermissionResolver implementation.
 func (r *Resolver) Permission() generated.PermissionResolver { return &permissionResolver{r} }
 
@@ -574,6 +589,7 @@ type contentResolver struct{ *Resolver }
 type geneResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type orderResolver struct{ *Resolver }
+type organismResolver struct{ *Resolver }
 type permissionResolver struct{ *Resolver }
 type plasmidResolver struct{ *Resolver }
 type publicationResolver struct{ *Resolver }
