@@ -16,16 +16,15 @@ that will be used for each type of schema introduced:
 
 Any unique types and inputs for a particular category (i.e. user) should be placed in their own schema files in the same folder.
 
-[gqlgen.yml](./gqlgen.yml) is the configuration file used with `gqlgen`. Our main use
-for this file is to add custom models, primarily for pointing to gRPC services or
-adding explicit resolvers. See [FAQs](https://gqlgen.com/) for more info.
+[gqlgen.yml](./gqlgen.yml) is the configuration file used with `gqlgen`. It is advised to add a custom model for any new schema.
+You can point directly to a gRPC service or add a new file in the `models` directory.
 
 To generate the GraphQL code, run the generator script with `go generate ./...`. This downloads our
 GraphQL schema and rebuilds the generated files.
 
 This will modify `generated.go`, `models_gen.go` and `genresolver.go`. The first two can be ignored, but
 it is necessary to check the output of `genresolver.go` and then modify/add any of the changes to your
-actual resolver file(s) (i.e. `gene.go`).
+actual resolver file(s) (more on this in next steps).
 
 ## Next Steps for Development
 
@@ -35,8 +34,8 @@ After adding the new schema and running the generator script, it is necessary to
 2. If adding a gRPC client, you also need to add an entry to the `ServiceMap` in the same file. If adding an API endpoint, you need to update [RunGraphQLServer](./internal/app/server/server.go) to manually add this to the registry. Look at `Publication` for an example. Also be sure to test the endpoint during server initialization.
 3. Add a new method to the [registry](./internal/registry/registry.go) package for that client (a la `GetUserClient`).
 4. Next, look at the newly generated resolvers from your schema. Move any _shared_ resolvers into the root [resolver](./internal/graphql/resolver) folder.
-   - Put the main generated function (i.e. `Strain()`) in the [resolver.go](./internal/graphql/resolver/resolver.go) file and update it to match the format of the other functions.
    - Create new files as necessary for each client, each one containing their query and mutation methods. Look at [permission.go](./internal/graphql/resolver/permission.go) for an example. Make sure to update the receivers for each method. For queries we are using `(q *QueryResolver)` and for mutations `(m *MutationResolver)`.
+   - Put the main generated function (i.e. `Strain()`) in the [resolver.go](./internal/graphql/resolver/resolver.go) file and update it to match the format of the other functions.
 5. Now add any _unshared_ resolvers into a separate folder inside `resolver`. These resolvers are generally tied to the individual fields for that model, and they are unique to that particular client. You can look at the [user](./internal/graphql/resolver/user) folder for examples. Also update the package name if necessary.
 6. Add any necessary command line flags in [main.go](./cmd/graphql-server/main.go).
 7. Fill out your resolver stubs and then test it out in the playground!
