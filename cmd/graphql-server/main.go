@@ -102,11 +102,6 @@ func redisFlags() []cli.Flag {
 			EnvVar: "REDIS_MASTER_SERVICE_PORT",
 			Usage:  "redis master grpc port",
 		},
-		cli.IntFlag{
-			Name:  "cache-expiration-days",
-			Usage: "number of days to store redis cache",
-			Value: 7,
-		},
 	}
 }
 
@@ -203,6 +198,13 @@ func nonGRPCFlags() []cli.Flag {
 			Name:     "publication-api, pub",
 			EnvVar:   "PUBLICATION_API_ENDPOINT",
 			Usage:    "publication api endpoint",
+			Required: true,
+		},
+		cli.StringFlag{
+			Name:     "organism-api, org",
+			EnvVar:   "ORGANISM_API_ENDPOINT",
+			Usage:    "json endpoint for organisms (downloads page)",
+			Value:    "https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/organisms-with-citations.staging.json",
 			Required: true,
 		},
 	}

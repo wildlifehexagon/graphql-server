@@ -49,6 +49,11 @@ func RunGraphQLServer(c *cli.Context) error {
 	}
 	// publication api status is fine, so add it to registry
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
+	// now test and add api for organism download data
+	if err := checkEndpoint((c.String("organism-api"))); err != nil {
+		return err
+	}
+	nr.AddAPIEndpoint(registry.ORGANISM, c.String("organism-api"))
 	// add redis to registry
 	radd := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
 	cache, err := redis.NewCache(radd)

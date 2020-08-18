@@ -24,6 +24,7 @@ allowedOrigins:
 
 # endpoints:
 # publication: https://ericfunc.dictybase.dev/publications
+# organism: https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/organisms-with-citations.staging.json
 
 resources:
   {}

@@ -47,6 +47,7 @@ const (
 	ANNOTATION  = "annotation"
 	AUTH        = "auth"
 	IDENTITY    = "identity"
+	ORGANISM    = "organism"
 )
 
 var ServiceMap = map[string]string{

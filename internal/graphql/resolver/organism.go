@@ -48,7 +48,7 @@ func fetchOrganisms(ctx context.Context, url string) (*organisms, error) {
 func (q *QueryResolver) Organism(ctx context.Context, taxonID string) (*models.Organism, error) {
 	o := &models.Organism{}
 	c := []*models.Citation{}
-	url := "https://github.com/dictyBase/migration-data/blob/master/downloads/organisms-with-citations.staging.json"
+	url := q.GetAPIEndpoint("organism")
 	d, err := fetchOrganisms(ctx, url)
 	if err != nil {
 		return o, err
