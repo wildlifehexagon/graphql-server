@@ -70,3 +70,29 @@ func (q *QueryResolver) Organism(ctx context.Context, taxonID string) (*models.O
 	}
 	return o, nil
 }
+
+func (q *QueryResolver) ListOrganisms(ctx context.Context) ([]*models.Organism, error) {
+	orgs := []*models.Organism{}
+	c := []*models.Citation{}
+	url := q.GetAPIEndpoint("organism")
+	d, err := fetchOrganisms(ctx, url)
+	if err != nil {
+		return orgs, err
+	}
+	for _, val := range d.Data {
+		for _, ci := range val.Attributes.Citations {
+			c = append(c, &models.Citation{
+				Authors:  ci.Authors,
+				Journal:  ci.Journal,
+				PubmedID: ci.Link[len(ci.Link)-8:], // just get ID from URL
+				Title:    ci.Title,
+			})
+		}
+		orgs = append(orgs, &models.Organism{
+			TaxonID:        val.Attributes.TaxonID,
+			ScientificName: val.Attributes.ScientificName,
+			Citations:      c,
+		})
+	}
+	return orgs, nil
+}

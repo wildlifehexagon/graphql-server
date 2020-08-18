@@ -288,6 +288,7 @@ type ComplexityRoot struct {
 		Gene                     func(childComplexity int, gene string) int
 		GetRefreshToken          func(childComplexity int, token string) int
 		ListOrders               func(childComplexity int, input *models.ListOrderInput) int
+		ListOrganisms            func(childComplexity int) int
 		ListPermissions          func(childComplexity int) int
 		ListPlasmids             func(childComplexity int, input *models.ListStockInput) int
 		ListRoles                func(childComplexity int) int
@@ -484,6 +485,7 @@ type QueryResolver interface {
 	Content(ctx context.Context, id string) (*content.Content, error)
 	ContentBySlug(ctx context.Context, slug string) (*content.Content, error)
 	Organism(ctx context.Context, taxonID string) (*models.Organism, error)
+	ListOrganisms(ctx context.Context) ([]*models.Organism, error)
 	Gene(ctx context.Context, gene string) (*models.Gene, error)
 	Order(ctx context.Context, id string) (*order.Order, error)
 	ListOrders(ctx context.Context, input *models.ListOrderInput) (*models.OrderListWithCursor, error)
@@ -1745,6 +1747,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ListOrders(childComplexity, args["input"].(*models.ListOrderInput)), true
 
+	case "Query.listOrganisms":
+		if e.complexity.Query.ListOrganisms == nil {
+			break
+		}
+
+		return e.complexity.Query.ListOrganisms(childComplexity), true
+
 	case "Query.listPermissions":
 		if e.complexity.Query.ListPermissions == nil {
 			break
@@ -2672,6 +2681,7 @@ type Author {
   contentBySlug(slug: String!): Content
   # Download page queries
   organism(taxon_id: String!): Organism
+  listOrganisms: [Organism!]
   # Gene queries
   gene(gene: String!): Gene
   # Order queries
@@ -8779,6 +8789,37 @@ func (ec *executionContext) _Query_organism(ctx context.Context, field graphql.C
 	res := resTmp.(*models.Organism)
 	fc.Result = res
 	return ec.marshalOOrganism2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganism(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_listOrganisms(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ListOrganisms(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Organism)
+	fc.Result = res
+	return ec.marshalOOrganism2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganismᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_gene(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -15356,6 +15397,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_organism(ctx, field)
 				return res
 			})
+		case "listOrganisms":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_listOrganisms(ctx, field)
+				return res
+			})
 		case "gene":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -16705,6 +16757,16 @@ func (ec *executionContext) marshalNOrder2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgen
 	return ec._Order(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNOrganism2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganism(ctx context.Context, sel ast.SelectionSet, v *models.Organism) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Organism(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPermission2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐPermission(ctx context.Context, sel ast.SelectionSet, v *user.Permission) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -17557,6 +17619,46 @@ func (ec *executionContext) marshalOOrderListWithCursor2ᚖgithubᚗcomᚋdictyB
 		return graphql.Null
 	}
 	return ec._OrderListWithCursor(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOOrganism2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganismᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Organism) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNOrganism2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganism(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalOOrganism2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐOrganism(ctx context.Context, sel ast.SelectionSet, v *models.Organism) graphql.Marshaler {

@@ -333,6 +333,10 @@ func (r *queryResolver) Organism(ctx context.Context, taxonID string) (*models.O
 	panic("not implemented")
 }
 
+func (r *queryResolver) ListOrganisms(ctx context.Context) ([]*models.Organism, error) {
+	panic("not implemented")
+}
+
 func (r *queryResolver) Gene(ctx context.Context, gene string) (*models.Gene, error) {
 	panic("not implemented")
 }
