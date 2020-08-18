@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/fetch"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/dictyBase/graphql-server/internal/graphql/utils"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/dictyBase/graphql-server/internal/repository"
 	"github.com/sirupsen/logrus"
@@ -82,7 +82,7 @@ type pageInfo struct {
 }
 
 func fetchUniprotID(ctx context.Context, url string) (string, error) {
-	res, err := utils.GetResp(ctx, url)
+	res, err := fetch.GetResp(ctx, url)
 	if err != nil {
 		return "", err
 	}
@@ -96,7 +96,7 @@ func fetchUniprotID(ctx context.Context, url string) (string, error) {
 
 func fetchGOAs(ctx context.Context, url string) (*quickGo, error) {
 	goa := new(quickGo)
-	res, err := utils.GetResp(ctx, url)
+	res, err := fetch.GetResp(ctx, url)
 	if err != nil {
 		return goa, err
 	}

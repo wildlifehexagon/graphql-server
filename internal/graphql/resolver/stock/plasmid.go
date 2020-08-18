@@ -10,8 +10,8 @@ import (
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
+	"github.com/dictyBase/graphql-server/internal/graphql/fetch"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/dictyBase/graphql-server/internal/graphql/utils"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -59,7 +59,7 @@ func (r *PlasmidResolver) Publications(ctx context.Context, obj *models.Plasmid)
 			continue
 		}
 		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
-		p, err := utils.FetchPublication(ctx, endpoint, *id)
+		p, err := fetch.FetchPublication(ctx, endpoint, *id)
 		if err != nil {
 			errorutils.AddGQLError(ctx, err)
 			r.Logger.Error(err)

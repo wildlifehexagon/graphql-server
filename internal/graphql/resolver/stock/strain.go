@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/dictyBase/aphgrpc"
-	"github.com/dictyBase/graphql-server/internal/graphql/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
@@ -15,6 +14,7 @@ import (
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
+	"github.com/dictyBase/graphql-server/internal/graphql/fetch"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/sirupsen/logrus"
@@ -61,7 +61,7 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 			continue
 		}
 		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
-		p, err := utils.FetchPublication(ctx, endpoint, *id)
+		p, err := fetch.FetchPublication(ctx, endpoint, *id)
 		if err != nil {
 			errorutils.AddGQLError(ctx, err)
 			r.Logger.Error(err)
@@ -278,7 +278,7 @@ func getPhenotypes(ctx context.Context, r *StrainResolver, data []*annotation.Ta
 			case registry.DictyAnnoOntology:
 				if g.Attributes.Tag == registry.LiteratureTag {
 					endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
-					pub, err := utils.FetchPublication(ctx, endpoint, g.Attributes.Value)
+					pub, err := fetch.FetchPublication(ctx, endpoint, g.Attributes.Value)
 					if err != nil {
 						r.Logger.Error(err)
 						errorutils.AddGQLError(ctx, err)

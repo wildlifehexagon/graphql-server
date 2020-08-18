@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/fetch"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/dictyBase/graphql-server/internal/graphql/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,7 +36,7 @@ type downloadsItem struct {
 
 func fetchDownloads(ctx context.Context, url string) (*downloads, error) {
 	d := new(downloads)
-	res, err := utils.GetResp(ctx, url)
+	res, err := fetch.GetResp(ctx, url)
 	if err != nil {
 		return d, err
 	}
