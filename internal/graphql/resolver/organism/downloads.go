@@ -11,7 +11,8 @@ import (
 )
 
 type OrganismResolver struct {
-	Logger *logrus.Entry
+	Logger       *logrus.Entry
+	DownloadsURL string
 }
 
 type downloads struct {
@@ -50,7 +51,10 @@ func fetchDownloads(ctx context.Context, url string) (*downloads, error) {
 func (r *OrganismResolver) Downloads(ctx context.Context, obj *models.Organism) ([]*models.Download, error) {
 	ds := []*models.Download{}
 	items := []*models.DownloadItem{}
-	res, err := fetchDownloads(ctx, fmt.Sprintf("https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/%s.staging.json", obj.TaxonID))
+	if r.DownloadsURL == "" {
+		r.DownloadsURL = fmt.Sprintf("https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/%s.staging.json", obj.TaxonID)
+	}
+	res, err := fetchDownloads(ctx, r.DownloadsURL)
 	if err != nil {
 		return ds, err
 	}
