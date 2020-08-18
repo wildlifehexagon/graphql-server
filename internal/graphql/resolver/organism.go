@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/fetch"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
-	"github.com/dictyBase/graphql-server/internal/graphql/utils"
 )
 
 type organisms struct {
@@ -34,7 +34,7 @@ type citation struct {
 
 func fetchOrganisms(ctx context.Context, url string) (*organisms, error) {
 	o := new(organisms)
-	res, err := utils.GetResp(ctx, url)
+	res, err := fetch.GetResp(ctx, url)
 	if err != nil {
 		return o, err
 	}
@@ -47,6 +47,7 @@ func fetchOrganisms(ctx context.Context, url string) (*organisms, error) {
 
 func (q *QueryResolver) Organism(ctx context.Context, taxonID string) (*models.Organism, error) {
 	o := &models.Organism{}
+	c := []*models.Citation{}
 	url := "https://github.com/dictyBase/migration-data/blob/master/downloads/organisms-with-citations.staging.json"
 	d, err := fetchOrganisms(ctx, url)
 	if err != nil {
@@ -56,6 +57,15 @@ func (q *QueryResolver) Organism(ctx context.Context, taxonID string) (*models.O
 		if val.ID == taxonID {
 			o.TaxonID = val.Attributes.TaxonID
 			o.ScientificName = val.Attributes.ScientificName
+			for _, ci := range val.Attributes.Citations {
+				c = append(c, &models.Citation{
+					Authors:  ci.Authors,
+					Journal:  ci.Journal,
+					PubmedID: ci.Link[len(ci.Link)-8:], // just get ID from URL
+					Title:    ci.Title,
+				})
+			}
+			o.Citations = c
 		}
 	}
 	return o, nil
