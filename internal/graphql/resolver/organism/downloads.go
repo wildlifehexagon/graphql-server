@@ -50,7 +50,6 @@ func fetchDownloads(ctx context.Context, url string) (*downloads, error) {
 
 func (r *OrganismResolver) Downloads(ctx context.Context, obj *models.Organism) ([]*models.Download, error) {
 	ds := []*models.Download{}
-	items := []*models.DownloadItem{}
 	if r.DownloadsURL == "" {
 		r.DownloadsURL = fmt.Sprintf("https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/%s.staging.json", obj.TaxonID)
 	}
@@ -59,18 +58,17 @@ func (r *OrganismResolver) Downloads(ctx context.Context, obj *models.Organism) 
 		return ds, err
 	}
 	for _, val := range res.Data {
+		items := []*models.DownloadItem{}
 		for _, item := range val.Attributes.Items {
-			di := &models.DownloadItem{
+			items = append(items, &models.DownloadItem{
 				Title: item.Title,
 				URL:   item.URL,
-			}
-			items = append(items, di)
+			})
 		}
-		d := &models.Download{
+		ds = append(ds, &models.Download{
 			Title: val.Attributes.Title,
 			Items: items,
-		}
-		ds = append(ds, d)
+		})
 	}
 	return ds, nil
 }
