@@ -80,4 +80,6 @@ func TestListOrganisms(t *testing.T) {
 	o, err := q.ListOrganisms(context.Background())
 	assert.NoError(err, "expect no error from getting organism information")
 	assert.Len(o, 4, "should match number of elements")
+	assert.Len(o[0].Citations, 2, "should match number of citations in first element")
+	assert.Len(o[1].Citations, 1, "should match number of citations in second element")
 }

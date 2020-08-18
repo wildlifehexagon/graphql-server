@@ -59,6 +59,7 @@ func TestDownloads(t *testing.T) {
 	o, err := r.Downloads(context.Background(), mockOrganismModel)
 	assert.NoError(err, "expect no error from getting download information")
 	assert.Len(o, 8, "should have expected number of elements")
-	assert.Len(o[0].Items, 5, "should match number of items in first element")
 	assert.Equal(o[0].Title, "Gene Information", "should match title")
+	assert.Len(o[0].Items, 5, "should match number of items in first element")
+	assert.Len(o[1].Items, 8, "should match number of items in second element")
 }
