@@ -201,11 +201,10 @@ func nonGRPCFlags() []cli.Flag {
 			Required: true,
 		},
 		cli.StringFlag{
-			Name:     "organism-api, org",
-			EnvVar:   "ORGANISM_API_ENDPOINT",
-			Usage:    "json endpoint for organisms (downloads page)",
-			Value:    "https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/organisms-with-citations.staging.json",
-			Required: true,
+			Name:   "organism-api, org",
+			EnvVar: "ORGANISM_API_ENDPOINT",
+			Usage:  "json endpoint for organisms (downloads page)",
+			Value:  "https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/organisms-with-citations.staging.json",
 		},
 	}
 }
