@@ -16,8 +16,8 @@ that will be used for each type of schema introduced:
 
 Any unique types and inputs for a particular category (i.e. user) should be placed in their own schema files in the same folder.
 
-[gqlgen.yml](./gqlgen.yml) is the configuration file used with `gqlgen`. It is advised to add a custom model for any new schema.
-You can point directly to a gRPC service or add a new file in the `models` directory.
+[gqlgen.yml](./gqlgen.yml) is the configuration file used with `gqlgen`. This needs to be updated with any custom models
+(i.e. by pointing to a gRPC service or defining external resolvers). See [FAQs](https://gqlgen.com/) for more details.
 
 To generate the GraphQL code, run the generator script with `go generate ./...`. This downloads our
 GraphQL schema and rebuilds the generated files.
