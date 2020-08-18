@@ -1,0 +1,102 @@
+{
+    "data": [
+        {
+            "type": "organisms",
+            "id": "44689",
+            "attributes": {
+                "taxon_id": "44689",
+                "scientific_name": "Dictyostelium discoideum",
+                "citations": [
+                    {
+                        "authors": "Basu et. al, 2015",
+                        "title": "'dictyBase 2015: Expanding data and annotations in a new software environment.'",
+                        "journal": "Genesis 53(8), 523–534.",
+                        "link": "https://www.ncbi.nlm.nih.gov/pubmed/26088819"
+                    },
+                    {
+                        "authors": "Eichinger et. al, 2005",
+                        "title": "'The genome of the social amoeba Dictyostelium discoideum.'",
+                        "journal": "Nature 435(7038): 43-57.",
+                        "link": "https://www.ncbi.nlm.nih.gov/pubmed/15875012"
+                    }
+                ]
+            },
+            "relationships": {
+                "downloads": {
+                    "links": {
+                        "related": "https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/44689.staging.json"
+                    }
+                }
+            }
+        },
+        {
+            "type": "organisms",
+            "id": "5786",
+            "attributes": {
+                "taxon_id": "5786",
+                "scientific_name": "Dictyostelium purpureum",
+                "citations": [
+                    {
+                        "authors": "Sucgang et. al, 2011",
+                        "title": "'Comparative genomics of the social amoebae Dictyostelium discoideum and Dictyostelium purpureum.'",
+                        "journal": "Genome Biol. 12:R20",
+                        "link": "http://ncbi.nlm.nih.gov/pubmed/21356102"
+                    }
+                ]
+            },
+            "relationships": {
+                "downloads": {
+                    "links": {
+                        "related": "https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/5786.staging.json"
+                    }
+                }
+            }
+        },
+        {
+            "type": "organisms",
+            "id": "1054147",
+            "attributes": {
+                "taxon_id": "1054147",
+                "scientific_name": "Dictyostelium fasciculatum",
+                "citations": [
+                    {
+                        "authors": "Heidel et. al, 2011",
+                        "title": "'Phylogeny-wide analysis of social amoeba genomes highlights ancient origins for complex intercellular communication.'",
+                        "journal": "Genome Res. 21:",
+                        "link": "http://ncbi.nlm.nih.gov/pubmed/21757610"
+                    }
+                ]
+            },
+            "relationships": {
+                "downloads": {
+                    "links": {
+                        "related": "https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/1054147.staging.json"
+                    }
+                }
+            }
+        },
+        {
+            "type": "organisms",
+            "id": "13642",
+            "attributes": {
+                "taxon_id": "13642",
+                "scientific_name": "Polysphondylium pallidum",
+                "citations": [
+                    {
+                        "authors": "Heidel et. al, 2011",
+                        "title": "'Phylogeny-wide analysis of social amoeba genomes highlights ancient origins for complex intercellular communication.'",
+                        "journal": "Genome Res. 21:",
+                        "link": "http://ncbi.nlm.nih.gov/pubmed/21757610"
+                    }
+                ]
+            },
+            "relationships": {
+                "downloads": {
+                    "links": {
+                        "related": "https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/13642.staging.json"
+                    }
+                }
+            }
+        }
+    ]
+}
