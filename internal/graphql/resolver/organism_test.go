@@ -53,9 +53,8 @@ func TestOrganism(t *testing.T) {
 		},
 		Logger: mocks.TestLogger(),
 	}
-	key := "organism"
 	id := "44689"
-	q.AddAPIEndpoint(key, u.URL)
+	q.AddAPIEndpoint("organism", u.URL)
 	o, err := q.Organism(context.Background(), id)
 	assert.NoError(err, "expect no error from getting organism information")
 	assert.Equal(id, o.TaxonID, "should match taxon ID")
@@ -64,4 +63,21 @@ func TestOrganism(t *testing.T) {
 	assert.Equal("'dictyBase 2015: Expanding data and annotations in a new software environment.'", o.Citations[0].Title, "should match title")
 	assert.Equal("Genesis 53(8), 523–534.", o.Citations[0].Journal, "should match journal")
 	assert.Equal("26088819", o.Citations[0].PubmedID, "should match pubmed ID")
+}
+
+func TestListOrganisms(t *testing.T) {
+	t.Parallel()
+	u := httptest.NewServer(http.HandlerFunc(organismHandler))
+	defer u.Close()
+	assert := assert.New(t)
+	q := &QueryResolver{
+		Registry: &mocks.MockRegistry{
+			ConnMap: hashmap.New(),
+		},
+		Logger: mocks.TestLogger(),
+	}
+	q.AddAPIEndpoint("organism", u.URL)
+	o, err := q.ListOrganisms(context.Background())
+	assert.NoError(err, "expect no error from getting organism information")
+	assert.Len(o, 4, "should match number of elements")
 }
