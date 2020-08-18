@@ -20,7 +20,7 @@ func goaTestData() ([]byte, error) {
 		return []byte(""), fmt.Errorf("unable to get current dir %s", err)
 	}
 	path := filepath.Join(
-		filepath.Dir(dir), "../../../testdata", "goas.json",
+		filepath.Dir(dir), "../../testdata", "goas.json",
 	)
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
