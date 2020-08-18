@@ -43,16 +43,13 @@ func RunGraphQLServer(c *cli.Context) error {
 		// add api clients to hashmap
 		nr.AddAPIConnection(v, conn)
 	}
-	// test publication api endpoint
-	if err := checkEndpoint((c.String("publication-api") + "/" + "30048658")); err != nil {
+	endpoints := []string{c.String("publication-api") + "/" + "30048658", c.String("organism-api")}
+	// test all api endpoints
+	if err := checkEndpoints(endpoints); err != nil {
 		return err
 	}
-	// publication api status is fine, so add it to registry
+	// apis came back ok, add to registry
 	nr.AddAPIEndpoint(registry.PUBLICATION, c.String("publication-api"))
-	// now test and add api for organism download data
-	if err := checkEndpoint((c.String("organism-api"))); err != nil {
-		return err
-	}
 	nr.AddAPIEndpoint(registry.ORGANISM, c.String("organism-api"))
 	// add redis to registry
 	radd := fmt.Sprintf("%s:%s", c.String("redis-master-service-host"), c.String("redis-master-service-port"))
@@ -77,19 +74,21 @@ func RunGraphQLServer(c *cli.Context) error {
 	return nil
 }
 
-func checkEndpoint(url string) error {
-	res, err := http.Get(url)
-	if err != nil {
-		return cli.NewExitError(
-			fmt.Sprintf("cannot reach api endpoint %s", err),
-			2,
-		)
-	}
-	if res.StatusCode != http.StatusOK {
-		return cli.NewExitError(
-			fmt.Sprintf("did not get ok status from api endpoint, got %v instead", res.StatusCode),
-			2,
-		)
+func checkEndpoints(urls []string) error {
+	for _, url := range urls {
+		res, err := http.Get(url)
+		if err != nil {
+			return cli.NewExitError(
+				fmt.Sprintf("cannot reach api endpoint %s", err),
+				2,
+			)
+		}
+		if res.StatusCode != http.StatusOK {
+			return cli.NewExitError(
+				fmt.Sprintf("did not get ok status from api endpoint, got %v instead", res.StatusCode),
+				2,
+			)
+		}
 	}
 	return nil
 }
