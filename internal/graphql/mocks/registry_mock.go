@@ -14,24 +14,24 @@ import (
 )
 
 type MockRegistry struct {
-	connMap *hashmap.Map
+	ConnMap *hashmap.Map
 }
 
 func (mr *MockRegistry) AddAPIEndpoint(key, endpoint string) {
-	mr.connMap.Put(key, endpoint)
+	mr.ConnMap.Put(key, endpoint)
 }
 
 func (mr *MockRegistry) AddAPIConnection(key string, conn *grpc.ClientConn) {
-	mr.connMap.Put(key, conn)
+	mr.ConnMap.Put(key, conn)
 }
 
 func (mr *MockRegistry) AddRepository(key string, st repository.Repository) {
-	mr.connMap.Put(key, st)
+	mr.ConnMap.Put(key, st)
 }
 
 // GetAPIClient looks up a client in the hashmap
 func (mr *MockRegistry) GetAPIConnection(key string) (conn *grpc.ClientConn) {
-	v, ok := mr.connMap.Get(key)
+	v, ok := mr.ConnMap.Get(key)
 	if !ok {
 		panic("could not get grpc client connection")
 	}
@@ -76,13 +76,13 @@ func (mr *MockRegistry) GetIdentityClient(key string) identity.IdentityServiceCl
 }
 
 func (mr MockRegistry) GetAPIEndpoint(key string) string {
-	v, _ := mr.connMap.Get(key)
+	v, _ := mr.ConnMap.Get(key)
 	endpoint, _ := v.(string)
 	return endpoint
 }
 
 func (mr MockRegistry) GetRedisRepository(key string) repository.Repository {
-	v, _ := mr.connMap.Get(key)
+	v, _ := mr.ConnMap.Get(key)
 	st, _ := v.(repository.Repository)
 	return st
 }
