@@ -20,7 +20,7 @@ allowedOrigins:
   - "https://*.dictybase.org"
   - "https://*.dictycr.org"
   - "https://*.dictybase.dev"
-  - "http://localhost:*"
+  # - "http://localhost:*"
 
 # endpoints:
 # publication: https://ericfunc.dictybase.dev/publications

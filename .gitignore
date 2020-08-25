@@ -7,3 +7,5 @@ cover.out
 draft.toml
 
 *.log
+
+.DS_STORE
