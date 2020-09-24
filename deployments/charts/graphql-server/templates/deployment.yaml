@@ -25,13 +25,22 @@ spec:
             "--log-level",
             "{{ .Values.logLevel }}",
             "start-server",
-            "--publication-api",
-            "{{ .Values.endpoints.publication }}",
             {{ range .Values.allowedOrigins }}
             "--allowed-origin",
             {{ . | quote }},
             {{ end }}
           ]
+          env:
+          - name: PUBLICATION_API_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: dictybase-configuration
+                key: endpoints.publication
+          - name: ORGANISM_API_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: dictybase-configuration
+                key: endpoints.organism
           ports:
             - name: {{ .Values.service.name }}
               containerPort: {{ .Values.service.port }}

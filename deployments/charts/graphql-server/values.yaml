@@ -16,6 +16,7 @@ service:
 
 logLevel: debug
 
+# necessary to prevent CORS issues
 allowedOrigins:
   - "https://*.dictybase.org"
   - "https://*.dictycr.org"
