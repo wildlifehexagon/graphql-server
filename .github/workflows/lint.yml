@@ -5,7 +5,7 @@ on:
       - master
 jobs:
   lint:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: check out code
         uses: actions/checkout@v1
