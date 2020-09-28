@@ -23,9 +23,12 @@ allowedOrigins:
   - "https://*.dictybase.dev"
   # - "http://localhost:*"
 
-# endpoints:
-# publication: https://ericfunc.dictybase.dev/publications
-# organism: https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/organisms-with-citations.staging.json
+# values for http endpoints
+dictybaseConfiguration:
+  configMap:
+    name: dictybase-configuration
+    publication: endpoints.publication # https://ericfunc.dictybase.dev/publications
+    organism: endpoints.organism # https://raw.githubusercontent.com/dictyBase/migration-data/master/downloads/organisms-with-citations.staging.json
 
 resources:
   {}
