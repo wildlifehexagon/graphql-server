@@ -76,6 +76,14 @@ OPTIONS:
 
 [Full development guide](./docs/development.md) available in the `docs` folder.
 
+In order to use the GraphQL Playground, you will need to add the following custom HTTP header:
+
+```json
+{
+  "X-GraphQL-Method": "Query"
+}
+```
+
 ## Active Developers
 
 <a href="https://sourcerer.io/cybersiddhu"><img src="https://sourcerer.io/assets/avatar/cybersiddhu" height="80px" alt="Sourcerer"></a>
