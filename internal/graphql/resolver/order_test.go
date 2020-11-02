@@ -44,11 +44,7 @@ func TestListOrders(t *testing.T) {
 	cursor := 0
 	limit := 10
 	filter := "type===strain"
-	o, err := ord.ListOrders(context.Background(), &models.ListOrderInput{
-		Cursor: &cursor,
-		Limit:  &limit,
-		Filter: &filter,
-	})
+	o, err := ord.ListOrders(context.Background(), &cursor, &limit, &filter)
 	assert.NoError(err, "expect no error from getting list of orders")
 	assert.Exactly(o.Limit, &limit, "should match limit")
 	assert.Exactly(o.PreviousCursor, 0, "should match previous cursor")

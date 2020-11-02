@@ -68,11 +68,7 @@ func TestListPlasmids(t *testing.T) {
 	cursor := 0
 	limit := 10
 	filter := "type===plasmid"
-	p, err := q.ListPlasmids(context.Background(), &models.ListStockInput{
-		Cursor: &cursor,
-		Limit:  &limit,
-		Filter: &filter,
-	})
+	p, err := q.ListPlasmids(context.Background(), &cursor, &limit, &filter)
 	assert.NoError(err, "expect no error from getting list of strains")
 	assert.Exactly(p.Limit, &limit, "should match limit")
 	assert.Exactly(p.PreviousCursor, cursor, "should match previous cursor")
@@ -91,11 +87,7 @@ func TestListStrains(t *testing.T) {
 	cursor := 0
 	limit := 10
 	filter := "type===strain"
-	s, err := q.ListStrains(context.Background(), &models.ListStockInput{
-		Cursor: &cursor,
-		Limit:  &limit,
-		Filter: &filter,
-	})
+	s, err := q.ListStrains(context.Background(), &cursor, &limit, &filter)
 	assert.NoError(err, "expect no error from getting list of strains")
 	assert.Exactly(s.Limit, &limit, "should match limit")
 	assert.Exactly(s.PreviousCursor, cursor, "should match previous cursor")
@@ -113,11 +105,7 @@ func TestListStrainsWithPhenotype(t *testing.T) {
 	}
 	cursor := 0
 	limit := 10
-	s, err := q.ListStrainsWithPhenotype(context.Background(), &models.ListStrainsWithPhenotypeInput{
-		Cursor:    &cursor,
-		Limit:     &limit,
-		Phenotype: "delayed culmination",
-	})
+	s, err := q.ListStrainsWithPhenotype(context.Background(), &cursor, &limit, "delayed culmination")
 	assert.NoError(err, "expect no error from getting list of strains")
 	assert.Exactly(s.Limit, &limit, "should match limit")
 	assert.Exactly(s.PreviousCursor, cursor, "should match previous cursor")
