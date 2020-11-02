@@ -238,11 +238,11 @@ func (q *QueryResolver) Strain(ctx context.Context, id string) (*models.Strain, 
 	return stock.ConvertToStrainModel(strainID, n.Data.Attributes), nil
 }
 
-func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error) {
-	cursor := getCursor(input.Cursor)
-	limit := getLimit(input.Limit)
-	filter := getFilter(input.Filter)
-	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
+func (q *QueryResolver) ListStrains(ctx context.Context, cursor *int, limit *int, filter *string) (*models.StrainListWithCursor, error) {
+	c := getCursor(cursor)
+	l := getLimit(limit)
+	f := getFilter(filter)
+	list, err := q.GetStockClient(registry.STOCK).ListStrains(ctx, &pb.StockParameters{Cursor: c, Limit: l, Filter: f})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
@@ -254,22 +254,22 @@ func (q *QueryResolver) ListStrains(ctx context.Context, input *models.ListStock
 		item := stock.ConvertToStrainModel(n.Id, attr)
 		strains = append(strains, item)
 	}
-	l := int(list.Meta.Limit)
+	lm := int(list.Meta.Limit)
 	q.Logger.Debugf("successfully retrieved list of %v strains", list.Meta.Total)
 	return &models.StrainListWithCursor{
 		Strains:        strains,
 		NextCursor:     int(list.Meta.NextCursor),
-		PreviousCursor: int(cursor),
-		Limit:          &l,
+		PreviousCursor: int(c),
+		Limit:          &lm,
 		TotalCount:     int(list.Meta.Total),
 	}, nil
 }
 
-func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStockInput) (*models.PlasmidListWithCursor, error) {
-	cursor := getCursor(input.Cursor)
-	limit := getLimit(input.Limit)
-	filter := getFilter(input.Filter)
-	list, err := q.GetStockClient(registry.STOCK).ListPlasmids(ctx, &pb.StockParameters{Cursor: cursor, Limit: limit, Filter: filter})
+func (q *QueryResolver) ListPlasmids(ctx context.Context, cursor *int, limit *int, filter *string) (*models.PlasmidListWithCursor, error) {
+	c := getCursor(cursor)
+	l := getLimit(limit)
+	f := getFilter(filter)
+	list, err := q.GetStockClient(registry.STOCK).ListPlasmids(ctx, &pb.StockParameters{Cursor: c, Limit: l, Filter: f})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
@@ -281,25 +281,25 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, input *models.ListStoc
 		item := stock.ConvertToPlasmidModel(n.Id, attr)
 		plasmids = append(plasmids, item)
 	}
-	l := int(list.Meta.Limit)
+	lm := int(list.Meta.Limit)
 	q.Logger.Debugf("successfully retrieved list of %v plasmids", list.Meta.Total)
 	return &models.PlasmidListWithCursor{
 		Plasmids:       plasmids,
 		NextCursor:     int(list.Meta.NextCursor),
-		PreviousCursor: int(cursor),
-		Limit:          &l,
+		PreviousCursor: int(c),
+		Limit:          &lm,
 		TotalCount:     int(list.Meta.Total),
 	}, nil
 }
 
-func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, input *models.ListStrainsWithPhenotypeInput) (*models.StrainListWithCursor, error) {
+func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *int, limit *int, phenotype string) (*models.StrainListWithCursor, error) {
 	strains := []*models.Strain{}
-	cursor := getCursor(input.Cursor)
-	limit := getLimit(input.Limit)
+	c := getCursor(cursor)
+	l := getLimit(limit)
 	ph, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &annotation.ListParameters{
-		Cursor: cursor,
-		Limit:  limit,
-		Filter: fmt.Sprintf("ontology==%s;tag==%s", registry.PhenoOntology, input.Phenotype),
+		Cursor: c,
+		Limit:  l,
+		Filter: fmt.Sprintf("ontology==%s;tag==%s", registry.PhenoOntology, phenotype),
 	})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -319,12 +319,12 @@ func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, input *mod
 	  Some phenotypes list the same strain ID more than once. Consider a new approach
 	  to de-duping this list while also keeping the Meta data from the annotations list.
 	*/
-	l := int(ph.Meta.Limit)
+	lm := int(ph.Meta.Limit)
 	return &models.StrainListWithCursor{
 		Strains:        strains,
 		NextCursor:     int(ph.Meta.NextCursor),
-		PreviousCursor: int(cursor),
-		Limit:          &l,
+		PreviousCursor: int(c),
+		Limit:          &lm,
 		TotalCount:     len(ph.Data),
 	}, nil
 }

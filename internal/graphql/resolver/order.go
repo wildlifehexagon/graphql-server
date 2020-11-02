@@ -128,25 +128,11 @@ func (q *QueryResolver) Order(ctx context.Context, id string) (*pb.Order, error)
 }
 
 // ListOrders retrieves all orders in the database.
-func (q *QueryResolver) ListOrders(ctx context.Context, input *models.ListOrderInput) (*models.OrderListWithCursor, error) {
-	var cursor, limit int64
-	var filter string
-	if input.Cursor != nil {
-		cursor = int64(*input.Cursor)
-	} else {
-		cursor = 0
-	}
-	if input.Limit != nil {
-		limit = int64(*input.Limit)
-	} else {
-		limit = 10
-	}
-	if input.Filter != nil {
-		filter = *input.Filter
-	} else {
-		filter = ""
-	}
-	list, err := q.GetOrderClient(registry.ORDER).ListOrders(ctx, &pb.ListParameters{Cursor: cursor, Limit: limit, Filter: filter})
+func (q *QueryResolver) ListOrders(ctx context.Context, cursor *int, limit *int, filter *string) (*models.OrderListWithCursor, error) {
+	c := getCursor(cursor)
+	l := getLimit(limit)
+	f := getFilter(filter)
+	list, err := q.GetOrderClient(registry.ORDER).ListOrders(ctx, &pb.ListParameters{Cursor: c, Limit: l, Filter: f})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
@@ -163,12 +149,12 @@ func (q *QueryResolver) ListOrders(ctx context.Context, input *models.ListOrderI
 		}
 		orders = append(orders, item)
 	}
-	l := int(limit)
+	lm := int(l)
 	return &models.OrderListWithCursor{
 		Orders:         orders,
 		NextCursor:     int(list.Meta.NextCursor),
-		PreviousCursor: int(cursor),
-		Limit:          &l,
+		PreviousCursor: int(c),
+		Limit:          &lm,
 		TotalCount:     len(orders),
 	}, nil
 }

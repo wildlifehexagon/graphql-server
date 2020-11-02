@@ -176,24 +176,6 @@ type Identity struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-type ListOrderInput struct {
-	Cursor *int    `json:"cursor"`
-	Limit  *int    `json:"limit"`
-	Filter *string `json:"filter"`
-}
-
-type ListStockInput struct {
-	Cursor *int    `json:"cursor"`
-	Limit  *int    `json:"limit"`
-	Filter *string `json:"filter"`
-}
-
-type ListStrainsWithPhenotypeInput struct {
-	Cursor    *int   `json:"cursor"`
-	Limit     *int   `json:"limit"`
-	Phenotype string `json:"phenotype"`
-}
-
 type LoginInput struct {
 	ClientID    string `json:"client_id"`
 	State       string `json:"state"`

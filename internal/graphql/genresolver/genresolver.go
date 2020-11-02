@@ -345,7 +345,7 @@ func (r *queryResolver) Order(ctx context.Context, id string) (*order.Order, err
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListOrders(ctx context.Context, input *models.ListOrderInput) (*models.OrderListWithCursor, error) {
+func (r *queryResolver) ListOrders(ctx context.Context, cursor *int, limit *int, filter *string) (*models.OrderListWithCursor, error) {
 	panic("not implemented")
 }
 
@@ -361,15 +361,15 @@ func (r *queryResolver) Strain(ctx context.Context, id string) (*models.Strain, 
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error) {
+func (r *queryResolver) ListStrains(ctx context.Context, cursor *int, limit *int, filter *string) (*models.StrainListWithCursor, error) {
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListPlasmids(ctx context.Context, input *models.ListStockInput) (*models.PlasmidListWithCursor, error) {
+func (r *queryResolver) ListPlasmids(ctx context.Context, cursor *int, limit *int, filter *string) (*models.PlasmidListWithCursor, error) {
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListStrainsWithPhenotype(ctx context.Context, input *models.ListStrainsWithPhenotypeInput) (*models.StrainListWithCursor, error) {
+func (r *queryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *int, limit *int, phenotype string) (*models.StrainListWithCursor, error) {
 	panic("not implemented")
 }
 

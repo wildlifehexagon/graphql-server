@@ -287,13 +287,13 @@ type ComplexityRoot struct {
 		ContentBySlug            func(childComplexity int, slug string) int
 		Gene                     func(childComplexity int, gene string) int
 		GetRefreshToken          func(childComplexity int, token string) int
-		ListOrders               func(childComplexity int, input *models.ListOrderInput) int
+		ListOrders               func(childComplexity int, cursor *int, limit *int, filter *string) int
 		ListOrganisms            func(childComplexity int) int
 		ListPermissions          func(childComplexity int) int
-		ListPlasmids             func(childComplexity int, input *models.ListStockInput) int
+		ListPlasmids             func(childComplexity int, cursor *int, limit *int, filter *string) int
 		ListRoles                func(childComplexity int) int
-		ListStrains              func(childComplexity int, input *models.ListStockInput) int
-		ListStrainsWithPhenotype func(childComplexity int, input *models.ListStrainsWithPhenotypeInput) int
+		ListStrains              func(childComplexity int, cursor *int, limit *int, filter *string) int
+		ListStrainsWithPhenotype func(childComplexity int, cursor *int, limit *int, phenotype string) int
 		ListUsers                func(childComplexity int, pagenum string, pagesize string, filter string) int
 		Order                    func(childComplexity int, id string) int
 		Organism                 func(childComplexity int, taxonID string) int
@@ -488,13 +488,13 @@ type QueryResolver interface {
 	ListOrganisms(ctx context.Context) ([]*models.Organism, error)
 	Gene(ctx context.Context, gene string) (*models.Gene, error)
 	Order(ctx context.Context, id string) (*order.Order, error)
-	ListOrders(ctx context.Context, input *models.ListOrderInput) (*models.OrderListWithCursor, error)
+	ListOrders(ctx context.Context, cursor *int, limit *int, filter *string) (*models.OrderListWithCursor, error)
 	Publication(ctx context.Context, id string) (*publication.Publication, error)
 	Plasmid(ctx context.Context, id string) (*models.Plasmid, error)
 	Strain(ctx context.Context, id string) (*models.Strain, error)
-	ListStrains(ctx context.Context, input *models.ListStockInput) (*models.StrainListWithCursor, error)
-	ListPlasmids(ctx context.Context, input *models.ListStockInput) (*models.PlasmidListWithCursor, error)
-	ListStrainsWithPhenotype(ctx context.Context, input *models.ListStrainsWithPhenotypeInput) (*models.StrainListWithCursor, error)
+	ListStrains(ctx context.Context, cursor *int, limit *int, filter *string) (*models.StrainListWithCursor, error)
+	ListPlasmids(ctx context.Context, cursor *int, limit *int, filter *string) (*models.PlasmidListWithCursor, error)
+	ListStrainsWithPhenotype(ctx context.Context, cursor *int, limit *int, phenotype string) (*models.StrainListWithCursor, error)
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
@@ -1745,7 +1745,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListOrders(childComplexity, args["input"].(*models.ListOrderInput)), true
+		return e.complexity.Query.ListOrders(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string)), true
 
 	case "Query.listOrganisms":
 		if e.complexity.Query.ListOrganisms == nil {
@@ -1771,7 +1771,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListPlasmids(childComplexity, args["input"].(*models.ListStockInput)), true
+		return e.complexity.Query.ListPlasmids(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string)), true
 
 	case "Query.listRoles":
 		if e.complexity.Query.ListRoles == nil {
@@ -1790,7 +1790,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListStrains(childComplexity, args["input"].(*models.ListStockInput)), true
+		return e.complexity.Query.ListStrains(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string)), true
 
 	case "Query.listStrainsWithPhenotype":
 		if e.complexity.Query.ListStrainsWithPhenotype == nil {
@@ -1802,7 +1802,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListStrainsWithPhenotype(childComplexity, args["input"].(*models.ListStrainsWithPhenotypeInput)), true
+		return e.complexity.Query.ListStrainsWithPhenotype(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["phenotype"].(string)), true
 
 	case "Query.listUsers":
 		if e.complexity.Query.ListUsers == nil {
@@ -2590,12 +2590,6 @@ input UpdateOrderInput {
   status: StatusEnum
   items: [String]
 }
-
-input ListOrderInput {
-  cursor: Int
-  limit: Int
-  filter: String
-}
 `, BuiltIn: false},
 	{Name: "api/publication.graphql", Input: `type Publication {
   id: ID!
@@ -2686,16 +2680,18 @@ type Author {
   gene(gene: String!): Gene
   # Order queries
   order(id: ID!): Order
-  listOrders(input: ListOrderInput): OrderListWithCursor
+  listOrders(cursor: Int, limit: Int, filter: String): OrderListWithCursor
   # Publication queries
   publication(id: ID!): Publication
   # Stock queries
   plasmid(id: ID!): Plasmid
   strain(id: ID!): Strain
-  listStrains(input: ListStockInput): StrainListWithCursor
-  listPlasmids(input: ListStockInput): PlasmidListWithCursor
+  listStrains(cursor: Int, limit: Int, filter: String): StrainListWithCursor
+  listPlasmids(cursor: Int, limit: Int, filter: String): PlasmidListWithCursor
   listStrainsWithPhenotype(
-    input: ListStrainsWithPhenotypeInput
+    cursor: Int
+    limit: Int
+    phenotype: String!
   ): StrainListWithCursor
   # listStrainsWithCharacteristic(characteristic: String!): [Strain!]
   # listStrainsWithAnno(anno: String!): [Strain!]
@@ -2888,18 +2884,6 @@ input UpdatePlasmidInput {
   in_stock: Boolean
   keywords: [String]
   genbank_accession: String
-}
-
-input ListStockInput {
-  cursor: Int
-  limit: Int
-  filter: String
-}
-
-input ListStrainsWithPhenotypeInput {
-  cursor: Int
-  limit: Int
-  phenotype: String!
 }
 `, BuiltIn: false},
 	{Name: "api/user.graphql", Input: `type Permission {
@@ -3499,60 +3483,132 @@ func (ec *executionContext) field_Query_getRefreshToken_args(ctx context.Context
 func (ec *executionContext) field_Query_listOrders_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *models.ListOrderInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
-		arg0, err = ec.unmarshalOListOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListOrderInput(ctx, tmp)
+	var arg0 *int
+	if tmp, ok := rawArgs["cursor"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
 	return args, nil
 }
 
 func (ec *executionContext) field_Query_listPlasmids_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *models.ListStockInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
-		arg0, err = ec.unmarshalOListStockInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx, tmp)
+	var arg0 *int
+	if tmp, ok := rawArgs["cursor"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
 	return args, nil
 }
 
 func (ec *executionContext) field_Query_listStrainsWithPhenotype_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *models.ListStrainsWithPhenotypeInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
-		arg0, err = ec.unmarshalOListStrainsWithPhenotypeInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStrainsWithPhenotypeInput(ctx, tmp)
+	var arg0 *int
+	if tmp, ok := rawArgs["cursor"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["phenotype"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phenotype"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["phenotype"] = arg2
 	return args, nil
 }
 
 func (ec *executionContext) field_Query_listStrains_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *models.ListStockInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("input"))
-		arg0, err = ec.unmarshalOListStockInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx, tmp)
+	var arg0 *int
+	if tmp, ok := rawArgs["cursor"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
 	return args, nil
 }
 
@@ -8922,7 +8978,7 @@ func (ec *executionContext) _Query_listOrders(ctx context.Context, field graphql
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListOrders(rctx, args["input"].(*models.ListOrderInput))
+		return ec.resolvers.Query().ListOrders(rctx, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9074,7 +9130,7 @@ func (ec *executionContext) _Query_listStrains(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListStrains(rctx, args["input"].(*models.ListStockInput))
+		return ec.resolvers.Query().ListStrains(rctx, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9112,7 +9168,7 @@ func (ec *executionContext) _Query_listPlasmids(ctx context.Context, field graph
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListPlasmids(rctx, args["input"].(*models.ListStockInput))
+		return ec.resolvers.Query().ListPlasmids(rctx, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9150,7 +9206,7 @@ func (ec *executionContext) _Query_listStrainsWithPhenotype(ctx context.Context,
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListStrainsWithPhenotype(rctx, args["input"].(*models.ListStrainsWithPhenotypeInput))
+		return ec.resolvers.Query().ListStrainsWithPhenotype(rctx, args["cursor"].(*int), args["limit"].(*int), args["phenotype"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13034,114 +13090,6 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 
 			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("is_active"))
 			it.IsActive, err = ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputListOrderInput(ctx context.Context, obj interface{}) (models.ListOrderInput, error) {
-	var it models.ListOrderInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "cursor":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
-			it.Cursor, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "limit":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
-			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "filter":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
-			it.Filter, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputListStockInput(ctx context.Context, obj interface{}) (models.ListStockInput, error) {
-	var it models.ListStockInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "cursor":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
-			it.Cursor, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "limit":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
-			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "filter":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
-			it.Filter, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputListStrainsWithPhenotypeInput(ctx context.Context, obj interface{}) (models.ListStrainsWithPhenotypeInput, error) {
-	var it models.ListStrainsWithPhenotypeInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "cursor":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
-			it.Cursor, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "limit":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
-			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "phenotype":
-			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phenotype"))
-			it.Phenotype, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17566,30 +17514,6 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return graphql.MarshalInt(*v)
-}
-
-func (ec *executionContext) unmarshalOListOrderInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListOrderInput(ctx context.Context, v interface{}) (*models.ListOrderInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputListOrderInput(ctx, v)
-	return &res, graphql.WrapErrorWithInputPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOListStockInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockInput(ctx context.Context, v interface{}) (*models.ListStockInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputListStockInput(ctx, v)
-	return &res, graphql.WrapErrorWithInputPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOListStrainsWithPhenotypeInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStrainsWithPhenotypeInput(ctx context.Context, v interface{}) (*models.ListStrainsWithPhenotypeInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputListStrainsWithPhenotypeInput(ctx, v)
-	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOLoginInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (*models.LoginInput, error) {
