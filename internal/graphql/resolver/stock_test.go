@@ -114,6 +114,24 @@ func TestListStrainsWithPhenotype(t *testing.T) {
 	assert.Len(s.Strains, 4, "should have four strains")
 }
 
+func TestListStrainsWithCharacteristic(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	q := &QueryResolver{
+		Registry: &mocks.MockRegistry{},
+		Logger:   mocks.TestLogger(),
+	}
+	cursor := 0
+	limit := 10
+	s, err := q.ListStrainsWithCharacteristic(context.Background(), &cursor, &limit, "bacterial food source")
+	assert.NoError(err, "expect no error from getting list of strains")
+	assert.Exactly(s.Limit, &limit, "should match limit")
+	assert.Exactly(s.PreviousCursor, cursor, "should match previous cursor")
+	assert.Exactly(s.NextCursor, 0, "should not have value for next cursor since less results than limit")
+	assert.Exactly(s.TotalCount, 4, "should match total count (length) of items")
+	assert.Len(s.Strains, 4, "should have four strains")
+}
+
 func TestCreatePlasmid(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
