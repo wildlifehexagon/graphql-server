@@ -373,6 +373,10 @@ func (r *queryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *in
 	panic("not implemented")
 }
 
+func (r *queryResolver) ListStrainsWithCharacteristic(ctx context.Context, cursor *int, limit *int, characteristic string) (*models.StrainListWithCursor, error) {
+	panic("not implemented")
+}
+
 func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error) {
 	panic("not implemented")
 }

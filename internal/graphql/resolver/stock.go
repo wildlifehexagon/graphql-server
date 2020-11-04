@@ -329,6 +329,10 @@ func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *in
 	}, nil
 }
 
+func (r *queryResolver) ListStrainsWithCharacteristic(ctx context.Context, cursor *int, limit *int, characteristic string) (*models.StrainListWithCursor, error) {
+	panic("not implemented")
+}
+
 func getCursor(c *int) int64 {
 	var cursor int64
 	if c != nil {
