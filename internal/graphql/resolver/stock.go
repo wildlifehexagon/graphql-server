@@ -329,8 +329,37 @@ func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *in
 	}, nil
 }
 
-func (r *queryResolver) ListStrainsWithCharacteristic(ctx context.Context, cursor *int, limit *int, characteristic string) (*models.StrainListWithCursor, error) {
-	panic("not implemented")
+func (q *QueryResolver) ListStrainsWithCharacteristic(ctx context.Context, cursor *int, limit *int, characteristic string) (*models.StrainListWithCursor, error) {
+	strains := []*models.Strain{}
+	c := getCursor(cursor)
+	l := getLimit(limit)
+	ch, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &annotation.ListParameters{
+		Cursor: c,
+		Limit:  l,
+		Filter: fmt.Sprintf("ontology==%s;tag==%s", registry.StrainCharOnto, characteristic),
+	})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
+	}
+	for _, v := range ch.Data {
+		strain, err := q.Strain(ctx, v.Attributes.EntryId)
+		if err != nil {
+			errorutils.AddGQLError(ctx, err)
+			q.Logger.Error(err)
+			return nil, err
+		}
+		strains = append(strains, strain)
+	}
+	lm := int(ch.Meta.Limit)
+	return &models.StrainListWithCursor{
+		Strains:        strains,
+		NextCursor:     int(ch.Meta.NextCursor),
+		PreviousCursor: int(c),
+		Limit:          &lm,
+		TotalCount:     len(ch.Data),
+	}, nil
 }
 
 func getCursor(c *int) int64 {
