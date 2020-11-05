@@ -6,6 +6,7 @@ import (
 
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
+	"github.com/dictyBase/graphql-server/internal/registry"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -96,7 +97,7 @@ func TestListStrains(t *testing.T) {
 	assert.Len(s.Strains, 3, "should have three strains")
 }
 
-func TestListStrainsWithPhenotype(t *testing.T) {
+func TestListStrainsWithAnnotation(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
 	q := &QueryResolver{
@@ -105,25 +106,7 @@ func TestListStrainsWithPhenotype(t *testing.T) {
 	}
 	cursor := 0
 	limit := 10
-	s, err := q.ListStrainsWithPhenotype(context.Background(), &cursor, &limit, "delayed culmination")
-	assert.NoError(err, "expect no error from getting list of strains")
-	assert.Exactly(s.Limit, &limit, "should match limit")
-	assert.Exactly(s.PreviousCursor, cursor, "should match previous cursor")
-	assert.Exactly(s.NextCursor, 0, "should not have value for next cursor since less results than limit")
-	assert.Exactly(s.TotalCount, 4, "should match total count (length) of items")
-	assert.Len(s.Strains, 4, "should have four strains")
-}
-
-func TestListStrainsWithCharacteristic(t *testing.T) {
-	t.Parallel()
-	assert := assert.New(t)
-	q := &QueryResolver{
-		Registry: &mocks.MockRegistry{},
-		Logger:   mocks.TestLogger(),
-	}
-	cursor := 0
-	limit := 10
-	s, err := q.ListStrainsWithCharacteristic(context.Background(), &cursor, &limit, "bacterial food source")
+	s, err := q.ListStrainsWithAnnotation(context.Background(), &cursor, &limit, "phenotype", "delayed culmination")
 	assert.NoError(err, "expect no error from getting list of strains")
 	assert.Exactly(s.Limit, &limit, "should match limit")
 	assert.Exactly(s.PreviousCursor, cursor, "should match previous cursor")
@@ -251,6 +234,14 @@ func TestUpdateStrain(t *testing.T) {
 	assert.Exactly(p.Label, mocks.MockUpdateStrainAttributes.Label, "should match existing label")
 	assert.Exactly(p.Species, mocks.MockUpdateStrainAttributes.Species, "should match existing species")
 	assert.Exactly(p.Plasmid, &mocks.MockUpdateStrainAttributes.Plasmid, "should match plasmid")
+}
+
+func TestGetOntology(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	assert.Exactly(getOntology("phenotype"), registry.PhenoOntology, "should return phenotype ontology")
+	assert.Exactly(getOntology("characteristic"), registry.StrainCharOnto, "should return strain characteristics ontology")
+	assert.Exactly(getOntology("banana"), "invalid ontology", "should return invalid ontology")
 }
 
 func sliceConverter(s []string) []*string {
