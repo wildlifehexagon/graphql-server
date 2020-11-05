@@ -369,11 +369,7 @@ func (r *queryResolver) ListPlasmids(ctx context.Context, cursor *int, limit *in
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *int, limit *int, phenotype string) (*models.StrainListWithCursor, error) {
-	panic("not implemented")
-}
-
-func (r *queryResolver) ListStrainsWithCharacteristic(ctx context.Context, cursor *int, limit *int, characteristic string) (*models.StrainListWithCursor, error) {
+func (r *queryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.StrainListWithCursor, error) {
 	panic("not implemented")
 }
 

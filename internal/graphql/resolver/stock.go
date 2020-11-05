@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
+	anno "github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
@@ -292,21 +292,22 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, cursor *int, limit *in
 	}, nil
 }
 
-func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *int, limit *int, phenotype string) (*models.StrainListWithCursor, error) {
+func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.StrainListWithCursor, error) {
 	strains := []*models.Strain{}
 	c := getCursor(cursor)
 	l := getLimit(limit)
-	ph, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &annotation.ListParameters{
+	o := getOntology(typeArg)
+	a, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &anno.ListParameters{
 		Cursor: c,
 		Limit:  l,
-		Filter: fmt.Sprintf("ontology==%s;tag==%s", registry.PhenoOntology, phenotype),
+		Filter: fmt.Sprintf("ontology==%s;tag==%s", o, annotation),
 	})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		q.Logger.Error(err)
 		return nil, err
 	}
-	for _, v := range ph.Data {
+	for _, v := range a.Data {
 		strain, err := q.Strain(ctx, v.Attributes.EntryId)
 		if err != nil {
 			errorutils.AddGQLError(ctx, err)
@@ -319,46 +320,13 @@ func (q *QueryResolver) ListStrainsWithPhenotype(ctx context.Context, cursor *in
 	  Some phenotypes list the same strain ID more than once. Consider a new approach
 	  to de-duping this list while also keeping the Meta data from the annotations list.
 	*/
-	lm := int(ph.Meta.Limit)
+	lm := int(a.Meta.Limit)
 	return &models.StrainListWithCursor{
 		Strains:        strains,
-		NextCursor:     int(ph.Meta.NextCursor),
+		NextCursor:     int(a.Meta.NextCursor),
 		PreviousCursor: int(c),
 		Limit:          &lm,
-		TotalCount:     len(ph.Data),
-	}, nil
-}
-
-func (q *QueryResolver) ListStrainsWithCharacteristic(ctx context.Context, cursor *int, limit *int, characteristic string) (*models.StrainListWithCursor, error) {
-	strains := []*models.Strain{}
-	c := getCursor(cursor)
-	l := getLimit(limit)
-	ch, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &annotation.ListParameters{
-		Cursor: c,
-		Limit:  l,
-		Filter: fmt.Sprintf("ontology==%s;tag==%s", registry.StrainCharOnto, characteristic),
-	})
-	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		q.Logger.Error(err)
-		return nil, err
-	}
-	for _, v := range ch.Data {
-		strain, err := q.Strain(ctx, v.Attributes.EntryId)
-		if err != nil {
-			errorutils.AddGQLError(ctx, err)
-			q.Logger.Error(err)
-			return nil, err
-		}
-		strains = append(strains, strain)
-	}
-	lm := int(ch.Meta.Limit)
-	return &models.StrainListWithCursor{
-		Strains:        strains,
-		NextCursor:     int(ch.Meta.NextCursor),
-		PreviousCursor: int(c),
-		Limit:          &lm,
-		TotalCount:     len(ch.Data),
+		TotalCount:     len(a.Data),
 	}, nil
 }
 
@@ -390,4 +358,17 @@ func getFilter(f *string) string {
 		filter = ""
 	}
 	return filter
+}
+
+func getOntology(onto string) string {
+	var o string
+	switch onto {
+	case "phenotype":
+		o = registry.PhenoOntology
+	case "characteristic":
+		o = registry.StrainCharOnto
+	default:
+		o = "invalid ontology"
+	}
+	return o
 }

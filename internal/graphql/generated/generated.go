@@ -283,28 +283,27 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Content                       func(childComplexity int, id string) int
-		ContentBySlug                 func(childComplexity int, slug string) int
-		Gene                          func(childComplexity int, gene string) int
-		GetRefreshToken               func(childComplexity int, token string) int
-		ListOrders                    func(childComplexity int, cursor *int, limit *int, filter *string) int
-		ListOrganisms                 func(childComplexity int) int
-		ListPermissions               func(childComplexity int) int
-		ListPlasmids                  func(childComplexity int, cursor *int, limit *int, filter *string) int
-		ListRoles                     func(childComplexity int) int
-		ListStrains                   func(childComplexity int, cursor *int, limit *int, filter *string) int
-		ListStrainsWithCharacteristic func(childComplexity int, cursor *int, limit *int, characteristic string) int
-		ListStrainsWithPhenotype      func(childComplexity int, cursor *int, limit *int, phenotype string) int
-		ListUsers                     func(childComplexity int, pagenum string, pagesize string, filter string) int
-		Order                         func(childComplexity int, id string) int
-		Organism                      func(childComplexity int, taxonID string) int
-		Permission                    func(childComplexity int, id string) int
-		Plasmid                       func(childComplexity int, id string) int
-		Publication                   func(childComplexity int, id string) int
-		Role                          func(childComplexity int, id string) int
-		Strain                        func(childComplexity int, id string) int
-		User                          func(childComplexity int, id string) int
-		UserByEmail                   func(childComplexity int, email string) int
+		Content                   func(childComplexity int, id string) int
+		ContentBySlug             func(childComplexity int, slug string) int
+		Gene                      func(childComplexity int, gene string) int
+		GetRefreshToken           func(childComplexity int, token string) int
+		ListOrders                func(childComplexity int, cursor *int, limit *int, filter *string) int
+		ListOrganisms             func(childComplexity int) int
+		ListPermissions           func(childComplexity int) int
+		ListPlasmids              func(childComplexity int, cursor *int, limit *int, filter *string) int
+		ListRoles                 func(childComplexity int) int
+		ListStrains               func(childComplexity int, cursor *int, limit *int, filter *string) int
+		ListStrainsWithAnnotation func(childComplexity int, cursor *int, limit *int, typeArg string, annotation string) int
+		ListUsers                 func(childComplexity int, pagenum string, pagesize string, filter string) int
+		Order                     func(childComplexity int, id string) int
+		Organism                  func(childComplexity int, taxonID string) int
+		Permission                func(childComplexity int, id string) int
+		Plasmid                   func(childComplexity int, id string) int
+		Publication               func(childComplexity int, id string) int
+		Role                      func(childComplexity int, id string) int
+		Strain                    func(childComplexity int, id string) int
+		User                      func(childComplexity int, id string) int
+		UserByEmail               func(childComplexity int, email string) int
 	}
 
 	Role struct {
@@ -495,8 +494,7 @@ type QueryResolver interface {
 	Strain(ctx context.Context, id string) (*models.Strain, error)
 	ListStrains(ctx context.Context, cursor *int, limit *int, filter *string) (*models.StrainListWithCursor, error)
 	ListPlasmids(ctx context.Context, cursor *int, limit *int, filter *string) (*models.PlasmidListWithCursor, error)
-	ListStrainsWithPhenotype(ctx context.Context, cursor *int, limit *int, phenotype string) (*models.StrainListWithCursor, error)
-	ListStrainsWithCharacteristic(ctx context.Context, cursor *int, limit *int, characteristic string) (*models.StrainListWithCursor, error)
+	ListStrainsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.StrainListWithCursor, error)
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
@@ -1794,29 +1792,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ListStrains(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string)), true
 
-	case "Query.listStrainsWithCharacteristic":
-		if e.complexity.Query.ListStrainsWithCharacteristic == nil {
+	case "Query.listStrainsWithAnnotation":
+		if e.complexity.Query.ListStrainsWithAnnotation == nil {
 			break
 		}
 
-		args, err := ec.field_Query_listStrainsWithCharacteristic_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_listStrainsWithAnnotation_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.ListStrainsWithCharacteristic(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["characteristic"].(string)), true
-
-	case "Query.listStrainsWithPhenotype":
-		if e.complexity.Query.ListStrainsWithPhenotype == nil {
-			break
-		}
-
-		args, err := ec.field_Query_listStrainsWithPhenotype_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.ListStrainsWithPhenotype(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["phenotype"].(string)), true
+		return e.complexity.Query.ListStrainsWithAnnotation(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["type"].(string), args["annotation"].(string)), true
 
 	case "Query.listUsers":
 		if e.complexity.Query.ListUsers == nil {
@@ -2702,15 +2688,11 @@ type Author {
   strain(id: ID!): Strain
   listStrains(cursor: Int, limit: Int, filter: String): StrainListWithCursor
   listPlasmids(cursor: Int, limit: Int, filter: String): PlasmidListWithCursor
-  listStrainsWithPhenotype(
+  listStrainsWithAnnotation(
     cursor: Int
     limit: Int
-    phenotype: String!
-  ): StrainListWithCursor
-  listStrainsWithCharacteristic(
-    cursor: Int
-    limit: Int
-    characteristic: String!
+    type: String!
+    annotation: String!
   ): StrainListWithCursor
   # User queries
   user(id: ID!): User
@@ -3563,7 +3545,7 @@ func (ec *executionContext) field_Query_listPlasmids_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_listStrainsWithCharacteristic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_listStrainsWithAnnotation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -3585,47 +3567,23 @@ func (ec *executionContext) field_Query_listStrainsWithCharacteristic_args(ctx c
 	}
 	args["limit"] = arg1
 	var arg2 string
-	if tmp, ok := rawArgs["characteristic"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("characteristic"))
+	if tmp, ok := rawArgs["type"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("type"))
 		arg2, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["characteristic"] = arg2
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_listStrainsWithPhenotype_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["cursor"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("cursor"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+	args["type"] = arg2
+	var arg3 string
+	if tmp, ok := rawArgs["annotation"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("annotation"))
+		arg3, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["cursor"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("limit"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["phenotype"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phenotype"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["phenotype"] = arg2
+	args["annotation"] = arg3
 	return args, nil
 }
 
@@ -9232,7 +9190,7 @@ func (ec *executionContext) _Query_listPlasmids(ctx context.Context, field graph
 	return ec.marshalOPlasmidListWithCursor2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐPlasmidListWithCursor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_listStrainsWithPhenotype(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_listStrainsWithAnnotation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -9248,7 +9206,7 @@ func (ec *executionContext) _Query_listStrainsWithPhenotype(ctx context.Context,
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_listStrainsWithPhenotype_args(ctx, rawArgs)
+	args, err := ec.field_Query_listStrainsWithAnnotation_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -9256,45 +9214,7 @@ func (ec *executionContext) _Query_listStrainsWithPhenotype(ctx context.Context,
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListStrainsWithPhenotype(rctx, args["cursor"].(*int), args["limit"].(*int), args["phenotype"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*models.StrainListWithCursor)
-	fc.Result = res
-	return ec.marshalOStrainListWithCursor2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainListWithCursor(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_listStrainsWithCharacteristic(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Query",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_listStrainsWithCharacteristic_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListStrainsWithCharacteristic(rctx, args["cursor"].(*int), args["limit"].(*int), args["characteristic"].(string))
+		return ec.resolvers.Query().ListStrainsWithAnnotation(rctx, args["cursor"].(*int), args["limit"].(*int), args["type"].(string), args["annotation"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15532,7 +15452,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_listPlasmids(ctx, field)
 				return res
 			})
-		case "listStrainsWithPhenotype":
+		case "listStrainsWithAnnotation":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -15540,18 +15460,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_listStrainsWithPhenotype(ctx, field)
-				return res
-			})
-		case "listStrainsWithCharacteristic":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_listStrainsWithCharacteristic(ctx, field)
+				res = ec._Query_listStrainsWithAnnotation(ctx, field)
 				return res
 			})
 		case "user":
