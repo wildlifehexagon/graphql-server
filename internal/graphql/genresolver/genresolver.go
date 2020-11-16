@@ -373,6 +373,10 @@ func (r *queryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *i
 	panic("not implemented")
 }
 
+func (r *queryResolver) ListPlasmidsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.PlasmidListWithCursor, error) {
+	panic("not implemented")
+}
+
 func (r *queryResolver) User(ctx context.Context, id string) (*user.User, error) {
 	panic("not implemented")
 }

@@ -330,6 +330,10 @@ func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *i
 	}, nil
 }
 
+func (q *QueryResolver) ListPlasmidsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.PlasmidListWithCursor, error) {
+	panic("not implemented")
+}
+
 func getCursor(c *int) int64 {
 	var cursor int64
 	if c != nil {
