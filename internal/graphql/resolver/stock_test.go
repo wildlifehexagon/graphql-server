@@ -78,6 +78,24 @@ func TestListPlasmids(t *testing.T) {
 	assert.Len(p.Plasmids, 3, "should have three plasmids")
 }
 
+func TestListPlasmidsWithAnnotation(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	q := &QueryResolver{
+		Registry: &mocks.MockRegistry{},
+		Logger:   mocks.TestLogger(),
+	}
+	cursor := 0
+	limit := 10
+	s, err := q.ListPlasmidsWithAnnotation(context.Background(), &cursor, &limit, "plasmid_inventory", "plasmid inventory")
+	assert.NoError(err, "expect no error from getting list of plasmids")
+	assert.Equal(s.Limit, &limit, "should match limit")
+	assert.Equal(s.PreviousCursor, cursor, "should match previous cursor")
+	assert.Equal(s.NextCursor, 0, "should not have value for next cursor since less results than limit")
+	assert.Equal(s.TotalCount, 4, "should match total count (length) of items")
+	assert.Len(s.Plasmids, 4, "should have four plasmids")
+}
+
 func TestListStrains(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
