@@ -5,7 +5,7 @@ on:
       - develop
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     services:
       redis:
         image: redis:5.0.9-alpine
@@ -31,7 +31,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
   build:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: set up golang
         uses: actions/setup-go@v2
