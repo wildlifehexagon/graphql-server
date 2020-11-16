@@ -367,6 +367,10 @@ func getOntology(onto string) string {
 		o = registry.PhenoOntology
 	case "characteristic":
 		o = registry.StrainCharOnto
+	case "strain_inventory":
+		o = registry.StrainInvOnto
+	case "plasmid_inventory":
+		o = registry.PlasmidInvOnto
 	default:
 		o = "invalid ontology"
 	}
