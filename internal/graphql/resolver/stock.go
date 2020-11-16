@@ -331,7 +331,37 @@ func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *i
 }
 
 func (q *QueryResolver) ListPlasmidsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.PlasmidListWithCursor, error) {
-	panic("not implemented")
+	plasmids := []*models.Plasmid{}
+	c := getCursor(cursor)
+	l := getLimit(limit)
+	o := getOntology(typeArg)
+	a, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &anno.ListParameters{
+		Cursor: c,
+		Limit:  l,
+		Filter: fmt.Sprintf("ontology==%s;tag==%s", o, annotation),
+	})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		q.Logger.Error(err)
+		return nil, err
+	}
+	for _, v := range a.Data {
+		plasmid, err := q.Plasmid(ctx, v.Attributes.EntryId)
+		if err != nil {
+			errorutils.AddGQLError(ctx, err)
+			q.Logger.Error(err)
+			return nil, err
+		}
+		plasmids = append(plasmids, plasmid)
+	}
+	lm := int(a.Meta.Limit)
+	return &models.PlasmidListWithCursor{
+		Plasmids:       plasmids,
+		NextCursor:     int(a.Meta.NextCursor),
+		PreviousCursor: int(c),
+		Limit:          &lm,
+		TotalCount:     len(a.Data),
+	}, nil
 }
 
 func getCursor(c *int) int64 {
