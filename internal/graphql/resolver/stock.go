@@ -310,9 +310,8 @@ func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *i
 	for _, v := range a.Data {
 		strain, err := q.Strain(ctx, v.Attributes.EntryId)
 		if err != nil {
-			errorutils.AddGQLError(ctx, err)
+			// errorutils.AddGQLError(ctx, err)
 			q.Logger.Error(err)
-			return nil, err
 		}
 		strains = append(strains, strain)
 	}
@@ -348,9 +347,8 @@ func (q *QueryResolver) ListPlasmidsWithAnnotation(ctx context.Context, cursor *
 	for _, v := range a.Data {
 		plasmid, err := q.Plasmid(ctx, v.Attributes.EntryId)
 		if err != nil {
-			errorutils.AddGQLError(ctx, err)
+			// errorutils.AddGQLError(ctx, err)
 			q.Logger.Error(err)
-			return nil, err
 		}
 		plasmids = append(plasmids, plasmid)
 	}
