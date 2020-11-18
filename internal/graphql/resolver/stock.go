@@ -308,13 +308,13 @@ func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *i
 		return nil, err
 	}
 	for _, v := range a.Data {
-		strain, err := q.Strain(ctx, v.Attributes.EntryId)
+		strain, err := q.GetStockClient(registry.STOCK).GetStrain(ctx, &pb.StockId{Id: v.Attributes.EntryId})
 		if err != nil {
 			// errorutils.AddGQLError(ctx, err)
 			q.Logger.Error(err)
 			continue
 		}
-		strains = append(strains, strain)
+		strains = append(strains, stock.ConvertToStrainModel(strain.Data.Id, strain.Data.Attributes))
 	}
 	/**
 	  Some phenotypes list the same strain ID more than once. Consider a new approach
@@ -346,13 +346,13 @@ func (q *QueryResolver) ListPlasmidsWithAnnotation(ctx context.Context, cursor *
 		return nil, err
 	}
 	for _, v := range a.Data {
-		plasmid, err := q.Plasmid(ctx, v.Attributes.EntryId)
+		plasmid, err := q.GetStockClient(registry.STOCK).GetPlasmid(ctx, &pb.StockId{Id: v.Attributes.EntryId})
 		if err != nil {
 			// errorutils.AddGQLError(ctx, err)
 			q.Logger.Error(err)
 			continue
 		}
-		plasmids = append(plasmids, plasmid)
+		plasmids = append(plasmids, stock.ConvertToPlasmidModel(plasmid.Data.Id, plasmid.Data.Attributes))
 	}
 	lm := int(a.Meta.Limit)
 	return &models.PlasmidListWithCursor{
