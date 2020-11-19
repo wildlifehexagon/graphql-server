@@ -54,6 +54,11 @@ func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*us
 	return g, nil
 }
 
+func (r *StrainResolver) Genes(ctx context.Context, obj *models.Strain) ([]*models.Gene, error) {
+	g := []*models.Gene{}
+	return g, nil
+}
+
 func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error) {
 	pubs := []*publication.Publication{}
 	for _, id := range obj.Publications {

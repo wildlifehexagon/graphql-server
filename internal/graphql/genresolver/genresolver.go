@@ -245,6 +245,10 @@ func (r *plasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 	panic("not implemented")
 }
 
+func (r *plasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error) {
+	panic("not implemented")
+}
+
 func (r *plasmidResolver) Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error) {
 	panic("not implemented")
 }
@@ -434,6 +438,10 @@ func (r *strainResolver) CreatedBy(ctx context.Context, obj *models.Strain) (*us
 }
 
 func (r *strainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*user.User, error) {
+	panic("not implemented")
+}
+
+func (r *strainResolver) Genes(ctx context.Context, obj *models.Strain) ([]*models.Gene, error) {
 	panic("not implemented")
 }
 

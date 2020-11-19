@@ -52,6 +52,11 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 	return g, nil
 }
 
+func (r *PlasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error) {
+	g := []*models.Gene{}
+	return g, nil
+}
+
 func (r *PlasmidResolver) Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error) {
 	pubs := []*publication.Publication{}
 	for _, id := range obj.Publications {

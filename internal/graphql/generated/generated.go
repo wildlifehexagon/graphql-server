@@ -459,6 +459,8 @@ type PlasmidResolver interface {
 	CreatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
 	UpdatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
 
+	Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error)
+
 	Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error)
 
 	InStock(ctx context.Context, obj *models.Plasmid) (bool, error)
@@ -516,6 +518,8 @@ type RoleResolver interface {
 type StrainResolver interface {
 	CreatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
 	UpdatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
+
+	Genes(ctx context.Context, obj *models.Strain) ([]*models.Gene, error)
 
 	Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error)
 	SystematicName(ctx context.Context, obj *models.Strain) (string, error)
@@ -2735,7 +2739,7 @@ type Author {
   summary: String
   editable_summary: String
   depositor: String!
-  genes: [String]
+  genes: [Gene]
   dbxrefs: [String]
   publications: [Publication]
   in_stock: Boolean!
@@ -2750,7 +2754,7 @@ type Strain implements Stock {
   summary: String
   editable_summary: String
   depositor: String!
-  genes: [String]
+  genes: [Gene]
   dbxrefs: [String]
   publications: [Publication]
   # from strain_properties
@@ -2778,7 +2782,7 @@ type Plasmid implements Stock {
   summary: String # same as description field?
   editable_summary: String
   depositor: String!
-  genes: [String]
+  genes: [Gene]
   dbxrefs: [String]
   publications: [Publication]
   name: String!
@@ -8004,14 +8008,14 @@ func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.Co
 		Object:     "Plasmid",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Genes, nil
+		return ec.resolvers.Plasmid().Genes(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8020,9 +8024,9 @@ func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*string)
+	res := resTmp.([]*models.Gene)
 	fc.Result = res
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
+	return ec.marshalOGene2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Plasmid_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) (ret graphql.Marshaler) {
@@ -10310,14 +10314,14 @@ func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.Col
 		Object:     "Strain",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Genes, nil
+		return ec.resolvers.Strain().Genes(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10326,9 +10330,9 @@ func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*string)
+	res := resTmp.([]*models.Gene)
 	fc.Result = res
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
+	return ec.marshalOGene2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Strain_dbxrefs(ctx context.Context, field graphql.CollectedField, obj *models.Strain) (ret graphql.Marshaler) {
@@ -15360,7 +15364,16 @@ func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, 
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "genes":
-			out.Values[i] = ec._Plasmid_genes(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Plasmid_genes(ctx, field, obj)
+				return res
+			})
 		case "dbxrefs":
 			out.Values[i] = ec._Plasmid_dbxrefs(ctx, field, obj)
 		case "publications":
@@ -16092,7 +16105,16 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "genes":
-			out.Values[i] = ec._Strain_genes(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Strain_genes(ctx, field, obj)
+				return res
+			})
 		case "dbxrefs":
 			out.Values[i] = ec._Strain_dbxrefs(ctx, field, obj)
 		case "publications":
@@ -17870,6 +17892,46 @@ func (ec *executionContext) marshalOGOAnnotation2ᚖgithubᚗcomᚋdictyBaseᚋg
 		return graphql.Null
 	}
 	return ec._GOAnnotation(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOGene2ᚕᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx context.Context, sel ast.SelectionSet, v []*models.Gene) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOGene2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalOGene2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐGene(ctx context.Context, sel ast.SelectionSet, v *models.Gene) graphql.Marshaler {
