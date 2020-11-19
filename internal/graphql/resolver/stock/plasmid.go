@@ -9,6 +9,7 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
+	"github.com/dictyBase/graphql-server/internal/graphql/cache"
 	"github.com/dictyBase/graphql-server/internal/graphql/errorutils"
 	"github.com/dictyBase/graphql-server/internal/graphql/fetch"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
@@ -54,6 +55,16 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 
 func (r *PlasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error) {
 	g := []*models.Gene{}
+	redis := r.Registry.GetRedisRepository(cache.RedisKey)
+	for _, v := range obj.Genes {
+		gene, err := cache.GetGeneFromCache(ctx, redis, *v)
+		if err != nil {
+			errorutils.AddGQLError(ctx, err)
+			r.Logger.Error(err)
+			return g, err
+		}
+		g = append(g, gene)
+	}
 	return g, nil
 }
 
