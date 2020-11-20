@@ -55,16 +55,15 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 
 func (r *PlasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error) {
 	g := []*models.Gene{}
-	if len(obj.Genes) == 0 {
-		return g, nil
-	}
 	redis := r.Registry.GetRedisRepository(cache.RedisKey)
 	for _, v := range obj.Genes {
+		if *v == "" {
+			continue
+		}
 		gene, err := cache.GetGeneFromCache(ctx, redis, *v)
 		if err != nil {
-			errorutils.AddGQLError(ctx, err)
 			r.Logger.Error(err)
-			return g, err
+			continue
 		}
 		g = append(g, gene)
 	}
