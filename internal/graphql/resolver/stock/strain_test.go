@@ -4,8 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dictyBase/graphql-server/internal/graphql/cache"
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks"
 	"github.com/dictyBase/graphql-server/internal/graphql/mocks/clients"
+	"github.com/dictyBase/graphql-server/internal/graphql/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +29,7 @@ func TestSystematicName(t *testing.T) {
 	r := strainResolver(mocks.MockedSysNameAnnoClient())
 	sn, err := r.SystematicName(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting systematic name")
-	assert.Exactly(sn, mocks.MockSysNameAnno.Data.Attributes.Value, "should match systematic name")
+	assert.Equal(sn, mocks.MockSysNameAnno.Data.Attributes.Value, "should match systematic name")
 }
 
 func TestGeneticModification(t *testing.T) {
@@ -36,7 +38,7 @@ func TestGeneticModification(t *testing.T) {
 	r := strainResolver(mocks.MockedGenModClient())
 	g, err := r.GeneticModification(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting genetic modification")
-	assert.Exactly(g, &mocks.MockGenModAnno.Data.Attributes.Value, "should match genetic modification")
+	assert.Equal(g, &mocks.MockGenModAnno.Data.Attributes.Value, "should match genetic modification")
 }
 
 func TestMutagenesisMethod(t *testing.T) {
@@ -45,7 +47,7 @@ func TestMutagenesisMethod(t *testing.T) {
 	r := strainResolver(mocks.MockedMutMethodClient())
 	m, err := r.MutagenesisMethod(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting mutagenesis method")
-	assert.Exactly(m, &mocks.MockMutMethodAnno.Data.Attributes.Value, "should match mutagenesis method")
+	assert.Equal(m, &mocks.MockMutMethodAnno.Data.Attributes.Value, "should match mutagenesis method")
 }
 
 func TestGenotypes(t *testing.T) {
@@ -65,8 +67,8 @@ func TestNames(t *testing.T) {
 	r := strainResolver(mocks.MockedNamesClient())
 	n, err := r.Names(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting names")
-	assert.Exactly(n[0], &mocks.MockNamesAnno().Data[0].Attributes.Value, "should match first names value")
-	assert.Exactly(n[1], &mocks.MockNamesAnno().Data[1].Attributes.Value, "should match second names value")
+	assert.Equal(n[0], &mocks.MockNamesAnno().Data[0].Attributes.Value, "should match first names value")
+	assert.Equal(n[1], &mocks.MockNamesAnno().Data[1].Attributes.Value, "should match second names value")
 }
 
 func TestCharacteristics(t *testing.T) {
@@ -75,8 +77,8 @@ func TestCharacteristics(t *testing.T) {
 	r := strainResolver(mocks.MockedCharacteristicsClient())
 	c, err := r.Characteristics(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting characteristics")
-	assert.Exactly(c[0], &mocks.MockCharacteristicsAnno().Data[0].Attributes.Tag, "should match first characteristics value")
-	assert.Exactly(c[1], &mocks.MockCharacteristicsAnno().Data[1].Attributes.Tag, "should match second characteristics value")
+	assert.Equal(c[0], &mocks.MockCharacteristicsAnno().Data[0].Attributes.Tag, "should match first characteristics value")
+	assert.Equal(c[1], &mocks.MockCharacteristicsAnno().Data[1].Attributes.Tag, "should match second characteristics value")
 }
 
 func TestPhenotypes(t *testing.T) {
@@ -87,10 +89,10 @@ func TestPhenotypes(t *testing.T) {
 	pd := mocks.MockPhenotypeAnno().Data[0]
 	assert.NoError(err, "expect no error from getting phenotypes")
 	for _, n := range p {
-		assert.Exactly(n.Phenotype, pd.Group.Data[0].Attributes.Tag, "should match phenotype")
-		assert.Exactly(n.Assay, &pd.Group.Data[1].Attributes.Tag, "should match assay")
-		assert.Exactly(n.Environment, &pd.Group.Data[2].Attributes.Tag, "should match environment")
-		assert.Exactly(n.Note, &pd.Group.Data[3].Attributes.Value, "should match note")
+		assert.Equal(n.Phenotype, pd.Group.Data[0].Attributes.Tag, "should match phenotype")
+		assert.Equal(n.Assay, &pd.Group.Data[1].Attributes.Tag, "should match assay")
+		assert.Equal(n.Environment, &pd.Group.Data[2].Attributes.Tag, "should match environment")
+		assert.Equal(n.Note, &pd.Group.Data[3].Attributes.Value, "should match note")
 	}
 }
 
@@ -101,4 +103,21 @@ func TestStrainInStock(t *testing.T) {
 	g, err := r.InStock(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting strain inventory")
 	assert.True(g, "should return true after finding inventory")
+}
+
+func TestGenes(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := strainResolver(mocks.MockedGenModClient())
+	rc := r.Registry.GetRedisRepository(cache.RedisKey)
+	rc.HSet(cache.GeneHash, "DDB_G0285425", "gpaD")
+	g, err := r.Genes(context.Background(), mockStrainInput)
+	assert.NoError(err, "expect no error from getting associated genes")
+	genes := []*models.Gene{}
+	genes = append(genes, &models.Gene{
+		ID:   "DDB_G0285425",
+		Name: "gpaD",
+		Goas: nil,
+	})
+	assert.ElementsMatch(g, genes, "should match associated genes")
 }

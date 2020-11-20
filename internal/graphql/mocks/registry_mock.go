@@ -1,6 +1,9 @@
 package mocks
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
 	"github.com/dictyBase/go-genproto/dictybaseapis/auth"
 	"github.com/dictyBase/go-genproto/dictybaseapis/content"
@@ -9,6 +12,7 @@ import (
 	"github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
 	"github.com/dictyBase/graphql-server/internal/repository"
+	"github.com/dictyBase/graphql-server/internal/repository/redis"
 	"github.com/emirpasic/gods/maps/hashmap"
 	"google.golang.org/grpc"
 )
@@ -82,7 +86,7 @@ func (mr MockRegistry) GetAPIEndpoint(key string) string {
 }
 
 func (mr MockRegistry) GetRedisRepository(key string) repository.Repository {
-	v, _ := mr.ConnMap.Get(key)
-	st, _ := v.(repository.Repository)
-	return st
+	radd := fmt.Sprintf("%s:%s", os.Getenv("REDIS_MASTER_SERVICE_HOST"), os.Getenv("REDIS_MASTER_SERVICE_PORT"))
+	c, _ := redis.NewCache(radd)
+	return c
 }
