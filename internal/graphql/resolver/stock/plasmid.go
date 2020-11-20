@@ -55,6 +55,9 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 
 func (r *PlasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error) {
 	g := []*models.Gene{}
+	if len(obj.Genes) == 0 {
+		return g, nil
+	}
 	redis := r.Registry.GetRedisRepository(cache.RedisKey)
 	for _, v := range obj.Genes {
 		gene, err := cache.GetGeneFromCache(ctx, redis, *v)

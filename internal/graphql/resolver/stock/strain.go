@@ -57,6 +57,9 @@ func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*us
 
 func (r *StrainResolver) Genes(ctx context.Context, obj *models.Strain) ([]*models.Gene, error) {
 	g := []*models.Gene{}
+	if len(obj.Genes) == 0 {
+		return g, nil
+	}
 	redis := r.Registry.GetRedisRepository(cache.RedisKey)
 	for _, v := range obj.Genes {
 		gene, err := cache.GetGeneFromCache(ctx, redis, *v)
