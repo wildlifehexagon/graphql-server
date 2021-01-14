@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"strings"
 
 	"github.com/dictyBase/graphql-server/internal/graphql/fetch"
 	"github.com/dictyBase/graphql-server/internal/graphql/models"
@@ -15,9 +13,10 @@ import (
 )
 
 const (
-	geneHash    = "GENE2NAME/geneids"
-	goHash      = "GO2NAME/goids"
-	uniprotHash = "UNIPROT2NAME/uniprot"
+	geneHash        = "GENE2NAME/geneids"
+	goHash          = "GO2NAME/goids"
+	uniprotHash     = "UNIPROT2NAME/uniprot"
+	geneUniprotHash = "GENE2UNIPROT/gene"
 )
 
 type GeneResolver struct {
@@ -79,19 +78,6 @@ type pageInfo struct {
 	ResultsPerPage int `json:"resultsPerPage"`
 	Current        int `json:"current"`
 	Total          int `json:"total"`
-}
-
-func fetchUniprotID(ctx context.Context, url string) (string, error) {
-	res, err := fetch.GetResp(ctx, url)
-	if err != nil {
-		return "", err
-	}
-	defer res.Body.Close()
-	r, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("could not read response body %s", err)
-	}
-	return strings.TrimSpace(string(r)), nil
 }
 
 func fetchGOAs(ctx context.Context, url string) (*quickGo, error) {
@@ -160,13 +146,7 @@ func getExtensions(extensions []extension, repo repository.Repository) []*models
 
 func (g *GeneResolver) Goas(ctx context.Context, obj *models.Gene) ([]*models.GOAnnotation, error) {
 	goas := []*models.GOAnnotation{}
-	if g.UniprotURL == "" {
-		g.UniprotURL = fmt.Sprintf("https://www.uniprot.org/uniprot?query=%s&columns=id&format=list", obj.ID)
-	}
-	id, err := fetchUniprotID(ctx, g.UniprotURL)
-	if err != nil {
-		return goas, err
-	}
+	id := getValFromHash(geneUniprotHash, obj.ID, g.Redis)
 	if g.GoasURL == "" {
 		g.GoasURL = fmt.Sprintf("https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&limit=100&geneProductId=%s", id)
 	}
