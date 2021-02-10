@@ -36,7 +36,6 @@ func (r *PlasmidResolver) CreatedBy(ctx context.Context, obj *models.Plasmid) (*
 		r.Logger.Error(err)
 		return &user, err
 	}
-	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
 }
 
@@ -49,7 +48,18 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 		r.Logger.Error(err)
 		return &user, err
 	}
-	r.Logger.Debugf("successfully found user with email %s", email)
+	return g, nil
+}
+
+func (r *PlasmidResolver) Depositor(ctx context.Context, obj *models.Plasmid) (*user.User, error) {
+	user := user.User{}
+	email := obj.Depositor
+	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: *email})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
+	}
 	return g, nil
 }
 

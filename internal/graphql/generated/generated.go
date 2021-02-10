@@ -459,6 +459,7 @@ type PlasmidResolver interface {
 	CreatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
 	UpdatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error)
 
+	Depositor(ctx context.Context, obj *models.Plasmid) (*user.User, error)
 	Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error)
 
 	Publications(ctx context.Context, obj *models.Plasmid) ([]*publication.Publication, error)
@@ -519,6 +520,7 @@ type StrainResolver interface {
 	CreatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
 	UpdatedBy(ctx context.Context, obj *models.Strain) (*user.User, error)
 
+	Depositor(ctx context.Context, obj *models.Strain) (*user.User, error)
 	Genes(ctx context.Context, obj *models.Strain) ([]*models.Gene, error)
 
 	Publications(ctx context.Context, obj *models.Strain) ([]*publication.Publication, error)
@@ -2738,7 +2740,7 @@ type Author {
   updated_by: User!
   summary: String
   editable_summary: String
-  depositor: String!
+  depositor: User!
   genes: [Gene]
   dbxrefs: [String]
   publications: [Publication]
@@ -2753,7 +2755,7 @@ type Strain implements Stock {
   updated_by: User!
   summary: String
   editable_summary: String
-  depositor: String!
+  depositor: User!
   genes: [Gene]
   dbxrefs: [String]
   publications: [Publication]
@@ -2781,7 +2783,7 @@ type Plasmid implements Stock {
   updated_by: User!
   summary: String # same as description field?
   editable_summary: String
-  depositor: String!
+  depositor: User!
   genes: [Gene]
   dbxrefs: [String]
   publications: [Publication]
@@ -7973,14 +7975,14 @@ func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphq
 		Object:     "Plasmid",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Depositor, nil
+		return ec.resolvers.Plasmid().Depositor(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7992,9 +7994,9 @@ func (ec *executionContext) _Plasmid_depositor(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*user.User)
 	fc.Result = res
-	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Plasmid_genes(ctx context.Context, field graphql.CollectedField, obj *models.Plasmid) (ret graphql.Marshaler) {
@@ -10279,14 +10281,14 @@ func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql
 		Object:     "Strain",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Depositor, nil
+		return ec.resolvers.Strain().Depositor(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10298,9 +10300,9 @@ func (ec *executionContext) _Strain_depositor(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*user.User)
 	fc.Result = res
-	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdictyBaseᚋgoᚑgenprotoᚋdictybaseapisᚋuserᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Strain_genes(ctx context.Context, field graphql.CollectedField, obj *models.Strain) (ret graphql.Marshaler) {
@@ -15359,10 +15361,19 @@ func (ec *executionContext) _Plasmid(ctx context.Context, sel ast.SelectionSet, 
 		case "editable_summary":
 			out.Values[i] = ec._Plasmid_editable_summary(ctx, field, obj)
 		case "depositor":
-			out.Values[i] = ec._Plasmid_depositor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Plasmid_depositor(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "genes":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -16100,10 +16111,19 @@ func (ec *executionContext) _Strain(ctx context.Context, sel ast.SelectionSet, o
 		case "editable_summary":
 			out.Values[i] = ec._Strain_editable_summary(ctx, field, obj)
 		case "depositor":
-			out.Values[i] = ec._Strain_depositor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Strain_depositor(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "genes":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -17282,27 +17302,6 @@ func (ec *executionContext) marshalNString2ᚕᚖstring(ctx context.Context, sel
 	}
 
 	return ret
-}
-
-func (ec *executionContext) unmarshalNString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := graphql.MarshalString(*v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNTimestamp2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {

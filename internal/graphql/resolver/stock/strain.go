@@ -38,7 +38,6 @@ func (r *StrainResolver) CreatedBy(ctx context.Context, obj *models.Strain) (*us
 		r.Logger.Error(err)
 		return &user, err
 	}
-	r.Logger.Debugf("successfully found user with email %s", email)
 	return g, nil
 }
 
@@ -51,7 +50,18 @@ func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*us
 		r.Logger.Error(err)
 		return &user, err
 	}
-	r.Logger.Debugf("successfully found user with email %s", email)
+	return g, nil
+}
+
+func (r *StrainResolver) Depositor(ctx context.Context, obj *models.Strain) (*user.User, error) {
+	user := user.User{}
+	email := obj.Depositor
+	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: *email})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		r.Logger.Error(err)
+		return &user, err
+	}
 	return g, nil
 }
 
