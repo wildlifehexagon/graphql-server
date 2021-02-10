@@ -67,8 +67,9 @@ func TestNames(t *testing.T) {
 	r := strainResolver(mocks.MockedNamesClient())
 	n, err := r.Names(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting names")
-	assert.Equal(n[0], &mocks.MockNamesAnno().Data[0].Attributes.Value, "should match first names value")
-	assert.Equal(n[1], &mocks.MockNamesAnno().Data[1].Attributes.Value, "should match second names value")
+	assert.Equal(n[0], &mocks.MockStrainAttributes.Names[0], "should match name value from strain attributes")
+	assert.Equal(n[1], &mocks.MockNamesAnno().Data[0].Attributes.Value, "should match first synonym value")
+	assert.Equal(n[2], &mocks.MockNamesAnno().Data[1].Attributes.Value, "should match second synonym value")
 }
 
 func TestCharacteristics(t *testing.T) {
