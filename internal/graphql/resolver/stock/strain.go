@@ -56,6 +56,9 @@ func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*us
 func (r *StrainResolver) Depositor(ctx context.Context, obj *models.Strain) (*user.User, error) {
 	user := user.User{}
 	email := obj.Depositor
+	if *email == "" {
+		return &user, nil
+	}
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: *email})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -356,4 +359,8 @@ func sliceConverter(s []string) []*string {
 		c = append(c, &s[i])
 	}
 	return c
+}
+
+func getUser() {
+
 }

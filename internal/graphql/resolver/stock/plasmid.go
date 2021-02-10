@@ -54,6 +54,9 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 func (r *PlasmidResolver) Depositor(ctx context.Context, obj *models.Plasmid) (*user.User, error) {
 	user := user.User{}
 	email := obj.Depositor
+	if *email == "" {
+		return &user, nil
+	}
 	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: *email})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
