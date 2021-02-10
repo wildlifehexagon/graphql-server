@@ -142,7 +142,7 @@ func TestCreatePlasmid(t *testing.T) {
 	}
 	summary := "test summary"
 	esummary := "editable test summary"
-	depositor := "Kenny Bania"
+	depositor := "kenny@bania.com"
 	input := &models.CreatePlasmidInput{
 		CreatedBy:       "art@vandelay.com",
 		UpdatedBy:       "art@vandelay.com",
@@ -170,7 +170,7 @@ func TestCreateStrain(t *testing.T) {
 	}
 	summary := "test summary"
 	esummary := "editable test summary"
-	depositor := "Kenny Bania"
+	depositor := "kenny@bania.com"
 	input := &models.CreateStrainInput{
 		CreatedBy:       "art@vandelay.com",
 		UpdatedBy:       "art@vandelay.com",
@@ -203,7 +203,7 @@ func TestUpdatePlasmid(t *testing.T) {
 	}
 	summary := "updated summary"
 	esummary := "editable updated summary"
-	depositor := "Puddy"
+	depositor := "puddy@nyrangers.com"
 	input := &models.UpdatePlasmidInput{
 		UpdatedBy:       "h.e.@pennypacker.com",
 		Summary:         &summary,
@@ -233,7 +233,7 @@ func TestUpdateStrain(t *testing.T) {
 	}
 	summary := "updated summary"
 	esummary := "editable updated summary"
-	depositor := "Puddy"
+	depositor := "puddy@nyrangers.com"
 	input := &models.UpdateStrainInput{
 		UpdatedBy:       "h.e.@pennypacker.com",
 		Summary:         &summary,

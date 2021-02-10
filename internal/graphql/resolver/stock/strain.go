@@ -55,15 +55,12 @@ func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*us
 
 func (r *StrainResolver) Depositor(ctx context.Context, obj *models.Strain) (*user.User, error) {
 	user := user.User{}
-	email := obj.Depositor
-	if *email == "" {
-		return &user, nil
-	}
-	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: *email})
+	email := *obj.Depositor
+	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user, err
+		return &user, nil
 	}
 	return g, nil
 }
