@@ -106,6 +106,11 @@ func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*model
 
 func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*string, error) {
 	names := []*string{}
+	if len(obj.Names) > 0 {
+		for _, v := range obj.Names {
+			names = append(names, v)
+		}
+	}
 	n, err := r.AnnotationClient.ListAnnotations(
 		ctx,
 		&annotation.ListParameters{
