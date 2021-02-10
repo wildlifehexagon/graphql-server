@@ -156,9 +156,9 @@ func TestCreatePlasmid(t *testing.T) {
 	assert.Equal(p.ID, "DBP123456", "should match plasmid ID")
 	assert.Equal(p.CreatedBy, input.CreatedBy, "should match created_by")
 	assert.Equal(p.UpdatedBy, input.UpdatedBy, "should match updated_by")
-	assert.Equal(&p.Summary, &input.Summary, "should match summary")
-	assert.Equal(&p.EditableSummary, &input.EditableSummary, "should match editable summary")
-	assert.Equal(&p.Depositor, &input.Depositor, "should match depositor (he's gold)")
+	assert.Equal(*p.Summary, *input.Summary, "should match summary")
+	assert.Equal(*p.EditableSummary, *input.EditableSummary, "should match editable summary")
+	assert.Equal(*p.Depositor, *input.Depositor, "should match depositor (he's gold)")
 }
 
 func TestCreateStrain(t *testing.T) {
@@ -187,9 +187,9 @@ func TestCreateStrain(t *testing.T) {
 	assert.Equal(p.ID, "DBS123456", "should match strain ID")
 	assert.Equal(p.CreatedBy, input.CreatedBy, "should match created_by")
 	assert.Equal(p.UpdatedBy, input.UpdatedBy, "should match updated_by")
-	assert.Equal(p.Summary, input.Summary, "should match summary")
-	assert.Equal(p.EditableSummary, input.EditableSummary, "should match editable summary")
-	assert.Equal(p.Depositor, input.Depositor, "should match depositor (he's gold)")
+	assert.Equal(*p.Summary, *input.Summary, "should match summary")
+	assert.Equal(*p.EditableSummary, *input.EditableSummary, "should match editable summary")
+	assert.Equal(*p.Depositor, *input.Depositor, "should match depositor (he's gold)")
 	assert.Equal(p.Label, input.Label, "should match label")
 	assert.Equal(p.Species, input.Species, "should match species")
 }
