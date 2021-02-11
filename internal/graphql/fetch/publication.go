@@ -4,10 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"time"
 
+	"github.com/Jeffail/gabs/v2"
 	"github.com/dictyBase/aphgrpc"
+	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/publication"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -103,4 +108,61 @@ func FetchPublication(ctx context.Context, endpoint, id string) (*pb.Publication
 	p.Data.Attributes.Authors = authors
 	logger.Debugf("successfully found publication with ID %s", pub.Data.ID)
 	return p, nil
+}
+
+func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
+	pub := &pb.Publication{}
+	reqURL, _ := url.Parse(fmt.Sprintf("https://doi.org/%s", doi))
+	req := &http.Request{
+		Method: "GET",
+		URL:    reqURL,
+		Header: map[string][]string{
+			"Accept": {"application/vnd.citationstyles.csl+json"},
+		},
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return pub, err
+	}
+	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	j, err := gabs.ParseJSONDecoder(decoder)
+	if err != nil {
+		return pub, err
+	}
+	a := []*publication.Author{}
+	authors := j.Search("author")
+	for _, v := range authors.Children() {
+		n := &publication.Author{}
+		for key, val := range v.ChildrenMap() {
+			if key == "given" {
+				n.FirstName = val.Data().(string)
+			}
+			if key == "family" {
+				n.LastName = val.Data().(string)
+			}
+		}
+		a = append(a, n)
+	}
+	pd := &publication.Publication{
+		Data: &publication.Publication_Data{
+			Id: "",
+			Attributes: &publication.PublicationAttributes{
+				Doi:      doi,
+				Title:    j.Search("title").Data().(string),
+				Abstract: j.Search("abstract").Data().(string),
+				Journal:  "",
+				PubDate:  j.Search("created", "date-time").Data().(*timestamp.Timestamp),
+				Volume:   "",
+				Pages:    "",
+				Issn:     "",
+				PubType:  j.Search("type").Data().(string),
+				Source:   j.Search("source").Data().(string),
+				Issue:    "",
+				Status:   "",
+				Authors:  a,
+			},
+		},
+	}
+	return pd, nil
 }

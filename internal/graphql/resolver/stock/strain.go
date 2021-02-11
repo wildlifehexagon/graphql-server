@@ -94,6 +94,8 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 		if len(*id) < 1 {
 			continue
 		}
+		// do regex check here
+		// then call fetch.FetchDOI function
 		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
 		p, err := fetch.FetchPublication(ctx, endpoint, *id)
 		if err != nil {
