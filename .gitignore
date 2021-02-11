@@ -6,6 +6,8 @@ cover.out
 .draftignore
 draft.toml
 
+dump.rdb
+
 *.log
 
 .DS_STORE
