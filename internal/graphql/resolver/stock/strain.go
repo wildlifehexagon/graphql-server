@@ -60,7 +60,7 @@ func (r *StrainResolver) Depositor(ctx context.Context, obj *models.Strain) (*us
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user, nil
+		return &user, err
 	}
 	return g, nil
 }
@@ -356,8 +356,4 @@ func sliceConverter(s []string) []*string {
 		c = append(c, &s[i])
 	}
 	return c
-}
-
-func getUser() {
-
 }
