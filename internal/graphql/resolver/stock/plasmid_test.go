@@ -48,3 +48,14 @@ func TestPlasmidGenes(t *testing.T) {
 	})
 	assert.ElementsMatch(g, genes, "should match associated genes")
 }
+
+func TestPlasmidDepositor(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+	r := plasmidResolver(mocks.MockedAnnotationClient())
+	d, err := r.Depositor(context.Background(), mockPlasmidInput)
+	assert.NoError(err, "expect no error from getting depositor")
+	assert.Equal(d.Data.Attributes.Email, mocks.MockStrainAttributes.Depositor, "should match depositor email")
+	assert.Equal(d.Data.Attributes.FirstName, "Kenny", "should match depositor first name")
+	assert.Equal(d.Data.Attributes.LastName, "Bania", "should match depositor last name")
+}
