@@ -1,0 +1,495 @@
+{
+    "institution": {
+        "name": "bioRxiv",
+        "place": [
+            "-"
+        ],
+        "acronym": [
+            "-"
+        ]
+    },
+    "indexed": {
+        "date-parts": [
+            [
+                2020,
+                3,
+                25
+            ]
+        ],
+        "date-time": "2020-03-25T01:56:22Z",
+        "timestamp": 1585101382324
+    },
+    "posted": {
+        "date-parts": [
+            [
+                2019,
+                3,
+                19
+            ]
+        ]
+    },
+    "group-title": "Genomics",
+    "reference-count": 59,
+    "publisher": "Cold Spring Harbor Laboratory",
+    "content-domain": {
+        "domain": [],
+        "crossmark-restriction": false
+    },
+    "accepted": {
+        "date-parts": [
+            [
+                2019,
+                3,
+                19
+            ]
+        ]
+    },
+    "abstract": "<jats:title>Abstract<\/jats:title><jats:p>Genomes can be sequenced with relative ease, but ascribing gene function remains a major challenge. Genetically tractable model systems are crucial to meet this challenge. One powerful model is the social amoeba<jats:italic>Dictyostelium discoideum<\/jats:italic>, a eukaryotic microbe widely used to study diverse questions in cell, developmental and evolutionary biology. However, its utility is hampered by the inefficiency with which sequence, transcriptome or proteome variation can be linked to phenotype. To address this, we have developed methods (REMI-seq) to (1) generate a near genome-wide resource of individual mutants (2) allow large-scale parallel phenotyping. We demonstrate that integrating these resources allows novel regulators of cell migration, phagocytosis and macropinocytosis to be rapidly identified. Therefore, these methods and resources provide a step change for high throughput gene discovery in a key model system, and the study of genes affecting traits associated with higher eukaryotes.<\/jats:p>",
+    "DOI": "10.1101\/582072",
+    "type": "posted-content",
+    "created": {
+        "date-parts": [
+            [
+                2019,
+                3,
+                19
+            ]
+        ],
+        "date-time": "2019-03-19T21:25:20Z",
+        "timestamp": 1553030720000
+    },
+    "source": "Crossref",
+    "is-referenced-by-count": 0,
+    "title": "REMI-seq: Development of methods and resources for functional genomics inDictyostelium",
+    "prefix": "10.1101",
+    "author": [
+        {
+            "given": "Nicole",
+            "family": "Gruenheit",
+            "sequence": "first",
+            "affiliation": []
+        },
+        {
+            "given": "Amy",
+            "family": "Baldwin",
+            "sequence": "additional",
+            "affiliation": []
+        },
+        {
+            "given": "Balint",
+            "family": "Stewart",
+            "sequence": "additional",
+            "affiliation": []
+        },
+        {
+            "given": "Sarah",
+            "family": "Jaques",
+            "sequence": "additional",
+            "affiliation": []
+        },
+        {
+            "given": "Thomas",
+            "family": "Keller",
+            "sequence": "additional",
+            "affiliation": []
+        },
+        {
+            "given": "Katie",
+            "family": "Parkinson",
+            "sequence": "additional",
+            "affiliation": []
+        },
+        {
+            "given": "Rex",
+            "family": "Chisholm",
+            "sequence": "additional",
+            "affiliation": []
+        },
+        {
+            "given": "Adrian",
+            "family": "Harwood",
+            "sequence": "additional",
+            "affiliation": []
+        },
+        {
+            "given": "Christopher R. L.",
+            "family": "Thompson",
+            "sequence": "additional",
+            "affiliation": []
+        }
+    ],
+    "member": "246",
+    "reference": [
+        {
+            "key": "2019032106450462000_582072v1.1",
+            "DOI": "10.1006\/bbrc.1994.2880",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.2",
+            "DOI": "10.1073\/pnas.95.15.8927",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "issue": "8",
+            "key": "2019032106450462000_582072v1.3",
+            "doi-asserted-by": "crossref",
+            "first-page": "e0201977",
+            "DOI": "10.1371\/journal.pone.0201977",
+            "article-title": "Modeling random crawling, membrane deformation and intracellular polarity of motile amoeboid cells",
+            "volume": "13",
+            "year": "2018",
+            "journal-title": "PLoS One"
+        },
+        {
+            "key": "2019032106450462000_582072v1.4",
+            "unstructured": "Bloomfield, G. , Traynor, D. , Sander, S. P. , Veltman, D. M. , Pachebat, J. A. and Kay, R. R. (2015) \u2018Neurofibromin controls macropinocytosis and phagocytosis in Dictyostelium\u2019, Elife, 4.",
+            "DOI": "10.7554\/eLife.04940",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.5",
+            "DOI": "10.1093\/bioinformatics\/btu170",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.6",
+            "DOI": "10.7554\/eLife.01067",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.7",
+            "DOI": "10.1074\/jbc.M006725200",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.8",
+            "DOI": "10.1126\/science.3576222",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.9",
+            "DOI": "10.3389\/fimmu.2017.01906",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.10",
+            "DOI": "10.1038\/nature03481",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.11",
+            "DOI": "10.1093\/nar\/gnh136",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.12",
+            "DOI": "10.1038\/nature02894",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.13",
+            "DOI": "10.1128\/mBio.00315-10",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.14",
+            "DOI": "10.1073\/pnas.0906627106",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.15",
+            "DOI": "10.1038\/nature00935",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.16",
+            "DOI": "10.1016\/j.chom.2009.08.003",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.17",
+            "DOI": "10.1038\/ncomms14171",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.18",
+            "DOI": "10.1146\/annurev.genet.37.110801.142807",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.19",
+            "DOI": "10.1083\/jcb.200705068",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "issue": "7",
+            "key": "2019032106450462000_582072v1.20",
+            "doi-asserted-by": "crossref",
+            "first-page": "2779",
+            "DOI": "10.1128\/MCB.8.7.2779",
+            "article-title": "Homologous recombination and the repair of double-strand breaks during cotransformation of Dictyostelium discoideum",
+            "volume": "8",
+            "year": "1988",
+            "journal-title": "Mol Cell Biol"
+        },
+        {
+            "key": "2019032106450462000_582072v1.21",
+            "DOI": "10.1385\/MB:26:3:221",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.22",
+            "unstructured": "Kessin, R. H. (2001) Dictyostelium - Evolution, Cell Biology, and the Development of Multicellularity. Cambridge: Cambridge Univ. Press.",
+            "DOI": "10.1017\/CBO9780511525315",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.23",
+            "DOI": "10.1038\/nature08472",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.24",
+            "DOI": "10.1016\/S0012-1606(03)00204-5",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.25",
+            "DOI": "10.1091\/mbc.E13-02-0092",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.26",
+            "DOI": "10.1073\/pnas.89.18.8803",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.27",
+            "DOI": "10.1098\/rsbl.2010.0257",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.28",
+            "DOI": "10.1038\/nmeth.1923",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.29",
+            "DOI": "10.1093\/bioinformatics\/btr509",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.30",
+            "DOI": "10.1186\/s13059-014-0550-8",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.31",
+            "DOI": "10.1073\/pnas.1716087115",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.32",
+            "DOI": "10.1371\/journal.ppat.1002788",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.33",
+            "unstructured": "Morgan, M. , Falcon, S. and Gentleman, R. 2018. GSEABase: Gene set enrichment data structuresand methods. R package version 1.42.0."
+        },
+        {
+            "key": "2019032106450462000_582072v1.34",
+            "DOI": "10.1016\/j.ceb.2015.06.005",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.35",
+            "DOI": "10.1242\/jcs.100966",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.36",
+            "DOI": "10.1186\/gb-2010-11-3-r35",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.37",
+            "DOI": "10.1371\/journal.pbio.1001039",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.38",
+            "DOI": "10.1371\/journal.pone.0196809",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.39",
+            "DOI": "10.1038\/nature06558",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "issue": "1",
+            "key": "2019032106450462000_582072v1.40",
+            "doi-asserted-by": "crossref",
+            "first-page": "8471",
+            "DOI": "10.1038\/s41598-018-26756-z",
+            "article-title": "CRISPR\/Cas9 mediated targeting of multiple genes in Dictyostelium",
+            "volume": "8",
+            "year": "2018",
+            "journal-title": "Sci Rep"
+        },
+        {
+            "key": "2019032106450462000_582072v1.41",
+            "volume": "5",
+            "first-page": "3319",
+            "year": "2014",
+            "article-title": "SILAC-based proteomic quantification of chemoattractant-induced cytoskeleton dynamics on a second to minute timescale",
+            "journal-title": "Nat Commun",
+            "DOI": "10.1038\/ncomms4319",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.42",
+            "DOI": "10.1073\/pnas.1102451108",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.43",
+            "volume": "8",
+            "first-page": "1836",
+            "year": "2017",
+            "article-title": "Macrophage-Bacteria Interactions-A Lipid-Centric Relationship",
+            "journal-title": "Front Immunol",
+            "DOI": "10.3389\/fimmu.2017.01836",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.44",
+            "DOI": "10.1242\/jcs.197210",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.45",
+            "DOI": "10.1242\/dev.00939",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.46",
+            "DOI": "10.1038\/nmeth.1377",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.47",
+            "volume": "36",
+            "first-page": "1E.3.1",
+            "year": "2015",
+            "article-title": "Genome-Wide Fitness and Genetic Interactions Determined by Tn-seq, a High-Throughput Massively Parallel Sequencing Method for Microorganisms",
+            "journal-title": "Curr Protoc Microbiol"
+        },
+        {
+            "key": "2019032106450462000_582072v1.48",
+            "DOI": "10.1016\/0012-1606(86)90124-7",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.49",
+            "unstructured": "Veltman, D. M. , Williams, T. D. , Bloomfield, G. , Chen, B. C. , Betzig, E. , Insall, R. H. and Kay, R. R. (2016) \u2018A plasma membrane template for macropinocytic cups\u2019, Elife, 5.",
+            "DOI": "10.7554\/eLife.20085",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.50",
+            "DOI": "10.1093\/bioinformatics\/bts356",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.51",
+            "DOI": "10.1126\/science.1246981",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.52",
+            "unstructured": "Wickham, H. (2016) ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York.",
+            "DOI": "10.1007\/978-3-319-24277-4_9",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.53",
+            "unstructured": "Williams, T. and Kay, R. R. (2018a) \u2018High-throughput Measurement of Dictyostelium discoideum Macropinocytosis by Flow Cytometry\u2019, J Vis Exp, (139).",
+            "DOI": "10.3791\/58434",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.54",
+            "unstructured": "Williams, T. D. and Kay, R. R. (2018b) \u2018The physiological regulation of macropinocytosis during\u2019, J Cell Sci, 131(6).",
+            "DOI": "10.1242\/jcs.213736",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.55",
+            "DOI": "10.1126\/science.285.5429.901",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.56",
+            "unstructured": "Wolf, J. B. , Howie, J. A. , Parkinson, K. , Gruenheit, N. , Melo, D. , Rozen, D. and Thompson, C. R. (2015) \u2018Fitness Trade-offs Result in the Illusion of Social Success\u2019, Curr Biol.",
+            "DOI": "10.1016\/j.cub.2015.02.061",
+            "doi-asserted-by": "crossref"
+        },
+        {
+            "key": "2019032106450462000_582072v1.57",
+            "DOI": "10.1016\/j.devcel.2011.11.007",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.58",
+            "DOI": "10.1105\/tpc.114.124099",
+            "doi-asserted-by": "publisher"
+        },
+        {
+            "key": "2019032106450462000_582072v1.59",
+            "DOI": "10.1371\/journal.ppat.1002946",
+            "doi-asserted-by": "publisher"
+        }
+    ],
+    "container-title": [],
+    "original-title": [],
+    "link": [
+        {
+            "URL": "https:\/\/syndication.highwire.org\/content\/doi\/10.1101\/582072",
+            "content-type": "unspecified",
+            "content-version": "vor",
+            "intended-application": "similarity-checking"
+        }
+    ],
+    "deposited": {
+        "date-parts": [
+            [
+                2019,
+                11,
+                21
+            ]
+        ],
+        "date-time": "2019-11-21T22:12:10Z",
+        "timestamp": 1574374330000
+    },
+    "score": 1.0,
+    "subtitle": [],
+    "short-title": [],
+    "issued": {
+        "date-parts": [
+            [
+                2019,
+                3,
+                19
+            ]
+        ]
+    },
+    "references-count": 59,
+    "URL": "http:\/\/dx.doi.org\/10.1101\/582072",
+    "relation": {
+        "cites": []
+    },
+    "subtype": "preprint"
+}
