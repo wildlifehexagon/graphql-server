@@ -10,7 +10,6 @@ import (
 
 	"github.com/Jeffail/gabs/v2"
 	"github.com/dictyBase/aphgrpc"
-	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	"github.com/sirupsen/logrus"
 )
@@ -129,29 +128,16 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 	if err != nil {
 		return pub, err
 	}
-	authors := []*publication.Author{}
-	a := j.Search("author")
-	for _, v := range a.Children() {
-		n := &publication.Author{}
-		for key, val := range v.ChildrenMap() {
-			if key == "given" {
-				n.FirstName = val.Data().(string)
-			}
-			if key == "family" {
-				n.LastName = val.Data().(string)
-			}
-		}
-		authors = append(authors, n)
-	}
+	authors := getDOIAuthors(j.Search("author").Children())
 	d := j.Search("created", "date-time").Data().(string)
 	pd, err := time.Parse(time.RFC3339, d)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse published date %s", err)
 	}
-	p := &publication.Publication{
-		Data: &publication.Publication_Data{
+	p := &pb.Publication{
+		Data: &pb.Publication_Data{
 			Id: "",
-			Attributes: &publication.PublicationAttributes{
+			Attributes: &pb.PublicationAttributes{
 				Doi:      doi,
 				Title:    j.Search("title").Data().(string),
 				Abstract: j.Search("abstract").Data().(string),
@@ -169,4 +155,22 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 		},
 	}
 	return p, nil
+}
+
+// getDOIAuthors converts DOI authors data into expected Author format
+func getDOIAuthors(authors []*gabs.Container) []*pb.Author {
+	a := []*pb.Author{}
+	for _, v := range authors {
+		n := &pb.Author{}
+		for key, val := range v.ChildrenMap() {
+			if key == "given" {
+				n.FirstName = val.Data().(string)
+			}
+			if key == "family" {
+				n.LastName = val.Data().(string)
+			}
+		}
+		a = append(a, n)
+	}
+	return a
 }
