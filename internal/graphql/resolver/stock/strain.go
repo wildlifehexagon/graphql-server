@@ -98,8 +98,9 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 		// GWDI IDs come back as doi:10.1101/582072
 		doi := regexp.MustCompile(`^doi:10.\d{4,9}/[-._;()/:A-Z0-9]+$`)
 		if doi.MatchString(*id) {
-			r.Logger.Debugf("fetching doi with address %s", *id)
-			p, err := fetch.FetchDOI(ctx, fmt.Sprintf("https://doi.org/%s", *id))
+			url := fmt.Sprintf("https://doi.org/%s", *id)
+			r.Logger.Debugf("fetching doi with address %s", url)
+			p, err := fetch.FetchDOI(ctx, url)
 			if err != nil {
 				errorutils.AddGQLError(ctx, err)
 				r.Logger.Error(err)
