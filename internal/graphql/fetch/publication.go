@@ -110,18 +110,7 @@ func FetchPublication(ctx context.Context, endpoint, id string) (*pb.Publication
 
 func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 	pub := &pb.Publication{}
-	url, err := url.Parse(doi)
-	if err != nil {
-		return pub, err
-	}
-	req := &http.Request{
-		Method: "GET",
-		URL:    url,
-		Header: map[string][]string{
-			"Accept": {"application/vnd.citationstyles.csl+json"},
-		},
-	}
-	res, err := http.DefaultClient.Do(req)
+	res, err := getDOIResp(ctx, doi)
 	if err != nil {
 		return pub, err
 	}
@@ -158,6 +147,28 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 		},
 	}
 	return p, nil
+}
+
+// getDOIResp makes HTTP request with necessary
+// headers for DOI and returns the response
+func getDOIResp(ctx context.Context, doi string) (*http.Response, error) {
+	r := &http.Response{}
+	url, err := url.Parse(doi)
+	if err != nil {
+		return r, err
+	}
+	req := &http.Request{
+		Method: "GET",
+		URL:    url,
+		Header: map[string][]string{
+			"Accept": {"application/vnd.citationstyles.csl+json"},
+		},
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return res, err
+	}
+	return res, nil
 }
 
 // getDOIAuthors converts DOI authors data into expected Author format
