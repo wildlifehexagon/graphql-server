@@ -136,20 +136,20 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 	}
 	p := &pb.Publication{
 		Data: &pb.Publication_Data{
-			Id: "",
+			Id: "", // doi do not have pubmed IDs listed
 			Attributes: &pb.PublicationAttributes{
 				Doi:      doi,
-				Title:    j.Search("title").Data().(string),
-				Abstract: j.Search("abstract").Data().(string),
-				Journal:  "",
+				Title:    verifyStringProperty(j, "title"),
+				Abstract: verifyStringProperty(j, "abstract"),
+				Journal:  verifyStringProperty(j, "container-title-short"),
 				PubDate:  aphgrpc.TimestampProto(pd),
-				Volume:   "",
-				Pages:    "",
-				Issn:     "",
-				PubType:  j.Search("type").Data().(string),
-				Source:   j.Search("source").Data().(string),
-				Issue:    "",
-				Status:   "",
+				Volume:   verifyStringProperty(j, "volume"),
+				Pages:    verifyStringProperty(j, "page"),
+				Issn:     verifyArrayProperty(j, "ISSN"),
+				PubType:  verifyStringProperty(j, "type"),
+				Source:   verifyStringProperty(j, "source"),
+				Issue:    verifyStringProperty(j, "issue"),
+				Status:   verifyStringProperty(j, "subtype"),
 				Authors:  authors,
 			},
 		},
@@ -173,4 +173,22 @@ func getDOIAuthors(authors []*gabs.Container) []*pb.Author {
 		a = append(a, n)
 	}
 	return a
+}
+
+// verifyStringProperty checks if a property exists in the JSON and returns the
+// value if true
+func verifyStringProperty(j *gabs.Container, val string) string {
+	if j.Exists(val) {
+		return j.Search(val).Data().(string)
+	}
+	return ""
+}
+
+// verifyArrayProperty checks if a property exists in the JSON and then returns
+// its first child as a string
+func verifyArrayProperty(j *gabs.Container, val string) string {
+	if j.Exists(val) {
+		return j.Search(val).Children()[0].Data().(string)
+	}
+	return ""
 }
