@@ -3,6 +3,7 @@ package stock
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/dictyBase/aphgrpc"
 	"google.golang.org/grpc"
@@ -94,16 +95,27 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 		if len(*id) < 1 {
 			continue
 		}
-		// do regex check here
-		// then call fetch.FetchDOI function
-		endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
-		p, err := fetch.FetchPublication(ctx, endpoint, *id)
-		if err != nil {
-			errorutils.AddGQLError(ctx, err)
-			r.Logger.Error(err)
-			return pubs, err
+		// GWDI IDs come back as doi:10.1101/582072
+		doi := regexp.MustCompile(`^doi:10.\d{4,9}/[-._;()/:A-Z0-9]+$`)
+		if doi.MatchString(*id) {
+			r.Logger.Debugf("fetching doi with address %s", *id)
+			p, err := fetch.FetchDOI(ctx, *id)
+			if err != nil {
+				errorutils.AddGQLError(ctx, err)
+				r.Logger.Error(err)
+				return pubs, err
+			}
+			pubs = append(pubs, p)
+		} else {
+			endpoint := r.Registry.GetAPIEndpoint(registry.PUBLICATION)
+			p, err := fetch.FetchPublication(ctx, endpoint, *id)
+			if err != nil {
+				errorutils.AddGQLError(ctx, err)
+				r.Logger.Error(err)
+				return pubs, err
+			}
+			pubs = append(pubs, p)
 		}
-		pubs = append(pubs, p)
 	}
 	return pubs, nil
 }
