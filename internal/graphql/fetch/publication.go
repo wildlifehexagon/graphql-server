@@ -12,7 +12,6 @@ import (
 	"github.com/dictyBase/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/publication"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -130,9 +129,9 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 	if err != nil {
 		return pub, err
 	}
-	a := []*publication.Author{}
-	authors := j.Search("author")
-	for _, v := range authors.Children() {
+	authors := []*publication.Author{}
+	a := j.Search("author")
+	for _, v := range a.Children() {
 		n := &publication.Author{}
 		for key, val := range v.ChildrenMap() {
 			if key == "given" {
@@ -142,9 +141,14 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 				n.LastName = val.Data().(string)
 			}
 		}
-		a = append(a, n)
+		authors = append(authors, n)
 	}
-	pd := &publication.Publication{
+	d := j.Search("created", "date-time").Data().(string)
+	pd, err := time.Parse(time.RFC3339, d)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse published date %s", err)
+	}
+	p := &publication.Publication{
 		Data: &publication.Publication_Data{
 			Id: "",
 			Attributes: &publication.PublicationAttributes{
@@ -152,7 +156,7 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 				Title:    j.Search("title").Data().(string),
 				Abstract: j.Search("abstract").Data().(string),
 				Journal:  "",
-				PubDate:  j.Search("created", "date-time").Data().(*timestamp.Timestamp),
+				PubDate:  aphgrpc.TimestampProto(pd),
 				Volume:   "",
 				Pages:    "",
 				Issn:     "",
@@ -160,9 +164,9 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 				Source:   j.Search("source").Data().(string),
 				Issue:    "",
 				Status:   "",
-				Authors:  a,
+				Authors:  authors,
 			},
 		},
 	}
-	return pd, nil
+	return p, nil
 }
