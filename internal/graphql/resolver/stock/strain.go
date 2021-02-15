@@ -95,8 +95,8 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 		if len(*id) < 1 {
 			continue
 		}
-		// GWDI IDs come back as doi:10.1101/582072
-		doi := regexp.MustCompile(`^doi:10.\d{4,9}/[-._;()/:A-Z0-9]+$`)
+		// GWDI IDs come back as 10.1101/582072
+		doi := regexp.MustCompile(`^10.\d{4,9}/[-._;()/:A-Z0-9]+$`)
 		if doi.MatchString(*id) {
 			url := fmt.Sprintf("https://doi.org/%s", *id)
 			r.Logger.Debugf("fetching doi with address %s", url)
