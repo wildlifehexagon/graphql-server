@@ -109,12 +109,14 @@ func FetchPublication(ctx context.Context, endpoint, id string) (*pb.Publication
 }
 
 func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
-	logger := *logrus.New()
 	pub := &pb.Publication{}
-	reqURL, _ := url.Parse(fmt.Sprintf("https://doi.org/%s", doi))
+	url, err := url.Parse(doi)
+	if err != nil {
+		return pub, err
+	}
 	req := &http.Request{
 		Method: "GET",
-		URL:    reqURL,
+		URL:    url,
 		Header: map[string][]string{
 			"Accept": {"application/vnd.citationstyles.csl+json"},
 		},
@@ -155,7 +157,6 @@ func FetchDOI(ctx context.Context, doi string) (*pb.Publication, error) {
 			},
 		},
 	}
-	logger.Debugf("successfully found publication with DOI %s", pub.Data.Attributes.Doi)
 	return p, nil
 }
 
