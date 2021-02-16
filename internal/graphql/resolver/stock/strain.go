@@ -123,16 +123,16 @@ func (r *StrainResolver) Publications(ctx context.Context, obj *models.Strain) (
 
 func (r *StrainResolver) Parent(ctx context.Context, obj *models.Strain) (*models.Strain, error) {
 	parent := obj.Parent
-	if parent != nil {
-		n, err := r.Client.GetStrain(ctx, &pb.StockId{Id: *parent})
-		if err != nil {
-			r.Logger.Debugf("could not find parent strain with ID %s", *parent)
-			return nil, nil
-		}
-		r.Logger.Debugf("successfully found parent strain with ID %s", *parent)
-		return ConvertToStrainModel(*parent, n.Data.Attributes), nil
+	if parent == nil {
+		return &models.Strain{}, nil
 	}
-	return &models.Strain{}, nil
+	n, err := r.Client.GetStrain(ctx, &pb.StockId{Id: *parent})
+	if err != nil {
+		r.Logger.Debugf("could not find parent strain with ID %s", *parent)
+		return nil, nil
+	}
+	r.Logger.Debugf("successfully found parent strain with ID %s", *parent)
+	return ConvertToStrainModel(*parent, n.Data.Attributes), nil
 }
 
 func (r *StrainResolver) Names(ctx context.Context, obj *models.Strain) ([]*string, error) {
