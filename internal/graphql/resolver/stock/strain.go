@@ -366,6 +366,7 @@ func ConvertToStrainModel(id string, attr *pb.StrainAttributes) *models.Strain {
 		Species:         attr.Species,
 		Plasmid:         &attr.Plasmid,
 		Names:           sliceConverter(attr.Names),
+		Parent:          &attr.Parent,
 	}
 }
 
