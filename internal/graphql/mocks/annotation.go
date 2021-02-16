@@ -117,10 +117,10 @@ func MockPhenoCollectionAnno(tag, id string) *annotation.TaggedAnnotationCollect
 
 func MockPhenotypeListAnno() *annotation.TaggedAnnotationCollection {
 	cdata := []*annotation.TaggedAnnotationCollection_Data{}
-	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000001"))
-	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000002"))
-	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000003"))
-	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS0000004"))
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS123456"))
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS987654"))
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS000001"))
+	cdata = append(cdata, MockPhenoCollectionAnno("delayed culmination", "DBS000001"))
 	return &annotation.TaggedAnnotationCollection{
 		Data: cdata,
 		Meta: &annotation.Meta{

@@ -12,8 +12,6 @@ import (
 var t = time.Date(2020, time.January, 01, 01, 0, 0, 0, time.UTC)
 var StockTimestamp, _ = ptypes.TimestampProto(t)
 
-// var t = time.Date(2020, time.January, 01, 01, 0, 0, 0, time.UTC)
-
 var MockPlasmidAttributes = &stock.PlasmidAttributes{
 	CreatedAt:       StockTimestamp,
 	UpdatedAt:       StockTimestamp,
@@ -45,6 +43,12 @@ var MockStrainAttributes = &stock.StrainAttributes{
 	Species:         "human",
 	Plasmid:         "pTest",
 	Names:           []string{"fusilli"},
+}
+
+func AddParentToMock(parent string) *stock.StrainAttributes {
+	s := MockStrainAttributes
+	s.Parent = parent
+	return s
 }
 
 var MockUpdateStrainAttributes = &stock.StrainAttributes{
@@ -131,6 +135,16 @@ func mockStrain() *stock.Strain {
 		Data: &stock.Strain_Data{
 			Type:       "strain",
 			Id:         "DBS123456",
+			Attributes: AddParentToMock("DBS987654"),
+		},
+	}
+}
+
+func mockParentStrain() *stock.Strain {
+	return &stock.Strain{
+		Data: &stock.Strain_Data{
+			Type:       "strain",
+			Id:         "DBS987654",
 			Attributes: MockStrainAttributes,
 		},
 	}
@@ -165,7 +179,19 @@ func MockedStockClient() *clients.StockServiceClient {
 	).Return(mockPlasmid(), nil).On(
 		"GetStrain",
 		mock.AnythingOfType("*context.emptyCtx"),
-		mock.AnythingOfType("*stock.StockId"),
+		&stock.StockId{Id: "DBS987654"},
+	).Return(mockParentStrain(), nil).On(
+		"GetStrain",
+		mock.AnythingOfType("*context.emptyCtx"),
+		&stock.StockId{Id: "DBS123456"},
+	).Return(mockStrain(), nil).On(
+		"GetStrain",
+		mock.AnythingOfType("*context.emptyCtx"),
+		&stock.StockId{Id: "DBS000001"},
+	).Return(mockStrain(), nil).On(
+		"GetStrain",
+		mock.AnythingOfType("*context.emptyCtx"),
+		&stock.StockId{Id: "DBS000002"},
 	).Return(mockStrain(), nil).On(
 		"ListStrains",
 		mock.AnythingOfType("*context.emptyCtx"),
