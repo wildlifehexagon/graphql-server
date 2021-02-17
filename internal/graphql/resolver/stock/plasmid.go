@@ -5,7 +5,6 @@ import (
 
 	"github.com/dictyBase/aphgrpc"
 	"github.com/dictyBase/go-genproto/dictybaseapis/annotation"
-	"github.com/dictyBase/go-genproto/dictybaseapis/api/jsonapi"
 	"github.com/dictyBase/go-genproto/dictybaseapis/publication"
 	pb "github.com/dictyBase/go-genproto/dictybaseapis/stock"
 	"github.com/dictyBase/go-genproto/dictybaseapis/user"
@@ -28,45 +27,30 @@ type PlasmidResolver struct {
 }
 
 func (r *PlasmidResolver) CreatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error) {
-	user := user.User{}
-	email := obj.CreatedBy
-	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	u, err := getUserByEmail(ctx, r.UserClient, obj.CreatedBy)
 	if err != nil {
-		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user, err
+		return &user.User{}, err
 	}
-	return g, nil
+	return u, nil
 }
 
 func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*user.User, error) {
-	user := user.User{}
-	email := obj.UpdatedBy
-	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	u, err := getUserByEmail(ctx, r.UserClient, obj.UpdatedBy)
 	if err != nil {
-		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user, err
+		return &user.User{}, err
 	}
-	return g, nil
+	return u, nil
 }
 
 func (r *PlasmidResolver) Depositor(ctx context.Context, obj *models.Plasmid) (*user.User, error) {
-	email := *obj.Depositor
-	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	u, err := getUserByEmail(ctx, r.UserClient, *obj.Depositor)
 	if err != nil {
-		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user.User{
-			Data: &user.UserData{
-				Attributes: &user.UserAttributes{
-					FirstName: "",
-					LastName:  "",
-				},
-			},
-		}, nil
+		return &user.User{}, err
 	}
-	return g, nil
+	return u, nil
 }
 
 func (r *PlasmidResolver) Genes(ctx context.Context, obj *models.Plasmid) ([]*models.Gene, error) {

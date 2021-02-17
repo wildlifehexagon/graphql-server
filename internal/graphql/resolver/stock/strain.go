@@ -31,45 +31,30 @@ type StrainResolver struct {
 }
 
 func (r *StrainResolver) CreatedBy(ctx context.Context, obj *models.Strain) (*user.User, error) {
-	user := user.User{}
-	email := obj.CreatedBy
-	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	u, err := getUserByEmail(ctx, r.UserClient, obj.CreatedBy)
 	if err != nil {
-		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user, err
+		return &user.User{}, err
 	}
-	return g, nil
+	return u, nil
 }
 
 func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*user.User, error) {
-	user := user.User{}
-	email := obj.UpdatedBy
-	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	u, err := getUserByEmail(ctx, r.UserClient, obj.UpdatedBy)
 	if err != nil {
-		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user, err
+		return &user.User{}, err
 	}
-	return g, nil
+	return u, nil
 }
 
 func (r *StrainResolver) Depositor(ctx context.Context, obj *models.Strain) (*user.User, error) {
-	email := *obj.Depositor
-	g, err := r.UserClient.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	u, err := getUserByEmail(ctx, r.UserClient, *obj.Depositor)
 	if err != nil {
-		errorutils.AddGQLError(ctx, err)
 		r.Logger.Error(err)
-		return &user.User{
-			Data: &user.UserData{
-				Attributes: &user.UserAttributes{
-					FirstName: "",
-					LastName:  "",
-				},
-			},
-		}, nil
+		return &user.User{}, err
 	}
-	return g, nil
+	return u, nil
 }
 
 func (r *StrainResolver) Genes(ctx context.Context, obj *models.Strain) ([]*models.Gene, error) {
@@ -378,4 +363,33 @@ func sliceConverter(s []string) []*string {
 		c = append(c, &s[i])
 	}
 	return c
+}
+
+func getUserByEmail(ctx context.Context, uc user.UserServiceClient, email string) (*user.User, error) {
+	g, err := uc.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
+	if err != nil {
+		errorutils.AddGQLError(ctx, err)
+		// return empty user to prevent panic errors when a query asks for a
+		// certain property
+		return &user.User{
+			Data: &user.UserData{
+				Attributes: &user.UserAttributes{
+					FirstName:     "",
+					LastName:      "",
+					Email:         "",
+					Organization:  "",
+					GroupName:     "",
+					FirstAddress:  "",
+					SecondAddress: "",
+					City:          "",
+					State:         "",
+					Zipcode:       "",
+					Country:       "",
+					Phone:         "",
+					IsActive:      false,
+				},
+			},
+		}, err
+	}
+	return g, nil
 }
