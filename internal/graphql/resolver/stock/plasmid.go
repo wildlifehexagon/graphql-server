@@ -30,7 +30,7 @@ func (r *PlasmidResolver) CreatedBy(ctx context.Context, obj *models.Plasmid) (*
 	u, err := getUserByEmail(ctx, r.UserClient, obj.CreatedBy)
 	if err != nil {
 		r.Logger.Error(err)
-		return &user.User{}, err
+		return newUser(), err
 	}
 	return u, nil
 }
@@ -39,7 +39,7 @@ func (r *PlasmidResolver) UpdatedBy(ctx context.Context, obj *models.Plasmid) (*
 	u, err := getUserByEmail(ctx, r.UserClient, obj.UpdatedBy)
 	if err != nil {
 		r.Logger.Error(err)
-		return &user.User{}, err
+		return newUser(), err
 	}
 	return u, nil
 }
@@ -48,7 +48,7 @@ func (r *PlasmidResolver) Depositor(ctx context.Context, obj *models.Plasmid) (*
 	u, err := getUserByEmail(ctx, r.UserClient, *obj.Depositor)
 	if err != nil {
 		r.Logger.Error(err)
-		return &user.User{}, err
+		return newUser(), err
 	}
 	return u, nil
 }
