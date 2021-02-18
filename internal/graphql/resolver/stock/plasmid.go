@@ -48,7 +48,7 @@ func (r *PlasmidResolver) Depositor(ctx context.Context, obj *models.Plasmid) (*
 	u, err := getUserByEmail(ctx, r.UserClient, *obj.Depositor)
 	if err != nil {
 		r.Logger.Error(err)
-		return newUser(), err
+		return newUser(), nil
 	}
 	return u, nil
 }
