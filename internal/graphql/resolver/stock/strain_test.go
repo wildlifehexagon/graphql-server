@@ -21,7 +21,8 @@ func strainResolver(annoClient *clients.TaggedAnnotationServiceClient) *StrainRe
 	}
 }
 
-var mockStrainInput = ConvertToStrainModel("DBS123456", mocks.MockStrainAttributes)
+var mockStrainInput = ConvertToStrainModel("DBS123456", mocks.MockStrainInputWithParams("kenny@bania.com", ""))
+var mockStrainInputWithParent = ConvertToStrainModel("DBS123456", mocks.MockStrainInputWithParams("kenny@bania.com", "DBS987654"))
 
 func TestSystematicName(t *testing.T) {
 	t.Parallel()
@@ -129,7 +130,7 @@ func TestStrainDepositor(t *testing.T) {
 	r := strainResolver(mocks.MockedAnnotationClient())
 	d, err := r.Depositor(context.Background(), mockStrainInput)
 	assert.NoError(err, "expect no error from getting depositor")
-	assert.Equal(d.Data.Attributes.Email, mocks.MockStrainAttributes.Depositor, "should match depositor email")
+	assert.Equal(d.Data.Attributes.Email, "kenny@bania.com", "should match depositor email")
 	assert.Equal(d.Data.Attributes.FirstName, "Kenny", "should match depositor first name")
 	assert.Equal(d.Data.Attributes.LastName, "Bania", "should match depositor last name")
 }
@@ -138,7 +139,7 @@ func TestParent(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
 	r := strainResolver(mocks.MockedAnnotationClient())
-	p, err := r.Parent(context.Background(), mockStrainInput)
+	p, err := r.Parent(context.Background(), mockStrainInputWithParent)
 	assert.NoError(err, "expect no error from getting parent strain")
 	assert.Equal(p.ID, "DBS987654", "should match parent id")
 	assert.Equal(p.Label, mocks.MockStrainAttributes.Label, "should match label for parent")

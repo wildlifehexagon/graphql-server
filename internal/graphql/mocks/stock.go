@@ -19,7 +19,7 @@ var MockPlasmidAttributes = &stock.PlasmidAttributes{
 	UpdatedBy:       "art@vandelay.com",
 	Summary:         "test summary",
 	EditableSummary: "editable test summary",
-	Depositor:       "kenny@bania.com",
+	Depositor:       "",
 	Genes:           []string{"DDB_G0285425", ""},
 	Dbxrefs:         []string{"test1"},
 	Publications:    []string{"99999"},
@@ -35,7 +35,7 @@ var MockStrainAttributes = &stock.StrainAttributes{
 	UpdatedBy:       "art@vandelay.com",
 	Summary:         "test summary",
 	EditableSummary: "editable test summary",
-	Depositor:       "kenny@bania.com",
+	Depositor:       "",
 	Genes:           []string{"DDB_G0285425", ""},
 	Dbxrefs:         []string{"test1"},
 	Publications:    []string{"99999"},
@@ -43,12 +43,30 @@ var MockStrainAttributes = &stock.StrainAttributes{
 	Species:         "human",
 	Plasmid:         "pTest",
 	Names:           []string{"fusilli"},
+	Parent:          "",
 }
 
-func AddParentToMock(parent string) *stock.StrainAttributes {
+func MockStrain() *stock.Strain {
+	return &stock.Strain{
+		Data: &stock.Strain_Data{
+			Type:       "strain",
+			Id:         "DBS123456",
+			Attributes: MockStrainAttributes,
+		},
+	}
+}
+
+func MockStrainInputWithParams(depositor, parent string) *stock.StrainAttributes {
 	s := MockStrainAttributes
+	s.Depositor = depositor
 	s.Parent = parent
 	return s
+}
+
+func MockPlasmidInputWithParams(depositor string) *stock.PlasmidAttributes {
+	p := MockPlasmidAttributes
+	p.Depositor = depositor
+	return p
 }
 
 var MockUpdateStrainAttributes = &stock.StrainAttributes{
@@ -120,22 +138,27 @@ func mockPlasmidCollection() *stock.PlasmidCollection {
 	}
 }
 
-func mockPlasmid() *stock.Plasmid {
+func mockPlasmidWithParams(depositor string) *stock.Plasmid {
+	attr := MockPlasmidAttributes
+	attr.Depositor = depositor
 	return &stock.Plasmid{
 		Data: &stock.Plasmid_Data{
 			Type:       "plasmid",
 			Id:         "DBP123456",
-			Attributes: MockPlasmidAttributes,
+			Attributes: attr,
 		},
 	}
 }
 
-func mockStrain() *stock.Strain {
+func mockStrainWithParams(depositor, parent string) *stock.Strain {
+	attr := MockStrainAttributes
+	attr.Depositor = depositor
+	attr.Parent = parent
 	return &stock.Strain{
 		Data: &stock.Strain_Data{
 			Type:       "strain",
 			Id:         "DBS123456",
-			Attributes: AddParentToMock("DBS987654"),
+			Attributes: attr,
 		},
 	}
 }
@@ -176,23 +199,23 @@ func MockedStockClient() *clients.StockServiceClient {
 		"GetPlasmid",
 		mock.AnythingOfType("*context.emptyCtx"),
 		mock.AnythingOfType("*stock.StockId"),
-	).Return(mockPlasmid(), nil).On(
+	).Return(mockPlasmidWithParams("kenny@bania.com"), nil).On(
 		"GetStrain",
 		mock.AnythingOfType("*context.emptyCtx"),
 		&stock.StockId{Id: "DBS987654"},
-	).Return(mockParentStrain(), nil).On(
+	).Return(mockStrainWithParams("kenny@bania.com", "DBS987654"), nil).On(
 		"GetStrain",
 		mock.AnythingOfType("*context.emptyCtx"),
 		&stock.StockId{Id: "DBS123456"},
-	).Return(mockStrain(), nil).On(
+	).Return(MockStrain(), nil).On(
 		"GetStrain",
 		mock.AnythingOfType("*context.emptyCtx"),
 		&stock.StockId{Id: "DBS000001"},
-	).Return(mockStrain(), nil).On(
+	).Return(MockStrain(), nil).On(
 		"GetStrain",
 		mock.AnythingOfType("*context.emptyCtx"),
 		&stock.StockId{Id: "DBS000002"},
-	).Return(mockStrain(), nil).On(
+	).Return(MockStrain(), nil).On(
 		"ListStrains",
 		mock.AnythingOfType("*context.emptyCtx"),
 		mock.AnythingOfType("*stock.StockParameters"),
@@ -204,11 +227,11 @@ func MockedStockClient() *clients.StockServiceClient {
 		"CreateStrain",
 		mock.AnythingOfType("*context.emptyCtx"),
 		mock.AnythingOfType("*stock.NewStrain"),
-	).Return(mockStrain(), nil).On(
+	).Return(mockStrainWithParams("kenny@bania.com", "DBS987654"), nil).On(
 		"CreatePlasmid",
 		mock.AnythingOfType("*context.emptyCtx"),
 		mock.AnythingOfType("*stock.NewPlasmid"),
-	).Return(mockPlasmid(), nil).On(
+	).Return(mockPlasmidWithParams("kenny@bania.com"), nil).On(
 		"UpdatePlasmid",
 		mock.AnythingOfType("*context.emptyCtx"),
 		mock.AnythingOfType("*stock.PlasmidUpdate"),
