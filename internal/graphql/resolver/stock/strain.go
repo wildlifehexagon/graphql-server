@@ -34,7 +34,7 @@ func (r *StrainResolver) CreatedBy(ctx context.Context, obj *models.Strain) (*us
 	u, err := getUserByEmail(ctx, r.UserClient, obj.CreatedBy)
 	if err != nil {
 		r.Logger.Error(err)
-		return &user.User{}, err
+		return newUser(), err
 	}
 	return u, nil
 }
@@ -43,18 +43,18 @@ func (r *StrainResolver) UpdatedBy(ctx context.Context, obj *models.Strain) (*us
 	u, err := getUserByEmail(ctx, r.UserClient, obj.UpdatedBy)
 	if err != nil {
 		r.Logger.Error(err)
-		return &user.User{}, err
+		return newUser(), err
 	}
 	return u, nil
 }
 
 func (r *StrainResolver) Depositor(ctx context.Context, obj *models.Strain) (*user.User, error) {
-	u, err := getUserByEmail(ctx, r.UserClient, *obj.Depositor)
+	d, err := getUserByEmail(ctx, r.UserClient, *obj.Depositor)
 	if err != nil {
 		r.Logger.Error(err)
-		return &user.User{}, err
+		return newUser(), nil
 	}
-	return u, nil
+	return d, nil
 }
 
 func (r *StrainResolver) Genes(ctx context.Context, obj *models.Strain) ([]*models.Gene, error) {
@@ -366,30 +366,36 @@ func sliceConverter(s []string) []*string {
 }
 
 func getUserByEmail(ctx context.Context, uc user.UserServiceClient, email string) (*user.User, error) {
+	u := &user.User{}
+	if email == "" {
+		return u, fmt.Errorf("got an empty email address %s", email)
+	}
 	g, err := uc.GetUserByEmail(ctx, &jsonapi.GetEmailRequest{Email: email})
 	if err != nil {
-		errorutils.AddGQLError(ctx, err)
-		// return empty user to prevent panic errors when a query asks for a
-		// certain property
-		return &user.User{
-			Data: &user.UserData{
-				Attributes: &user.UserAttributes{
-					FirstName:     "",
-					LastName:      "",
-					Email:         "",
-					Organization:  "",
-					GroupName:     "",
-					FirstAddress:  "",
-					SecondAddress: "",
-					City:          "",
-					State:         "",
-					Zipcode:       "",
-					Country:       "",
-					Phone:         "",
-					IsActive:      false,
-				},
-			},
-		}, err
+		errorutils.AddGQLError(ctx, fmt.Errorf("could not find user with email %s", email))
+		return u, err
 	}
 	return g, nil
+}
+
+func newUser() *user.User {
+	return &user.User{
+		Data: &user.UserData{
+			Attributes: &user.UserAttributes{
+				FirstName:     "",
+				LastName:      "",
+				Email:         "",
+				Organization:  "",
+				GroupName:     "",
+				FirstAddress:  "",
+				SecondAddress: "",
+				City:          "",
+				State:         "",
+				Zipcode:       "",
+				Country:       "",
+				Phone:         "",
+				IsActive:      false,
+			},
+		},
+	}
 }
