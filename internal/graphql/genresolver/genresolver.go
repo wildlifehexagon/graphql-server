@@ -377,11 +377,11 @@ func (r *queryResolver) ListPlasmids(ctx context.Context, cursor *int, limit *in
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.StrainListWithCursor, error) {
+func (r *queryResolver) ListStrainsWithAnnotation(ctx context.Context, input *models.ListStockAnnotationInput) (*models.StrainListWithCursor, error) {
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListPlasmidsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.PlasmidListWithCursor, error) {
+func (r *queryResolver) ListPlasmidsWithAnnotation(ctx context.Context, input *models.ListStockAnnotationInput) (*models.PlasmidListWithCursor, error) {
 	panic("not implemented")
 }
 

@@ -176,6 +176,14 @@ type Identity struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
+type ListStockAnnotationInput struct {
+	Cursor     *int    `json:"cursor"`
+	Limit      *int    `json:"limit"`
+	Filter     *string `json:"filter"`
+	Type       string  `json:"type"`
+	Annotation string  `json:"annotation"`
+}
+
 type LoginInput struct {
 	ClientID    string `json:"client_id"`
 	State       string `json:"state"`

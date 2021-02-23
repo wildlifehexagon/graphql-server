@@ -291,10 +291,10 @@ type ComplexityRoot struct {
 		ListOrganisms              func(childComplexity int) int
 		ListPermissions            func(childComplexity int) int
 		ListPlasmids               func(childComplexity int, cursor *int, limit *int, filter *string) int
-		ListPlasmidsWithAnnotation func(childComplexity int, cursor *int, limit *int, typeArg string, annotation string) int
+		ListPlasmidsWithAnnotation func(childComplexity int, input *models.ListStockAnnotationInput) int
 		ListRoles                  func(childComplexity int) int
 		ListStrains                func(childComplexity int, cursor *int, limit *int, filter *string) int
-		ListStrainsWithAnnotation  func(childComplexity int, cursor *int, limit *int, typeArg string, annotation string) int
+		ListStrainsWithAnnotation  func(childComplexity int, input *models.ListStockAnnotationInput) int
 		ListUsers                  func(childComplexity int, pagenum string, pagesize string, filter string) int
 		Order                      func(childComplexity int, id string) int
 		Organism                   func(childComplexity int, taxonID string) int
@@ -498,8 +498,8 @@ type QueryResolver interface {
 	Strain(ctx context.Context, id string) (*models.Strain, error)
 	ListStrains(ctx context.Context, cursor *int, limit *int, filter *string) (*models.StrainListWithCursor, error)
 	ListPlasmids(ctx context.Context, cursor *int, limit *int, filter *string) (*models.PlasmidListWithCursor, error)
-	ListStrainsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.StrainListWithCursor, error)
-	ListPlasmidsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.PlasmidListWithCursor, error)
+	ListStrainsWithAnnotation(ctx context.Context, input *models.ListStockAnnotationInput) (*models.StrainListWithCursor, error)
+	ListPlasmidsWithAnnotation(ctx context.Context, input *models.ListStockAnnotationInput) (*models.PlasmidListWithCursor, error)
 	User(ctx context.Context, id string) (*user.User, error)
 	UserByEmail(ctx context.Context, email string) (*user.User, error)
 	ListUsers(ctx context.Context, pagenum string, pagesize string, filter string) (*models.UserList, error)
@@ -1791,7 +1791,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListPlasmidsWithAnnotation(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["type"].(string), args["annotation"].(string)), true
+		return e.complexity.Query.ListPlasmidsWithAnnotation(childComplexity, args["input"].(*models.ListStockAnnotationInput)), true
 
 	case "Query.listRoles":
 		if e.complexity.Query.ListRoles == nil {
@@ -1822,7 +1822,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListStrainsWithAnnotation(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["type"].(string), args["annotation"].(string)), true
+		return e.complexity.Query.ListStrainsWithAnnotation(childComplexity, args["input"].(*models.ListStockAnnotationInput)), true
 
 	case "Query.listUsers":
 		if e.complexity.Query.ListUsers == nil {
@@ -2709,16 +2709,10 @@ type Author {
   listStrains(cursor: Int, limit: Int, filter: String): StrainListWithCursor
   listPlasmids(cursor: Int, limit: Int, filter: String): PlasmidListWithCursor
   listStrainsWithAnnotation(
-    cursor: Int
-    limit: Int
-    type: String!
-    annotation: String!
+    input: ListStockAnnotationInput
   ): StrainListWithCursor
   listPlasmidsWithAnnotation(
-    cursor: Int
-    limit: Int
-    type: String!
-    annotation: String!
+    input: ListStockAnnotationInput
   ): PlasmidListWithCursor
   # User queries
   user(id: ID!): User
@@ -2909,6 +2903,14 @@ input UpdatePlasmidInput {
   in_stock: Boolean
   keywords: [String]
   genbank_accession: String
+}
+
+input ListStockAnnotationInput {
+  cursor: Int
+  limit: Int
+  filter: String
+  type: String!
+  annotation: String!
 }
 `, BuiltIn: false},
 	{Name: "api/user.graphql", Input: `type Permission {
@@ -3541,42 +3543,15 @@ func (ec *executionContext) field_Query_listOrders_args(ctx context.Context, raw
 func (ec *executionContext) field_Query_listPlasmidsWithAnnotation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["cursor"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+	var arg0 *models.ListStockAnnotationInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOListStockAnnotationInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockAnnotationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["cursor"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["type"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["type"] = arg2
-	var arg3 string
-	if tmp, ok := rawArgs["annotation"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("annotation"))
-		arg3, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["annotation"] = arg3
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -3616,42 +3591,15 @@ func (ec *executionContext) field_Query_listPlasmids_args(ctx context.Context, r
 func (ec *executionContext) field_Query_listStrainsWithAnnotation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["cursor"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+	var arg0 *models.ListStockAnnotationInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOListStockAnnotationInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockAnnotationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["cursor"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["type"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["type"] = arg2
-	var arg3 string
-	if tmp, ok := rawArgs["annotation"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("annotation"))
-		arg3, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["annotation"] = arg3
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -9441,7 +9389,7 @@ func (ec *executionContext) _Query_listStrainsWithAnnotation(ctx context.Context
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListStrainsWithAnnotation(rctx, args["cursor"].(*int), args["limit"].(*int), args["type"].(string), args["annotation"].(string))
+		return ec.resolvers.Query().ListStrainsWithAnnotation(rctx, args["input"].(*models.ListStockAnnotationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9480,7 +9428,7 @@ func (ec *executionContext) _Query_listPlasmidsWithAnnotation(ctx context.Contex
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListPlasmidsWithAnnotation(rctx, args["cursor"].(*int), args["limit"].(*int), args["type"].(string), args["annotation"].(string))
+		return ec.resolvers.Query().ListPlasmidsWithAnnotation(rctx, args["input"].(*models.ListStockAnnotationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13463,6 +13411,58 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_active"))
 			it.IsActive, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputListStockAnnotationInput(ctx context.Context, obj interface{}) (models.ListStockAnnotationInput, error) {
+	var it models.ListStockAnnotationInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "cursor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+			it.Cursor, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "limit":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "filter":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+			it.Filter, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "annotation":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("annotation"))
+			it.Annotation, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17953,6 +17953,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return graphql.MarshalInt(*v)
+}
+
+func (ec *executionContext) unmarshalOListStockAnnotationInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐListStockAnnotationInput(ctx context.Context, v interface{}) (*models.ListStockAnnotationInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputListStockAnnotationInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOLoginInput2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (*models.LoginInput, error) {

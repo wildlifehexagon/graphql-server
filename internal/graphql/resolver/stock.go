@@ -292,15 +292,15 @@ func (q *QueryResolver) ListPlasmids(ctx context.Context, cursor *int, limit *in
 	}, nil
 }
 
-func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.StrainListWithCursor, error) {
+func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, input *models.ListStockAnnotationInput) (*models.StrainListWithCursor, error) {
 	strains := []*models.Strain{}
-	c := getCursor(cursor)
-	l := getLimit(limit)
-	o := getOntology(typeArg)
+	c := getCursor(input.Cursor)
+	l := getLimit(input.Limit)
+	o := getOntology(input.Type)
 	a, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &anno.ListParameters{
 		Cursor: c,
 		Limit:  l,
-		Filter: fmt.Sprintf("ontology==%s;tag==%s", o, annotation),
+		Filter: fmt.Sprintf("ontology==%s;tag==%s", o, input.Annotation),
 	})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
@@ -330,15 +330,15 @@ func (q *QueryResolver) ListStrainsWithAnnotation(ctx context.Context, cursor *i
 	}, nil
 }
 
-func (q *QueryResolver) ListPlasmidsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.PlasmidListWithCursor, error) {
+func (q *QueryResolver) ListPlasmidsWithAnnotation(ctx context.Context, input *models.ListStockAnnotationInput) (*models.PlasmidListWithCursor, error) {
 	plasmids := []*models.Plasmid{}
-	c := getCursor(cursor)
-	l := getLimit(limit)
-	o := getOntology(typeArg)
+	c := getCursor(input.Cursor)
+	l := getLimit(input.Limit)
+	o := getOntology(input.Type)
 	a, err := q.GetAnnotationClient(registry.ANNOTATION).ListAnnotations(ctx, &anno.ListParameters{
 		Cursor: c,
 		Limit:  l,
-		Filter: fmt.Sprintf("ontology==%s;tag==%s", o, annotation),
+		Filter: fmt.Sprintf("ontology==%s;tag==%s", o, input.Annotation),
 	})
 	if err != nil {
 		errorutils.AddGQLError(ctx, err)
