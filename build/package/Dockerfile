@@ -1,4 +1,4 @@
-FROM golang:1.13.8-buster
+FROM golang:1.16.0-alpine3.13
 LABEL maintainer="Eric Hartline <eric.hartline@northwestern.edu>"
 LABEL maintainer="Siddhartha Basu <siddhartha-basu@northwestern.edu>"
 ENV GOPROXY https://proxy.golang.org

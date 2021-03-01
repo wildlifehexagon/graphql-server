@@ -15,7 +15,7 @@ jobs:
       - name: set up golang
         uses: actions/setup-go@v2
         with:
-          go-version: 1.13.15
+          go-version: 1.16
       - name: check out code
         uses: actions/checkout@v2
       - name: unit test
