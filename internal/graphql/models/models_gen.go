@@ -220,6 +220,14 @@ type PlasmidListWithCursor struct {
 	TotalCount     int        `json:"totalCount"`
 }
 
+type StrainListFilter struct {
+	Label      *string         `json:"label"`
+	Summary    *string         `json:"summary"`
+	ID         *string         `json:"id"`
+	InStock    *bool           `json:"in_stock"`
+	StrainType *StrainTypeEnum `json:"strain_type"`
+}
+
 type StrainListWithCursor struct {
 	Strains        []*Strain `json:"strains"`
 	NextCursor     int       `json:"nextCursor"`
@@ -363,5 +371,50 @@ func (e *StatusEnum) UnmarshalGQL(v interface{}) error {
 }
 
 func (e StatusEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StrainTypeEnum string
+
+const (
+	StrainTypeEnumAll       StrainTypeEnum = "ALL"
+	StrainTypeEnumRegular   StrainTypeEnum = "REGULAR"
+	StrainTypeEnumGwdi      StrainTypeEnum = "GWDI"
+	StrainTypeEnumBacterial StrainTypeEnum = "BACTERIAL"
+)
+
+var AllStrainTypeEnum = []StrainTypeEnum{
+	StrainTypeEnumAll,
+	StrainTypeEnumRegular,
+	StrainTypeEnumGwdi,
+	StrainTypeEnumBacterial,
+}
+
+func (e StrainTypeEnum) IsValid() bool {
+	switch e {
+	case StrainTypeEnumAll, StrainTypeEnumRegular, StrainTypeEnumGwdi, StrainTypeEnumBacterial:
+		return true
+	}
+	return false
+}
+
+func (e StrainTypeEnum) String() string {
+	return string(e)
+}
+
+func (e *StrainTypeEnum) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StrainTypeEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StrainTypeEnum", str)
+	}
+	return nil
+}
+
+func (e StrainTypeEnum) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

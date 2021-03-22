@@ -369,7 +369,7 @@ func (r *queryResolver) Strain(ctx context.Context, id string) (*models.Strain, 
 	panic("not implemented")
 }
 
-func (r *queryResolver) ListStrains(ctx context.Context, cursor *int, limit *int, filter *string) (*models.StrainListWithCursor, error) {
+func (r *queryResolver) ListStrains(ctx context.Context, cursor *int, limit *int, filter *models.StrainListFilter) (*models.StrainListWithCursor, error) {
 	panic("not implemented")
 }
 

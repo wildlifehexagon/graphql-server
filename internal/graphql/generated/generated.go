@@ -293,7 +293,7 @@ type ComplexityRoot struct {
 		ListPlasmids               func(childComplexity int, cursor *int, limit *int, filter *string) int
 		ListPlasmidsWithAnnotation func(childComplexity int, cursor *int, limit *int, typeArg string, annotation string) int
 		ListRoles                  func(childComplexity int) int
-		ListStrains                func(childComplexity int, cursor *int, limit *int, filter *string) int
+		ListStrains                func(childComplexity int, cursor *int, limit *int, filter *models.StrainListFilter) int
 		ListStrainsWithAnnotation  func(childComplexity int, cursor *int, limit *int, typeArg string, annotation string) int
 		ListUsers                  func(childComplexity int, pagenum string, pagesize string, filter string) int
 		Order                      func(childComplexity int, id string) int
@@ -496,7 +496,7 @@ type QueryResolver interface {
 	Publication(ctx context.Context, id string) (*publication.Publication, error)
 	Plasmid(ctx context.Context, id string) (*models.Plasmid, error)
 	Strain(ctx context.Context, id string) (*models.Strain, error)
-	ListStrains(ctx context.Context, cursor *int, limit *int, filter *string) (*models.StrainListWithCursor, error)
+	ListStrains(ctx context.Context, cursor *int, limit *int, filter *models.StrainListFilter) (*models.StrainListWithCursor, error)
 	ListPlasmids(ctx context.Context, cursor *int, limit *int, filter *string) (*models.PlasmidListWithCursor, error)
 	ListStrainsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.StrainListWithCursor, error)
 	ListPlasmidsWithAnnotation(ctx context.Context, cursor *int, limit *int, typeArg string, annotation string) (*models.PlasmidListWithCursor, error)
@@ -1810,7 +1810,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ListStrains(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string)), true
+		return e.complexity.Query.ListStrains(childComplexity, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*models.StrainListFilter)), true
 
 	case "Query.listStrainsWithAnnotation":
 		if e.complexity.Query.ListStrainsWithAnnotation == nil {
@@ -2706,7 +2706,11 @@ type Author {
   # Stock queries
   plasmid(id: ID!): Plasmid
   strain(id: ID!): Strain
-  listStrains(cursor: Int, limit: Int, filter: String): StrainListWithCursor
+  listStrains(
+    cursor: Int
+    limit: Int
+    filter: StrainListFilter
+  ): StrainListWithCursor
   listPlasmids(cursor: Int, limit: Int, filter: String): PlasmidListWithCursor
   listStrainsWithAnnotation(
     cursor: Int
@@ -2909,6 +2913,21 @@ input UpdatePlasmidInput {
   in_stock: Boolean
   keywords: [String]
   genbank_accession: String
+}
+
+enum StrainTypeEnum {
+  ALL
+  REGULAR
+  GWDI
+  BACTERIAL
+}
+
+input StrainListFilter {
+  label: String
+  summary: String
+  id: ID
+  in_stock: Boolean
+  strain_type: StrainTypeEnum
 }
 `, BuiltIn: false},
 	{Name: "api/user.graphql", Input: `type Permission {
@@ -3676,10 +3695,10 @@ func (ec *executionContext) field_Query_listStrains_args(ctx context.Context, ra
 		}
 	}
 	args["limit"] = arg1
-	var arg2 *string
+	var arg2 *models.StrainListFilter
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg2, err = ec.unmarshalOStrainListFilter2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainListFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9363,7 +9382,7 @@ func (ec *executionContext) _Query_listStrains(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ListStrains(rctx, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*string))
+		return ec.resolvers.Query().ListStrains(rctx, args["cursor"].(*int), args["limit"].(*int), args["filter"].(*models.StrainListFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13523,6 +13542,58 @@ func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj in
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("redirect_url"))
 			it.RedirectURL, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStrainListFilter(ctx context.Context, obj interface{}) (models.StrainListFilter, error) {
+	var it models.StrainListFilter
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "label":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("label"))
+			it.Label, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "summary":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("summary"))
+			it.Summary, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "in_stock":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in_stock"))
+			it.InStock, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "strain_type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strain_type"))
+			it.StrainType, err = ec.unmarshalOStrainTypeEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17940,6 +18011,21 @@ func (ec *executionContext) marshalOGene2ᚖgithubᚗcomᚋdictyBaseᚋgraphql�
 	return ec._Gene(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalID(*v)
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
 	if v == nil {
 		return nil, nil
@@ -18303,11 +18389,35 @@ func (ec *executionContext) marshalOStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphql
 	return ec._Strain(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOStrainListFilter2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainListFilter(ctx context.Context, v interface{}) (*models.StrainListFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputStrainListFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOStrainListWithCursor2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainListWithCursor(ctx context.Context, sel ast.SelectionSet, v *models.StrainListWithCursor) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._StrainListWithCursor(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOStrainTypeEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx context.Context, v interface{}) (*models.StrainTypeEnum, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(models.StrainTypeEnum)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOStrainTypeEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx context.Context, sel ast.SelectionSet, v *models.StrainTypeEnum) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
