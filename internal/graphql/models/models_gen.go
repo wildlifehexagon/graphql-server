@@ -221,11 +221,11 @@ type PlasmidListWithCursor struct {
 }
 
 type StrainListFilter struct {
-	Label      *string         `json:"label"`
-	Summary    *string         `json:"summary"`
-	ID         *string         `json:"id"`
-	InStock    *bool           `json:"in_stock"`
-	StrainType *StrainTypeEnum `json:"strain_type"`
+	Label      *string        `json:"label"`
+	Summary    *string        `json:"summary"`
+	ID         *string        `json:"id"`
+	InStock    *bool          `json:"in_stock"`
+	StrainType StrainTypeEnum `json:"strain_type"`
 }
 
 type StrainListWithCursor struct {

@@ -2927,7 +2927,7 @@ input StrainListFilter {
   summary: String
   id: ID
   in_stock: Boolean
-  strain_type: StrainTypeEnum
+  strain_type: StrainTypeEnum!
 }
 `, BuiltIn: false},
 	{Name: "api/user.graphql", Input: `type Permission {
@@ -13593,7 +13593,7 @@ func (ec *executionContext) unmarshalInputStrainListFilter(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("strain_type"))
-			it.StrainType, err = ec.unmarshalOStrainTypeEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx, v)
+			it.StrainType, err = ec.unmarshalNStrainTypeEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17330,6 +17330,16 @@ func (ec *executionContext) marshalNStrain2ᚖgithubᚗcomᚋdictyBaseᚋgraphql
 	return ec._Strain(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNStrainTypeEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx context.Context, v interface{}) (models.StrainTypeEnum, error) {
+	var res models.StrainTypeEnum
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStrainTypeEnum2githubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx context.Context, sel ast.SelectionSet, v models.StrainTypeEnum) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -18402,22 +18412,6 @@ func (ec *executionContext) marshalOStrainListWithCursor2ᚖgithubᚗcomᚋdicty
 		return graphql.Null
 	}
 	return ec._StrainListWithCursor(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOStrainTypeEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx context.Context, v interface{}) (*models.StrainTypeEnum, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(models.StrainTypeEnum)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOStrainTypeEnum2ᚖgithubᚗcomᚋdictyBaseᚋgraphqlᚑserverᚋinternalᚋgraphqlᚋmodelsᚐStrainTypeEnum(ctx context.Context, sel ast.SelectionSet, v *models.StrainTypeEnum) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
