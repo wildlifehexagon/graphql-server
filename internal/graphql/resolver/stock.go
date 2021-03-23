@@ -239,6 +239,9 @@ func (q *QueryResolver) Strain(ctx context.Context, id string) (*models.Strain, 
 }
 
 func (q *QueryResolver) ListStrains(ctx context.Context, cursor *int, limit *int, filter *models.StrainListFilter) (*models.StrainListWithCursor, error) {
+	// 1. need to use filter.StrainType to get a list of IDs of a given stock type
+	// 2. check the value of InStock
+	// 3. convert label/summary/ID into a filter string to pass in stock backend method
 	panic("not implemented")
 }
 
