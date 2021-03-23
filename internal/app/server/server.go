@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dictyBase/graphql-server/internal/app/middleware"
+	"github.com/dictyBase/graphql-server/internal/graphql/dataloader"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver"
 	"github.com/dictyBase/graphql-server/internal/registry"
@@ -65,6 +66,7 @@ func RunGraphQLServer(c *cli.Context) error {
 	crs := getCORS(c.StringSlice("allowed-origin"))
 	r.Use(crs.Handler)
 	r.Use(middleware.AuthMiddleWare)
+	r.Use(dataloader.DataloaderMiddleware(nr))
 	execSchema := generated.NewExecutableSchema(generated.Config{Resolvers: s})
 	srv := handler.NewDefaultServer(execSchema)
 	r.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
