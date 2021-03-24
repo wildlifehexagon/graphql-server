@@ -1,6 +1,6 @@
 package dataloader
 
-//go:generate go run github.com/vektah/dataloaden StrainLoader string '*github.com/dictyBase/graphql-server/internal/graphql/models.Strain'
+//go:generate go run github.com/vektah/dataloaden StrainLoader string *github.com/dictyBase/graphql-server/internal/graphql/models.Strain
 
 import (
 	"context"
