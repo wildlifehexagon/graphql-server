@@ -1,5 +1,7 @@
 package dataloader
 
+//go:generate go run github.com/vektah/dataloaden StrainLoader string '*github.com/dictyBase/graphql-server/internal/graphql/models.Strain'
+
 import (
 	"context"
 	"time"
@@ -20,6 +22,24 @@ func newLoaders(ctx context.Context, nr registry.Registry) *Loaders {
 	return &Loaders{
 		StrainById: newStrainById(ctx, nr),
 	}
+}
+
+// Retriever retrieves dataloaders from the request context.
+type Retriever interface {
+	Retrieve(context.Context) *Loaders
+}
+
+type retriever struct {
+	key contextKey
+}
+
+func (r *retriever) Retrieve(ctx context.Context) *Loaders {
+	return ctx.Value(r.key).(*Loaders)
+}
+
+// NewRetriever instantiates a new implementation of Retriever.
+func NewRetriever() Retriever {
+	return &retriever{key: key}
 }
 
 func newStrainById(ctx context.Context, nr registry.Registry) *StrainLoader {

@@ -2,6 +2,7 @@
 package resolver
 
 import (
+	"github.com/dictyBase/graphql-server/internal/graphql/dataloader"
 	"github.com/dictyBase/graphql-server/internal/graphql/generated"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/auth"
 	"github.com/dictyBase/graphql-server/internal/graphql/resolver/content"
@@ -17,7 +18,8 @@ import (
 
 type Resolver struct {
 	registry.Registry
-	Logger *logrus.Entry
+	Dataloaders dataloader.Retriever
+	Logger      *logrus.Entry
 }
 
 type MutationResolver struct {
@@ -27,11 +29,12 @@ type MutationResolver struct {
 
 type QueryResolver struct {
 	registry.Registry
-	Logger *logrus.Entry
+	Dataloaders dataloader.Retriever
+	Logger      *logrus.Entry
 }
 
-func NewResolver(nr registry.Registry, l *logrus.Entry) *Resolver {
-	return &Resolver{Registry: nr, Logger: l}
+func NewResolver(nr registry.Registry, dl dataloader.Retriever, l *logrus.Entry) *Resolver {
+	return &Resolver{Registry: nr, Dataloaders: dl, Logger: l}
 }
 
 func (r *Resolver) Mutation() generated.MutationResolver {
@@ -42,8 +45,9 @@ func (r *Resolver) Mutation() generated.MutationResolver {
 }
 func (r *Resolver) Query() generated.QueryResolver {
 	return &QueryResolver{
-		Registry: r.Registry,
-		Logger:   r.Logger,
+		Registry:    r.Registry,
+		Dataloaders: r.Dataloaders,
+		Logger:      r.Logger,
 	}
 }
 func (r *Resolver) User() generated.UserResolver {

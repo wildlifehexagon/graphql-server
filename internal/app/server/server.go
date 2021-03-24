@@ -62,7 +62,9 @@ func RunGraphQLServer(c *cli.Context) error {
 		)
 	}
 	nr.AddRepository("redis", cache)
-	s := resolver.NewResolver(nr, log)
+	// initialize the dataloaders
+	dl := dataloader.NewRetriever()
+	s := resolver.NewResolver(nr, dl, log)
 	crs := getCORS(c.StringSlice("allowed-origin"))
 	r.Use(crs.Handler)
 	r.Use(middleware.AuthMiddleWare)
