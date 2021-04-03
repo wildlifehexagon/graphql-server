@@ -12,7 +12,7 @@ require (
 	github.com/go-chi/cors v1.2.0
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/golang/protobuf v1.5.1
+	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway v1.12.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
