@@ -33,6 +33,7 @@ func (w *authResponseWriter) Write(b []byte) (int, error) {
 			HttpOnly: true,
 			Expires:  time.Unix(0, 0), // expired
 			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
 		})
 	}
 	if w.Identifier == "login" {
@@ -42,6 +43,7 @@ func (w *authResponseWriter) Write(b []byte) (int, error) {
 			HttpOnly: true,
 			Expires:  time.Now().AddDate(0, 1, 0), // one month
 			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
 		})
 	}
 	return w.ResponseWriter.Write(b)
