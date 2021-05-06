@@ -44,24 +44,24 @@ func main() {
 	}
 	defer cleanup(apath)
 	client := github.NewClient(nil)
-	_, files, _, err := client.Repositories.GetContents(ctx, "dictyBase", "graphql-schema", "/", nil)
+	_, files, _, err := client.Repositories.GetContents(ctx, "dictyBase", "graphql-schema", "/src/schema", nil)
 	if err != nil {
-		log.Fatalf("error in getting graphql schema", err)
+		log.Fatalf("error in getting graphql schema %s", err)
 	}
 	for _, n := range files {
-		file, _, _, err := client.Repositories.GetContents(ctx, "dictyBase", "graphql-schema", n.GetName(), nil)
+		file, _, _, err := client.Repositories.GetContents(ctx, "dictyBase", "graphql-schema", fmt.Sprintf("/src/schema/%s", n.GetName()), nil)
 		if err != nil {
-			log.Fatalf("error in getting individual schema file", err)
+			log.Fatalf("error in getting individual schema file %s", err)
 		}
 		// need to decode file contents
 		d, err := base64.StdEncoding.DecodeString(*file.Content)
 		if err != nil {
-			log.Fatalf("error decoding github file contents", err)
+			log.Fatalf("error decoding github file contents %s", err)
 		}
 		fp := filepath.Join(apath, file.GetName())
 		err = ioutil.WriteFile(fp, d, 0777)
 		if err != nil {
-			log.Fatalf("error writing file", err)
+			log.Fatalf("error writing file %s", err)
 		}
 		fmt.Printf("successfully wrote file %s\n", fp)
 	}
